@@ -1,27 +1,24 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Ollama } from 'ollama-node';
 
 @Injectable()
 export class Gadacz1Service implements OnModuleInit {
 
-
+  private readonly logger: Logger = new Logger(Gadacz1Service.name);
   private ollama: Ollama = new Ollama();
-
 
   async onModuleInit() {
     await this.ollama.setModel('gemma2:9b');
     this.ollama.setSystemPrompt(process.env.OLLAMA_PROMPT);
+    this.logger.log("Gadacz1 ready to talk.");
+  }
 
-    const print = (word: string) => {
-      process.stdout.write(word);
-    }
+  public prompt = async (prompt: string) => {
+    const response = await this.ollama.generate(prompt);
+    this.ollama.setContext(response.stats.context);
+    this.logger.log(response.output.toString().replaceAll('\n', ""));
 
-    // const g1 = this.ollama.streamingGenerate("Why is sky blue?", print);
-    // const g2 = this.ollama.streamingGenerate("o co pytałem Cię wcześniej?", print);
-
-    // await Promise.all([g1, g2]);
-
-    console.log("-------------------------------------------------");
+    return response.output;
   }
 
 }

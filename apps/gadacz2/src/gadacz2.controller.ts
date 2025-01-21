@@ -1,12 +1,18 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { Gadacz2Service } from './gadacz2.service';
 
 @Controller()
 export class Gadacz2Controller {
-  constructor(private readonly gadacz2Service: Gadacz2Service) {}
 
-  @Get()
-  getHello(): string {
-    return this.gadacz2Service.getHello();
+  constructor(
+    private readonly gadacz1Service: Gadacz2Service,
+  ) { }
+
+  @Post('listen')
+  public async listenYourFriend(
+    @Body() body: { prompt: string }
+  ) {
+    return await this.gadacz1Service.prompt(body.prompt);
   }
+
 }

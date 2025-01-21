@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { Gadacz2Controller } from './gadacz2.controller';
 import { Gadacz2Service } from './gadacz2.service';
+import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [],
+  imports: [
+    HttpModule,
+    ConfigModule.forRoot({ isGlobal: true })
+  ],
   controllers: [Gadacz2Controller],
   providers: [Gadacz2Service],
 })
-export class Gadacz2Module {}
+export class Gadacz2Module { }
