@@ -6,7 +6,10 @@ import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
-    HttpModule,
+    HttpModule.register({
+      timeout: 600000,
+      maxRedirects: 128
+    }),
     ConfigModule.forRoot({ isGlobal: true })]
   ,
   controllers: [Gadacz1Controller],
