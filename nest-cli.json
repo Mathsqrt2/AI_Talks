@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/rozmawiacz/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/rozmawiacz/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/rozmawiacz",
+  "projects": {
+    "rozmawiacz": {
+      "type": "application",
+      "root": "apps/rozmawiacz",
+      "entryFile": "main",
+      "sourceRoot": "apps/rozmawiacz/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/rozmawiacz/tsconfig.app.json"
+      }
+    },
+    "gadacz1": {
+      "type": "application",
+      "root": "apps/gadacz1",
+      "entryFile": "main",
+      "sourceRoot": "apps/gadacz1/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gadacz1/tsconfig.app.json"
+      }
+    },
+    "gadacz2": {
+      "type": "application",
+      "root": "apps/gadacz2",
+      "entryFile": "main",
+      "sourceRoot": "apps/gadacz2/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gadacz2/tsconfig.app.json"
+      }
+    }
+  }
+}
