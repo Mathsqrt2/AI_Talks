@@ -1,6 +1,8 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
     OLLAMA_PROMPT: string;
+    OLLAMA_PROMPT1: string;
+    OLLAMA_PROMPT2: string;
     HOST1: string;
     HOST2: string;
 

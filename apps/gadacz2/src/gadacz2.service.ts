@@ -2,7 +2,6 @@ import * as TelegramBot from "node-telegram-bot-api";
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Ollama } from 'ollama-node';
-import { first, firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class Gadacz2Service implements OnModuleInit {
@@ -10,7 +9,7 @@ export class Gadacz2Service implements OnModuleInit {
   private bot: TelegramBot;
   private readonly logger: Logger = new Logger(Gadacz2Service.name);
   private ollama: Ollama = new Ollama();
-  private readonly maxContextSize: number = 512;
+  private readonly maxContextSize: number = 2048;
 
   constructor(
     private readonly http: HttpService,
@@ -20,7 +19,7 @@ export class Gadacz2Service implements OnModuleInit {
     this.bot = new TelegramBot(process.env.TOKEN2, { polling: true });
     await this.ollama.setModel('gemma2:9b');
 
-    this.ollama.setSystemPrompt(process.env.OLLAMA_PROMPT2);
+    this.ollama.setSystemPrompt(process.env.OLLAMA_PROMPT);
     this.logger.log("Gadacz2 ready to talk.");
   }
 
@@ -39,7 +38,7 @@ export class Gadacz2Service implements OnModuleInit {
       const newResponse = response.output.toString().replaceAll('\n', "");
       this.bot.sendMessage(process.env.GROUP_CHAT_ID, newResponse);
 
-      await firstValueFrom(this.http.post(process.env.HOST1, { prompt: newResponse }).pipe(first()));
+      this.http.post(process.env.HOST1, { prompt: newResponse });
     } catch (err) {
       this.logger.error(`Przepełniony kontekst`);
     }
