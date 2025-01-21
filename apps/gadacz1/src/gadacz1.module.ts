@@ -7,7 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     HttpModule.register({
-      timeout: 600000,
+      timeout: 1200000,
       maxRedirects: 128
     }),
     ConfigModule.forRoot({ isGlobal: true })]
