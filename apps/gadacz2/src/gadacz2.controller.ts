@@ -14,7 +14,7 @@ export class Gadacz2Controller {
     @Body() body: { prompt: string },
     @Res() response: Response,
   ): Promise<void> {
-    await this.gadacz2Service.displayContext(body.prompt);
+    this.gadacz2Service.displayContext(body.prompt);
     response.sendStatus(200);
   }
 
@@ -24,7 +24,7 @@ export class Gadacz2Controller {
     @Res() response: Response,
   ): Promise<void> {
 
-    await this.gadacz2Service.prompt(body.prompt);
+    this.gadacz2Service.prompt(body.prompt);
     response.sendStatus(200);
   }
 }

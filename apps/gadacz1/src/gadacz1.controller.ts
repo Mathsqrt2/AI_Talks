@@ -9,13 +9,22 @@ export class Gadacz1Controller {
     private readonly gadacz1Service: Gadacz1Service,
   ) { }
 
+  @Post('init')
+  public async initConversation(
+    @Body() body: { prompt: string },
+    @Res() response: Response,
+  ): Promise<void> {
+    this.gadacz1Service.displayContext(body.prompt);
+    response.sendStatus(200);
+  }
+
   @Post('listen')
   public async listenYourFriend(
     @Body() body: { prompt: string },
     @Res() response: Response,
   ): Promise<void> {
 
-    await this.gadacz1Service.prompt(body.prompt);
+    this.gadacz1Service.prompt(body.prompt);
     response.sendStatus(200);
   }
 }

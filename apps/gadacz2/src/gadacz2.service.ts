@@ -13,12 +13,15 @@ export class Gadacz2Service implements OnModuleInit {
   private ollama: Ollama = new Ollama();
   private readonly maxContextSize: number = 1024;
   private index: number = 0;
+  private lastPrompt: string = ``;
 
   constructor(
     private readonly http: HttpService,
   ) { }
 
   public displayContext = async (prompt: string): Promise<void> => {
+    const spacer = `-----------------RESET PROMPTA-----------------`;
+    await this.bot.sendMessage(process.env.GROUP_CHAT_ID, spacer)
     await this.bot.sendMessage(process.env.GROUP_CHAT_ID, prompt);
     await firstValueFrom(this.http.post(process.env.HOST1, { prompt }).pipe(first()));
   }
@@ -27,7 +30,7 @@ export class Gadacz2Service implements OnModuleInit {
     this.bot = new TelegramBot(process.env.TOKEN2, { polling: true });
     await this.ollama.setModel('gemma2:9b');
 
-    this.ollama.setSystemPrompt(process.env.OLLAMA_PROMPT1);
+    this.ollama.setSystemPrompt(process.env.OLLAMA_PROMPT);
     this.logger.log("Gadacz2 ready to talk.");
   }
 
@@ -40,23 +43,26 @@ export class Gadacz2Service implements OnModuleInit {
 
   public prompt = async (prompt: string): Promise<void> => {
 
-    try {
-      const time = Date.now();
-      this.logger.log(`Rozpoczynam generowanie odpowiedzi ${this.index}.`);
+    const time = Date.now();
+    this.logger.log(`Rozpoczynam generowanie odpowiedzi ${this.index}.`);
+    this.lastPrompt = prompt;
 
+    try {
       const response = await this.ollama.generate(prompt);
       this.context.push(...response.stats.context);
       this.context = this.trimContext(this.context);
       this.ollama.setContext(this.context);
 
       const newResponse = response.output.toString().replaceAll('\n', "");
-      this.bot.sendMessage(process.env.GROUP_CHAT_ID, newResponse);
+      await this.bot.sendMessage(process.env.GROUP_CHAT_ID, newResponse);
 
-      await firstValueFrom(this.http.post(process.env.HOST1, { prompt: newResponse }).pipe(first()));
-      this.logger.log(`Zakończyłem generowanie odpowiedzi ${this.index++}. Czas trwania (${Date.now() - time})`)
+      await this.http.axiosRef.post(process.env.HOST1, { prompt: newResponse });
     } catch (err) {
       this.logger.error(`Przepełniony kontekst`);
+      await this.http.axiosRef.post(process.env.HOST1, { prompt: this.lastPrompt });
     }
+
+    this.logger.log(`Zakończyłem generowanie odpowiedzi ${this.index++}. Czas trwania (${Date.now() - time})`)
   }
 
 }
