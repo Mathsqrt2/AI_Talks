@@ -23,7 +23,7 @@ export class Gadacz1Service implements OnModuleInit {
     const spacer = `-----------------RESET PROMPTA-----------------`;
     await this.bot.sendMessage(process.env.GROUP_CHAT_ID, spacer)
     await this.bot.sendMessage(process.env.GROUP_CHAT_ID, process.env.INITIAL_PROMPT);
-    await firstValueFrom(this.http.post(process.env.HOST1, { prompt: process.env.INITIAL_PROMPT }).pipe(first()));
+    await this.http.axiosRef.post(process.env.HOST1, { prompt: process.env.INITIAL_PROMPT });
   }
 
   async onModuleInit() {
