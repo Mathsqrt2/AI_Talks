@@ -11,10 +11,9 @@ export class Gadacz1Controller {
 
   @Post('init')
   public async initConversation(
-    @Body() body: { prompt: string },
     @Res() response: Response,
   ): Promise<void> {
-    this.gadacz1Service.displayContext(body.prompt);
+    this.gadacz1Service.displayContext();
     response.sendStatus(200);
   }
 

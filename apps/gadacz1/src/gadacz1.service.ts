@@ -19,11 +19,11 @@ export class Gadacz1Service implements OnModuleInit {
     private readonly http: HttpService,
   ) { }
 
-  public displayContext = async (prompt: string): Promise<void> => {
+  public displayContext = async (): Promise<void> => {
     const spacer = `-----------------RESET PROMPTA-----------------`;
     await this.bot.sendMessage(process.env.GROUP_CHAT_ID, spacer)
-    await this.bot.sendMessage(process.env.GROUP_CHAT_ID, prompt);
-    await firstValueFrom(this.http.post(process.env.HOST1, { prompt }).pipe(first()));
+    await this.bot.sendMessage(process.env.GROUP_CHAT_ID, process.env.INITIAL_PROMPT);
+    await firstValueFrom(this.http.post(process.env.HOST1, { prompt: process.env.INITIAL_PROMPT }).pipe(first()));
   }
 
   async onModuleInit() {
@@ -48,10 +48,10 @@ export class Gadacz1Service implements OnModuleInit {
     this.lastPrompt = prompt;
 
     try {
+      this.ollama.setContext(this.trimContext([...this.context]));
       const response = await this.ollama.generate(prompt);
       this.context.push(...response.stats.context);
       this.context = this.trimContext(this.context);
-      this.ollama.setContext(this.context);
 
       const newResponse = response.output.toString().replaceAll('\n', "");
       await this.bot.sendMessage(process.env.GROUP_CHAT_ID, newResponse);

@@ -13,5 +13,6 @@ declare namespace NodeJS {
     TOKEN2: string;
 
     GROUP_CHAT_ID: string;
+    INITIAL_PROMPT: string;
   }
 }
