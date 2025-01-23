@@ -2,7 +2,6 @@ import * as TelegramBot from "node-telegram-bot-api";
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Ollama } from 'ollama-node';
-import { first, firstValueFrom } from "rxjs";
 
 @Injectable()
 export class Gadacz2Service implements OnModuleInit {
@@ -11,7 +10,7 @@ export class Gadacz2Service implements OnModuleInit {
   private context: number[] = [];
   private bot: TelegramBot;
   private ollama: Ollama = new Ollama();
-  private readonly maxContextSize: number = 1024;
+  private readonly maxContextSize: number = 2048;
   private index: number = 0;
   private lastPrompt: string = ``;
 
@@ -38,7 +37,7 @@ export class Gadacz2Service implements OnModuleInit {
     while (context.join(' ').length > this.maxContextSize) {
       context.shift();
     }
-    return context;
+    return context.map(n => Math.floor(n / 20));
   }
 
   public prompt = async (prompt: string): Promise<void> => {
@@ -48,10 +47,10 @@ export class Gadacz2Service implements OnModuleInit {
     this.lastPrompt = prompt;
 
     try {
-      this.ollama.setContext(this.trimContext([...this.context]));
       const response = await this.ollama.generate(prompt);
       this.context.push(...response.stats.context);
       this.context = this.trimContext(this.context);
+      this.ollama.setContext(this.context);
 
       const newResponse = response.output.toString().replaceAll('\n', "");
       await this.bot.sendMessage(process.env.GROUP_CHAT_ID, newResponse);
