@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 
-@WebSocketGateway(90)
+@WebSocketGateway()
 export class MessagesGateway {
 
     constructor() { }
@@ -12,6 +11,8 @@ export class MessagesGateway {
     ) {
         console.log(body);
     }
+
+
 
 
 }
