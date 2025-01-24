@@ -5,6 +5,7 @@ import { json } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AiTalksModule);
   app.use(json());
+  app.useGlobalPipes();
   await app.listen(90);
 }
 bootstrap();

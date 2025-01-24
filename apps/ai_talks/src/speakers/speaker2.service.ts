@@ -1,44 +1,54 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { BotResponse, Speaker } from '../types/speaker.types';
+import { BotResponse, Responder, Speaker } from '../types/speaker.types';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { TelegramGatway } from '../gateways/telegram.gateway';
-import { Server } from 'socket.io';
+import { Injectable, Logger } from '@nestjs/common';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+
 @Injectable()
 export class Speaker2Service implements Speaker {
 
+    private responder: Responder = `speaker2`;
     private logger: Logger = new Logger(Speaker2Service.name);
 
-    @WebSocketServer()
-    server: Server;
-
-    @SubscribeMessage(`ai_talks`)
-    public listenMessage(
-        @MessageBody() body: BotResponse,
-    ): Promise<void> {
-        this.logger.debug(body)
-        if (body.responder === `speaker2`) return;
-        this.logger.debug('jestem tu');
-        this.respond(body.message);
-    }
-
     constructor(
+        private readonly eventEmitter: EventEmitter2,
         private readonly bot: TelegramGatway,
     ) { }
 
     public async initializeConversation(message?: string): Promise<void> {
+
+        const payload: BotResponse = {
+            responder: this.responder,
+            message: message || process.env.INITIAL_PROMPT,
+        }
+        this.eventEmitter.emit(`ai_talks`, payload);
+
         // await this.bot.message1(`-----PROMPT-RESET-----`);
-        await this.respond(message || process.env.INITIAL_PROMPT);
-        // await this.bot.message1(process.env.INITIAL_PROMPT);
+        // await this.bot.message1(message || process.env.INITIAL_PROMPT);
+
     }
 
-    public async respond(response: string): Promise<void> {
+    @OnEvent(`ai_talks`, { async: true })
+    private async handleMessage(
+        payload: BotResponse
+    ): Promise<void> {
+        if (payload.responder === this.responder) return;
+
+        await this.respondTo(payload.message);
+
+    }
+
+
+    public async respondTo(response: string): Promise<void> {
 
         let message: string = `Testowa odpowiedz 1`;
 
+        const payload: BotResponse = {
+            responder: this.responder,
+            message,
+        }
         this.logger.log(message);
-        this.server.emit(`ai_talks`, { responder: `speaker2`, message })
+        this.eventEmitter.emit(`ai_talks`, payload);
         return;
     }
 }
