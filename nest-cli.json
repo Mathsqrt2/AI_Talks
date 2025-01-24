@@ -10,15 +10,6 @@
   "monorepo": true,
   "root": "apps/rozmawiacz",
   "projects": {
-    "rozmawiacz": {
-      "type": "application",
-      "root": "apps/rozmawiacz",
-      "entryFile": "main",
-      "sourceRoot": "apps/rozmawiacz/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/rozmawiacz/tsconfig.app.json"
-      }
-    },
     "gadacz1": {
       "type": "application",
       "root": "apps/gadacz1",
@@ -35,6 +26,15 @@
       "sourceRoot": "apps/gadacz2/src",
       "compilerOptions": {
         "tsConfigPath": "apps/gadacz2/tsconfig.app.json"
+      }
+    },
+    "ai_talks": {
+      "type": "application",
+      "root": "apps/ai_talks",
+      "entryFile": "main",
+      "sourceRoot": "apps/ai_talks/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ai_talks/tsconfig.app.json"
       }
     }
   }
