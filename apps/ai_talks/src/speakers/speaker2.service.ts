@@ -23,7 +23,7 @@ export class Speaker2Service implements Speaker {
     private async startConversation({ botId, message }: InitProps): Promise<void> {
 
         this.shouldContinue = true;
-        if (botId !== 2) return;
+        if (botId !== 1) return;
 
         const payload: BotResponse = {
             responder: this.responder,
@@ -32,7 +32,7 @@ export class Speaker2Service implements Speaker {
 
         await this.eventEmitter.emitAsync(`ai_talks`, payload);
         if (this.shouldNotify) {
-            await this.bot.message1(`-----PROMPT-RESET-----`);
+            await this.bot.message2(`-----PROMPT-RESET-----`);
         }
     }
 
@@ -75,7 +75,7 @@ export class Speaker2Service implements Speaker {
 
             await this.eventEmitter.emitAsync(`ai_talks`, { responder: this.responder, message });
             if (this.shouldNotify) {
-                await this.bot.message1(message);
+                await this.bot.message2(message);
             }
 
             this.logger.log(`${this.messageIndex++} Message sent successfully.`);

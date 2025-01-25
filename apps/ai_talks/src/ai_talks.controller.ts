@@ -18,9 +18,9 @@ export class AiTalksController {
     this.isTalkInProgres = false;
   }
 
-  @Get(`/init/:id`)
-  @Post(`/init/:id`)
-  public async initializeTalksWithMessage(
+  @Get(`init/:id`)
+  @Post(`init/:id`)
+  public async initializeTalk(
     @Param(`id`) id: number,
     @Res() response: Response,
     @Body() body: BotInitPayload,
@@ -52,8 +52,8 @@ export class AiTalksController {
     }
   }
 
-  @Get(`/break`)
-  @Post(`/break`)
+  @Get(`break`)
+  @Post(`break`)
   public async breakCurrentTalk(
     @Res() response: Response
   ) {
@@ -65,7 +65,44 @@ export class AiTalksController {
     }
 
     this.isTalkInProgres = false;
+    this.logger.log(`Successfully broke the current talk.`);
     this.eventEmitter.emit(`conversation-break`);
+    response.sendStatus(HttpStatus.OK);
+  }
+
+  @Get(`pause`)
+  @Post(`pause`)
+  public async pauseCurrentTalk(
+    @Res() response: Response
+  ) {
+
+    if (!this.isTalkInProgres) {
+      this.logger.error(`Failed to pause. Currently there are no processed talks.`);
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    this.isTalkInProgres = false;
+    this.logger.log(`Successfully paused current talk.`);
+    this.eventEmitter.emit(`conversation-pause`);
+    response.sendStatus(HttpStatus.OK);
+  }
+
+  @Get(`continue`)
+  @Post(`continue`)
+  public async continueCurrentTalk(
+    @Res() response: Response
+  ) {
+
+    if (this.isTalkInProgres) {
+      this.logger.error(`Failed to continue. Currently there are no processed talks.`);
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    this.isTalkInProgres = true;
+    this.logger.log(`Successfully resumed current talk.`);
+    await this.eventEmitter.emitAsync(`conversation-continue`);
     response.sendStatus(HttpStatus.OK);
   }
 

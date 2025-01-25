@@ -8,7 +8,8 @@ import { Injectable, Logger } from '@nestjs/common';
 export class Speaker1Service implements Speaker {
 
     private readonly logger: Logger = new Logger(Speaker1Service.name);
-    private readonly responder: Responder = `speaker1`;
+    private readonly RESPONDER: Responder = `speaker1`;
+    private readonly BOT_ID: number = 1;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
     private shouldNotify: boolean = false;
@@ -23,10 +24,10 @@ export class Speaker1Service implements Speaker {
     private async startConversation({ botId, message }: InitProps): Promise<void> {
 
         this.shouldContinue = true;
-        if (botId !== 1) return;
+        if (botId !== this.BOT_ID) return;
 
         const payload: BotResponse = {
-            responder: this.responder,
+            responder: this.RESPONDER,
             message: message || process.env.INITIAL_PROMPT,
         }
 
@@ -52,7 +53,7 @@ export class Speaker1Service implements Speaker {
     private async continueConversation(): Promise<void> {
         this.shouldContinue = true;
         this.eventEmitter.emit(`ai_talks`, {
-            responder: this.responder,
+            responder: this.RESPONDER,
             message: this.enqueuedMessage
         })
         this.enqueuedMessage = null;
@@ -62,7 +63,7 @@ export class Speaker1Service implements Speaker {
     private async handleMessage(
         payload: BotResponse
     ): Promise<void> {
-        if (payload.responder === this.responder || !this.shouldContinue) return;
+        if (payload.responder === this.RESPONDER || !this.shouldContinue) return;
 
         try {
 
@@ -73,7 +74,7 @@ export class Speaker1Service implements Speaker {
                 return;
             }
 
-            await this.eventEmitter.emitAsync(`ai_talks`, { responder: this.responder, message });
+            await this.eventEmitter.emitAsync(`ai_talks`, { responder: this.RESPONDER, message });
             if (this.shouldNotify) {
                 await this.bot.message1(message);
             }
@@ -92,9 +93,12 @@ export class Speaker1Service implements Speaker {
         }
     }
 
+    private wait() {
+        return new Promise(resolve => setTimeout(resolve, 1000));
+    }
 
     public async respondTo(response: string): Promise<string> {
-
+        await this.wait();
         let message: string = `Testowa odpowiedz 1`;
 
 
