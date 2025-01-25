@@ -1,7 +1,6 @@
 export interface Speaker {
 
-    initializeConversation(message: string): Promise<void>;
-    respondTo(message: string): Promise<void>;
+    respondTo(message: string): Promise<string>;
 
 }
 
@@ -16,3 +15,4 @@ export type BotInitPayload = {
     message: string;
 }
 
+export type InitProps = { botId: number, message: string }

@@ -1,9 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { Speaker1Service } from './speakers/speaker1.service';
-import { Speaker2Service } from './speakers/speaker2.service';
 import { BotInitPayload } from './types/speaker.types';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @Controller()
 export class AiTalksController {
@@ -12,13 +10,11 @@ export class AiTalksController {
   private isTalkInProgres: boolean = false;
 
   constructor(
-    private readonly speaker1: Speaker1Service,
-    private readonly speaker2: Speaker2Service,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
 
   @OnEvent(`conversation-break`)
   private pauseConversation() {
-    this.logger.debug("odczytano");
     this.isTalkInProgres = false;
   }
 
@@ -44,23 +40,16 @@ export class AiTalksController {
 
     try {
 
-      if (+id === 1) {
-        this.speaker1.initializeConversation(body.message);
-      } else if (+id === 2) {
-        this.speaker2.initializeConversation(body.message);
-      }
       this.isTalkInProgres = true;
+      await this.eventEmitter.emitAsync(`converstaion-start`, { botId: +id, message: body.message });
+      this.logger.log(`Conversation initialized.`);
+      response.sendStatus(HttpStatus.OK);
 
     } catch (err) {
 
       this.logger.error(`Failed to initialize conversation.`)
       response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-
-      return;
     }
-
-    this.logger.log(`Conversation initialized.`);
-    response.sendStatus(HttpStatus.OK);
   }
 
   @Get(`/break`)
@@ -69,6 +58,15 @@ export class AiTalksController {
     @Res() response: Response
   ) {
 
+    if (!this.isTalkInProgres) {
+      this.logger.error(`Failed to break. There are no currently processed talks.`);
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    this.isTalkInProgres = false;
+    this.eventEmitter.emit(`conversation-break`);
+    response.sendStatus(HttpStatus.OK);
   }
 
   @Post(`inject`)
