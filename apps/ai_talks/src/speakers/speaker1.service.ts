@@ -10,13 +10,18 @@ export class Speaker1Service implements Speaker {
     private readonly logger: Logger = new Logger(Speaker1Service.name);
     private readonly RESPONDER: Responder = `speaker1`;
     private readonly BOT_ID: number = 1;
-    private readonly MAX_MESSAGES_CONTEXT = 15;
+    private readonly MAX_MESSAGES_CONTEXT = 150;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
     private shouldNotify: boolean = true;
     private enqueuedMessage: string = null;
     private model: Ollama = new Ollama();
-    private messages: Message[] = [{ role: `user`, content: process.env.OLLAMA_PROMPT }];
+    private messages: Message[] = [
+        { role: `system`, content: process.env.OLLAMA_PROMPT },
+        { role: `context`, content: process.env.OLLAMA_PROMPT },
+        { role: `assistant`, content: process.env.OLLAMA_PROMPT },
+        { role: `user`, content: process.env.OLLAMA_PROMPT }
+    ];
 
     constructor(
         private readonly eventEmitter: EventEmitter2,
