@@ -103,6 +103,14 @@ export class Speaker2Service implements Speaker {
 
     private refreshContext = (): Message[] => {
         this.messages = this.messages.slice(-this.MAX_MESSAGES_CONTEXT);
+        if (this.messageIndex % 20 === 0) {
+            this.messages.push(
+                { role: `system`, content: process.env.OLLAMA_PROMPT },
+                { role: `context`, content: process.env.OLLAMA_PROMPT },
+                { role: `assistant`, content: process.env.OLLAMA_PROMPT },
+                { role: `user`, content: process.env.OLLAMA_PROMPT }
+            )
+        }
         return this.messages;
     }
 

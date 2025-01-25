@@ -10,7 +10,7 @@ export class Speaker1Service implements Speaker {
     private readonly logger: Logger = new Logger(Speaker1Service.name);
     private readonly RESPONDER: Responder = `speaker1`;
     private readonly BOT_ID: number = 1;
-    private readonly MAX_MESSAGES_CONTEXT = 150;
+    private readonly MAX_MESSAGES_CONTEXT = 500;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
     private shouldNotify: boolean = true;
@@ -103,6 +103,14 @@ export class Speaker1Service implements Speaker {
 
     private refreshContext = (): Message[] => {
         this.messages = this.messages.slice(-this.MAX_MESSAGES_CONTEXT);
+        if (this.messageIndex % 20 === 0) {
+            this.messages.push(
+                { role: `system`, content: process.env.OLLAMA_PROMPT },
+                { role: `context`, content: process.env.OLLAMA_PROMPT },
+                { role: `assistant`, content: process.env.OLLAMA_PROMPT },
+                { role: `user`, content: process.env.OLLAMA_PROMPT }
+            )
+        }
         return this.messages;
     }
 
