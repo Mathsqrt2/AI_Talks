@@ -2,17 +2,21 @@ import { BotResponse, InitProps, Responder, Speaker } from '../types/speaker.typ
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { TelegramGatway } from '../gateways/telegram.gateway';
 import { Injectable, Logger } from '@nestjs/common';
-
+import { Message, Ollama } from 'ollama';
 
 @Injectable()
 export class Speaker2Service implements Speaker {
 
     private readonly logger: Logger = new Logger(Speaker2Service.name);
-    private readonly responder: Responder = `speaker2`;
+    private readonly RESPONDER: Responder = `speaker2`;
+    private readonly BOT_ID: number = 2;
+    private readonly MAX_MESSAGES_CONTEXT = 15;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
-    private shouldNotify: boolean = false;
+    private shouldNotify: boolean = true;
     private enqueuedMessage: string = null;
+    private model: Ollama = new Ollama();
+    private messages: Message[] = [{ role: `user`, content: process.env.OLLAMA_PROMPT }];
 
     constructor(
         private readonly eventEmitter: EventEmitter2,
@@ -23,10 +27,10 @@ export class Speaker2Service implements Speaker {
     private async startConversation({ botId, message }: InitProps): Promise<void> {
 
         this.shouldContinue = true;
-        if (botId !== 1) return;
+        if (botId !== this.BOT_ID) return;
 
         const payload: BotResponse = {
-            responder: this.responder,
+            responder: this.RESPONDER,
             message: message || process.env.INITIAL_PROMPT,
         }
 
@@ -52,7 +56,7 @@ export class Speaker2Service implements Speaker {
     private async continueConversation(): Promise<void> {
         this.shouldContinue = true;
         this.eventEmitter.emit(`ai_talks`, {
-            responder: this.responder,
+            responder: this.RESPONDER,
             message: this.enqueuedMessage
         })
         this.enqueuedMessage = null;
@@ -62,10 +66,10 @@ export class Speaker2Service implements Speaker {
     private async handleMessage(
         payload: BotResponse
     ): Promise<void> {
-        if (payload.responder === this.responder || !this.shouldContinue) return;
+        if (payload.responder === this.RESPONDER || !this.shouldContinue) return;
 
         try {
-
+            this.messages.push({ role: payload.responder, content: payload.message });
             const message = await this.respondTo(payload.message);
 
             if (!this.shouldContinue) {
@@ -73,7 +77,7 @@ export class Speaker2Service implements Speaker {
                 return;
             }
 
-            await this.eventEmitter.emitAsync(`ai_talks`, { responder: this.responder, message });
+            await this.eventEmitter.emitAsync(`ai_talks`, { responder: this.RESPONDER, message });
             if (this.shouldNotify) {
                 await this.bot.message2(message);
             }
@@ -92,13 +96,23 @@ export class Speaker2Service implements Speaker {
         }
     }
 
+    private refreshContext = (): Message[] => {
+        this.messages = this.messages.slice(-this.MAX_MESSAGES_CONTEXT);
+        return this.messages;
+    }
 
     public async respondTo(response: string): Promise<string> {
 
-        let message: string = `Testowa odpowiedz 1`;
+        try {
+            const { message } = await this.model.chat({
+                model: `gemma2:9b`,
+                messages: [...this.refreshContext(), { role: `user`, content: response }]
+            });
+            return message.content;
+        } catch (err) {
+            this.logger.error(`Failed to generate response.`);
+        }
 
-
-        return message;
     }
 
 }
