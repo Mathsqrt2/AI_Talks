@@ -13,9 +13,9 @@ export class Speaker1Service implements Speaker {
     private readonly MAX_MESSAGES_CONTEXT = 500;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
-    private shouldNotify: boolean = true;
+    private shouldNotify: boolean = false;
     private enqueuedMessage: string = null;
-    private model: Ollama = new Ollama();
+    private model: Ollama = new Ollama({ host: process.env.OLLAMA_HOST1 });
     private messages: Message[] = [
         { role: `system`, content: process.env.OLLAMA_PROMPT },
         { role: `context`, content: process.env.OLLAMA_PROMPT },

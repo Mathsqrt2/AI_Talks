@@ -6,6 +6,9 @@ declare namespace NodeJS {
     HOST1: string;
     HOST2: string;
 
+    OLLAMA_HOST1: string;
+    OLLAMA_HOST2: string;
+
     PORT1: number;
     PORT2: number;
 
