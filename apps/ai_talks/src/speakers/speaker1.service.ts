@@ -14,7 +14,7 @@ export class Speaker1Service implements Speaker {
     private readonly MAX_CONTEXT_SIZE = 4000;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
-    private shouldNotify: boolean = false;
+    private shouldNotify: boolean = true;
     private enqueuedMessage: string = null;
     private model: Ollama = new Ollama({ host: process.env.OLLAMA_HOST1 });
     private messages: Message[] = [
@@ -42,6 +42,7 @@ export class Speaker1Service implements Speaker {
         await this.eventEmitter.emitAsync(`ai_talks`, payload);
         if (this.shouldNotify) {
             await this.bot.message1(`-----PROMPT-RESET-----`);
+            await this.bot.message1(payload.message);
         }
     }
 
