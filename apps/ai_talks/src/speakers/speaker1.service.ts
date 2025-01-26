@@ -11,6 +11,7 @@ export class Speaker1Service implements Speaker {
     private readonly RESPONDER: Responder = `speaker1`;
     private readonly BOT_ID: number = 1;
     private readonly MAX_MESSAGES_CONTEXT = 500;
+    private readonly MAX_CONTEXT_SIZE = 4000;
     private messageIndex: number = 1;
     private shouldContinue: boolean = false;
     private shouldNotify: boolean = false;
@@ -19,9 +20,8 @@ export class Speaker1Service implements Speaker {
     private messages: Message[] = [
         { role: `system`, content: process.env.OLLAMA_PROMPT },
         { role: `context`, content: process.env.OLLAMA_PROMPT },
-        { role: `assistant`, content: process.env.OLLAMA_PROMPT },
-        { role: `user`, content: process.env.OLLAMA_PROMPT }
     ];
+    private context: number[] = [];
 
     constructor(
         private readonly eventEmitter: EventEmitter2,
@@ -101,31 +101,54 @@ export class Speaker1Service implements Speaker {
         }
     }
 
-    private refreshContext = (): Message[] => {
+    private refreshMessages = (): Message[] => {
         this.messages = this.messages.slice(-this.MAX_MESSAGES_CONTEXT);
         if (this.messageIndex % 20 === 0) {
             this.messages.push(
                 { role: `system`, content: process.env.OLLAMA_PROMPT },
-                { role: `context`, content: process.env.OLLAMA_PROMPT },
-                { role: `assistant`, content: process.env.OLLAMA_PROMPT },
-                { role: `user`, content: process.env.OLLAMA_PROMPT }
+                { role: `context`, content: process.env.OLLAMA_PROMPT }
             )
         }
         return this.messages;
     }
 
+    private refreshContext = (): number[] => {
+        while (this.context.join(' ').length > this.MAX_CONTEXT_SIZE) {
+            this.context.shift();
+        }
+        return this.context;
+    }
+
     public async respondTo(response: string): Promise<string> {
 
         try {
-            const { message } = await this.model.chat({
-                model: `gemma2:9b`,
-                messages: [...this.refreshContext(), { role: `user`, content: response }]
+            const message = await this.model.generate({
+                model: `ollamus`,
+                prompt: response,
+                context: this.refreshContext(),
             });
-            return message.content;
+
+            this.context.push(...message.context);
+            return message.response;
+
         } catch (err) {
             this.logger.error(`Failed to generate response.`);
         }
 
     }
 
+    public async respondToChat(response: string): Promise<string> {
+
+        try {
+
+            const { message } = await this.model.chat({
+                model: `ollamus`,
+                messages: [...this.refreshMessages(), { role: `user`, content: response }]
+            });
+            return message.content;
+
+        } catch (err) {
+            this.logger.error(`Failed to generate response.`);
+        }
+    }
 }
