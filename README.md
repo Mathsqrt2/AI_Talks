@@ -30,9 +30,12 @@ POST http://localhost:90/init/:id
 ```
 
 ID bota może być równe 1 lub 2, request zadziała zarówno dla GET jak i POST
-w body można przekazać: {"message": "..."}, aby korzystał z niego jako kontekstu.
-Jeżeli nie znajdzie się żaden prompt w requeście, boty będą korzystały z kontekstu
-dostarczonego w ENV.
+w body można przekazać: 
+```json
+{"message": "..."},
+```
+ aby korzystał z niego jako prompta inicjalizacyjnego.
+Jeżeli nie znajdzie się żaden prompt w requeście, boty będą korzystały z prompta dostarczonego w ENV.
 
 
 # V1
