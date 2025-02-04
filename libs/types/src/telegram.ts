@@ -1,0 +1,1 @@
+export type Speaker = `bot_1` | `bot_2`;
