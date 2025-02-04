@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Logger, Post, Res } from '@nestjs/common';
-import { BehaviorSubject } from 'rxjs';
 import { SettingsService } from './settings.service';
 import { Response } from 'express';
+import { logMessages } from '../ai_conversation_v3.responses';
 
 @Controller(`setings`)
 export class SettingsController {
@@ -21,8 +21,8 @@ export class SettingsController {
     public findCurrentContextLength(
         @Res() response: Response,
     ) {
-        response.status(HttpStatus.ACCEPTED).json(this.settings.MAX_CONTEXT_SIZE);
-        if (this.settings.SHOULD_LOG) {
+        response.status(HttpStatus.ACCEPTED).json(this.settings.maxContextSize);
+        if (this.settings.shouldLog) {
             this.logger.log(`Responded to user with current context length.`);
         }
     }
@@ -50,10 +50,10 @@ export class SettingsController {
             return;
         }
 
-        this.settings.MAX_CONTEXT_SIZE = body.context;
+        this.settings.maxContextSize = body.context;
 
-        if (this.settings.SHOULD_LOG) {
-            this.logger.log(`Context updated successfully. New valuie: ${body.context}`);
+        if (this.settings.shouldLog) {
+            this.logger.log(logMessages.log.contextUpdated(body.context));
         }
 
         response.sendStatus(HttpStatus.ACCEPTED);
@@ -62,15 +62,26 @@ export class SettingsController {
 
 
     @Post(`prompt`)
-    public setBasePrompt(
-
+    public setContextPrompt(
+        @Res() response: Response,
+        @Body() body: { prompt: string }
     ): void {
+
+        if (!body.prompt) {
+            response.sendStatus(HttpStatus.BAD_REQUEST);
+            return;
+        }
+
+        this.settings.contextPrompt = body.prompt;
+
+
 
     }
 
     @Post(`logs`)
     public setLoggingState(
-
+        @Res() response: Response,
+        @Body() body: { prompt: string }
     ): void {
 
     }

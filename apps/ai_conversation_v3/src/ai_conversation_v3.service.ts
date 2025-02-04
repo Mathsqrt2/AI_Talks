@@ -4,6 +4,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { SettingsService } from './settings/settings.service';
 import { Speaker } from '@libs/types/telegram';
 import { Ollama } from 'ollama';
+import { logMessages } from './ai_conversation_v3.responses';
+import { event } from './ai_conversation_v3.constants';
 
 @Injectable()
 export class ConversationService {
@@ -21,26 +23,43 @@ export class ConversationService {
     this.logger.debug('test')
   }
 
-  @OnEvent(`start-conversation`, { async: true })
+  @OnEvent(event.startConversation, { async: true })
   private async startConversation(): Promise<void> {
+
+    if (this.settings.isConversationInProgres) {
+      this.logger.warn(logMessages.warn.conversationAlreadyRunning());
+    }
+
+    this.settings
 
   }
 
-  @OnEvent(`break-conversation`, { async: true })
+  @OnEvent(event.breakConversation, { async: true })
   private async breakConversation(): Promise<void> {
 
   }
 
-  @OnEvent(`pause-conversation`, { async: true })
+  @OnEvent(event.pauseConversation, { async: true })
   private async pauseConversation(): Promise<void> {
 
   }
 
-  @OnEvent(`resume-conversation`, { async: true })
+  @OnEvent(event.resumeConversation, { async: true })
   private async resumeConversation(): Promise<void> {
 
   }
 
+  public async initializeConversation(): Promise<void> {
+
+  }
+
+  private async generateResponse(): Promise<string> {
+    return ``;
+  }
+
+  private toggleContext(): void {
+
+  }
 
 
 }

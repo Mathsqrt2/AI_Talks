@@ -9,14 +9,14 @@ export class SettingsService {
         private readonly database: DatabaseService,
     ) { }
 
-    public isTalkInProgress: boolean = false;
-    public MAX_MESSAGES_CONTEXT: number = null;
-    public MAX_CONTEXT_SIZE: number = null;
-    public SHOULD_CONTINUE: boolean = true;
-    public SHOULD_NOTIFY: boolean = true;
-    public SHOULD_DISPLAY: boolean = true;
-    public SHOULD_LOG: boolean = true;
-    public INITIAL_PROMPT: string = process.env.INITIAL_PROMPT;
-    public CONTEXT_PROMPT: string = process.env.OLLAMA_PROMPT
+    public isConversationInProgres: boolean = false;
+    public maxMessagesCount: number = null;
+    public maxContextSize: number = null;
+    public shouldContinue: boolean = true;
+    public shouldNotify: boolean = true;
+    public shouldDisplay: boolean = true;
+    public shouldLog: boolean = true;
+    public initialPrompt: string = process.env.INITIAL_PROMPT;
+    public contextPrompt: string = process.env.OLLAMA_PROMPT;
 
 }

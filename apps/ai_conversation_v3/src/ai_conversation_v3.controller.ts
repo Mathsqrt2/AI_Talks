@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get, Logger, Post } from '@nestjs/common';
 import { ConversationService } from './ai_conversation_v3.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SettingsService } from './settings/settings.service';
@@ -15,5 +15,11 @@ export class ConversationController {
     private readonly aiConversationV3Service: ConversationService,
     private readonly settings: SettingsService,
   ) { }
+
+  @Post()
+  @Get()
+  public async initializeConversation(): Promise<void> {
+
+  }
 
 }
