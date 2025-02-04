@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AiConversationV3Module } from './../src/ai_conversation_v3.module';
+import { AiConversationV3Module } from '../src/conversation.module';
 
 describe('AiConversationV3Controller (e2e)', () => {
   let app: INestApplication;

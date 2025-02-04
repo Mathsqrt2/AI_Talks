@@ -1,6 +1,6 @@
-import { BOT_MESSAGES, USER_MESSAGES } from './ai_conversation_v3.constants';
-import { ConversationController } from './ai_conversation_v3.controller';
-import { ConversationService } from './ai_conversation_v3.service';
+import { BOT_MESSAGES, USER_MESSAGES } from './conversation.constants';
+import { ConversationController } from './conversation.controller';
+import { ConversationService } from './conversation.service';
 import { SettingsModule } from './settings/settings.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule } from '@nestjs/config';

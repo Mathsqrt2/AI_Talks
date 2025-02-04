@@ -4,8 +4,8 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { SettingsService } from './settings/settings.service';
 import { Speaker } from '@libs/types/telegram';
 import { Ollama } from 'ollama';
-import { logMessages } from './ai_conversation_v3.responses';
-import { event } from './ai_conversation_v3.constants';
+import { logMessages } from './conversation.responses';
+import { event } from './conversation.constants';
 
 @Injectable()
 export class ConversationService {

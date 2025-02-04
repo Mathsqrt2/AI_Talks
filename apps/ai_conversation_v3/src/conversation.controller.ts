@@ -1,5 +1,5 @@
 import { Controller, Get, Logger, Post } from '@nestjs/common';
-import { ConversationService } from './ai_conversation_v3.service';
+import { ConversationService } from './conversation.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SettingsService } from './settings/settings.service';
 import { Speaker } from '@libs/types/telegram';
