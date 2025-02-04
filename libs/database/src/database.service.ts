@@ -13,12 +13,6 @@ export class DatabaseService implements OnApplicationBootstrap {
     ) { }
 
     public async onApplicationBootstrap(): Promise<void> {
-        this.logger.error(`test`);
-        this.log.create({
-            content: `Application launded.`,
-            label: `system_message`,
-            created_at: Date.now(),
-        })
-        this.logger.error(`test2`);
+        this.log.create({ label: 'asd', content: 'sadas' })
     }
 }

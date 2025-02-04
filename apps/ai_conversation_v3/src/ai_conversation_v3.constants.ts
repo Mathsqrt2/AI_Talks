@@ -1,0 +1,2 @@
+export const BOT_MESSAGES = `BOT_MESSAGES`;
+export const USER_MESSAGES = `USER_MESSAGES`;

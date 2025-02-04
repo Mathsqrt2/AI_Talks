@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Log } from './entities/log.entity';
+import { entities } from './database.entities.provider';
 
 @Module({
   imports: [
@@ -13,11 +13,11 @@ import { Log } from './entities/log.entity';
         username: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
-        entities: [Log],
+        entities,
         synchronize: true,
       })
     }),
-    TypeOrmModule.forFeature([Log]),
+    TypeOrmModule.forFeature(entities),
   ],
   providers: [DatabaseService],
   exports: [DatabaseService],
