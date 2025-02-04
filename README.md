@@ -11,9 +11,12 @@ docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 # V3 (W przygotowaniu)
 
 Trzecia wersja ma pozwolić na wstrzyknięcie treści do rozmowy (w celu moderacji, lub zabarwienia wątku),
-oraz pozwalać na dynamiczne zarządzanie kontekstem.
+oraz pozwalać na dynamiczne zarządzanie kontekstem. Cała aplikacja będzie osadzona w jednym serwisie.
 ...
 
+```bash
+npm run start:conversation
+```
 
 # V2
 
@@ -22,7 +25,7 @@ Do uruchomienia potrzebna jest jedna komenda i wysłanie requesta.
 W tej wersji możliwe jest wstrzymanie, lub zresetowanie rozmowy.
 
 ```bash
-npm run talks
+npm run start:talks
 ```
 
 ```bash
@@ -44,9 +47,9 @@ W pierwszej wersji boty hostowane są w dwóch aplikacjach nestowego monorepo.
 Aby zainicjalizować rozmowę należy wpisać poniższe komendy w dwóch instancjach terminala.
 
 ```bash
-npm run start gadacz1
+npm run start:gadacz1
 ```
 
 ```bash
-npm run start gadacz2
+npm run start:gadacz2
 ```

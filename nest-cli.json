@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/ai_talks/tsconfig.app.json"
       }
+    },
+    "ai_conversation_v3": {
+      "type": "application",
+      "root": "apps/ai_conversation_v3",
+      "entryFile": "main",
+      "sourceRoot": "apps/ai_conversation_v3/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ai_conversation_v3/tsconfig.app.json"
+      }
     }
   }
 }
