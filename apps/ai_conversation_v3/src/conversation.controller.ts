@@ -1,10 +1,8 @@
-import { Body, Controller, Get, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
-import { ConversationService } from './conversation.service';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Body, Controller, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from './settings/settings.service';
-import { Bots } from '@libs/types/telegram';
 import { Response } from 'express';
-import { BodyInitPayload } from '@libs/types/conversarion';
+import { BodyInitPayload, InjectContentPayload } from '@libs/types/conversarion';
 import { logMessages } from './conversation.responses';
 import { event } from './conversation.constants';
 import { EventPayload } from '@libs/types/events';
@@ -12,14 +10,11 @@ import { EventPayload } from '@libs/types/events';
 @Controller()
 export class ConversationController {
 
-
-  private readonly logger: Logger = new Logger(`Bot`);
-  private lastResponder: Bots = null;
+  private readonly logger: Logger = new Logger(ConversationController.name);
 
   constructor(
     private readonly settings: SettingsService,
     private readonly eventEmitter: EventEmitter2,
-    private readonly service: ConversationService,
   ) { }
 
   @Post(`init/:id`)
@@ -52,6 +47,7 @@ export class ConversationController {
     try {
 
       this.settings.isConversationInProgres = true;
+      this.settings.shouldContinue = true;
       const eventPayload: EventPayload = { speaker_id: +id, prompt: body.prompt };
       await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
 
@@ -111,13 +107,72 @@ export class ConversationController {
     }
 
     this.settings.isConversationInProgres = false;
+    await this.eventEmitter.emitAsync(event.pauseConversation)
+
     if (this.settings.shouldLog) {
       this.logger.log(logMessages.log.onPauseConversation());
     }
-
+    response.sendStatus(HttpStatus.OK);
 
   }
 
+  @Post(`resume`)
+  public async resumeConversation(
+    @Res() response: Response
+  ) {
 
+    if (this.settings.isConversationInProgres) {
+
+      if (this.settings.shouldLog) {
+        this.logger.warn(logMessages.warn.onResumeMissingConversation());
+      }
+
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    this.settings.isConversationInProgres = true;
+    await this.eventEmitter.emitAsync(event.resumeConversation);
+
+    if (this.settings.shouldLog) {
+      this.logger.log(logMessages.log.onResumeConversation());
+    }
+    response.sendStatus(HttpStatus.OK);
+  }
+
+  @Post(`inject`)
+  public async injectContentIntoConversation(
+    @Res() response: Response,
+    @Body() body: InjectContentPayload,
+  ) {
+
+    if (!body) {
+
+      if (this.settings.shouldLog) {
+        this.logger.warn(logMessages.warn.onInvalidPayload());
+      }
+
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
+
+      if (this.settings.shouldLog) {
+        this.logger.warn(logMessages.warn.onInvalidMode(body.mode));
+      }
+
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    await this.eventEmitter.emitAsync(event.injectMessage, body);
+
+    if (this.settings.shouldLog) {
+      this.logger.log(logMessages.log.onInjectMessage())
+    }
+
+    response.sendStatus(HttpStatus.OK);
+  }
 
 }

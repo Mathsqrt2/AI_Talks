@@ -5,4 +5,5 @@ export const event: Record<EventKeys, EventTypes> = {
     breakConversation: "break-conversation",
     pauseConversation: "pause-conversation",
     resumeConversation: "resume-conversation",
+    injectMessage: "inject-message",
 }

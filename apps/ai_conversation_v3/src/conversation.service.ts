@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { SettingsService } from './settings/settings.service';
-import { Speaker } from '@libs/types/telegram';
+import { Bots } from '@libs/types/telegram';
 import { Ollama } from 'ollama';
 import { logMessages } from './conversation.responses';
 import { event } from './conversation.constants';
@@ -12,7 +12,7 @@ export class ConversationService {
 
   private readonly logger: Logger = new Logger(`Speaker`);
   private readonly model: Ollama = new Ollama({});
-  private lastResponder: Speaker = null;
+  private lastResponder: Bots = null;
 
   constructor(
     private readonly settings: SettingsService,

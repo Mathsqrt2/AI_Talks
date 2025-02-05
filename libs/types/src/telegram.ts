@@ -1,1 +1,1 @@
-export type Speaker = `bot_1` | `bot_2`;
+export type Bots = `bot_1` | `bot_2`;
