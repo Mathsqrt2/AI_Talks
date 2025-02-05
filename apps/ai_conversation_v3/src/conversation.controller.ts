@@ -30,13 +30,21 @@ export class ConversationController {
   ): Promise<void> {
 
     if (this.settings.isConversationInProgres) {
-      this.logger.error(logMessages.warn.onConversationAlreadyRunning());
+
+      if (this.settings.shouldLog) {
+        this.logger.error(logMessages.warn.onConversationAlreadyRunning());
+      }
+
       response.sendStatus(HttpStatus.FORBIDDEN);
       return;
     }
 
     if (+id !== 1 && +id !== 2) {
-      this.logger.error(logMessages.error.onIdOutOfRange(id));
+
+      if (this.settings.shouldLog) {
+        this.logger.warn(logMessages.warn.onIdOutOfRange(id));
+      }
+
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
@@ -44,20 +52,69 @@ export class ConversationController {
     try {
 
       this.settings.isConversationInProgres = true;
-
       const eventPayload: EventPayload = { speaker_id: +id, prompt: body.prompt };
       await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
 
-      this.logger.log(logMessages.log.onConversationStart());
+      if (this.settings.shouldLog) {
+        this.logger.log(logMessages.log.onConversationStart());
+      }
+
       response.sendStatus(HttpStatus.OK);
       return;
 
     } catch (error) {
 
-      this.logger.error(logMessages.error.onConversationInitFail);
+      this.logger.error(logMessages.error.onConversationInitFail());
       response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
       return;
     }
+  }
+
+  @Post(`break`)
+  public async breakConversation(
+    @Res() response: Response
+  ): Promise<void> {
+
+    if (!this.settings.isConversationInProgres) {
+
+      if (this.settings.shouldLog) {
+        this.logger.warn(logMessages.warn.onBreakMissingConversation());
+      }
+
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+    }
+
+    this.settings.isConversationInProgres = false;
+    this.eventEmitter.emit(event.breakConversation);
+
+    if (this.settings.shouldLog) {
+      this.logger.log(logMessages.log.onBreakConversation());
+    }
+
+    response.sendStatus(HttpStatus.OK);
+  }
+
+  @Post(`pause`)
+  public async pauseConversation(
+    @Res() response: Response
+  ): Promise<void> {
+
+    if (!this.settings.isConversationInProgres) {
+
+      if (this.settings.shouldLog) {
+        this.logger.warn(logMessages.warn.onPauseMissingConversation());
+      }
+      response.sendStatus(HttpStatus.BAD_REQUEST);
+      return;
+
+    }
+
+    this.settings.isConversationInProgres = false;
+    if (this.settings.shouldLog) {
+      this.logger.log(logMessages.log.onPauseConversation());
+    }
+
 
   }
 
