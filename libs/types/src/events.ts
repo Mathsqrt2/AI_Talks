@@ -9,3 +9,10 @@ export type EventTypes =
     | `break-conversation`
     | `pause-conversation`
     | `resume-conversation`;
+
+export type EventPayload = {
+    bot_name?: string,
+    speaker_id: number,
+    prompt: string,
+
+}
