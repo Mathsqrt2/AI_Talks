@@ -1,11 +1,11 @@
 import { Body, Controller, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SettingsService } from './settings/settings.service';
-import { Response } from 'express';
 import { BodyInitPayload, InjectContentPayload } from '@libs/types/conversarion';
-import { logMessages } from './conversation.responses';
-import { event } from './conversation.constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventPayload } from '@libs/types/events';
+import { SettingsService } from '@libs/settings';
+import { logMessages } from '../conversation.responses';
+import { event } from '../conversation.constants';
+import { Response } from 'express';
 
 @Controller()
 export class ConversationController {
@@ -26,9 +26,8 @@ export class ConversationController {
 
     if (this.settings.isConversationInProgres) {
 
-      if (this.settings.shouldLog) {
-        this.logger.error(logMessages.warn.onConversationAlreadyRunning());
-      }
+      this.settings.shouldLog
+        ? this.logger.error(logMessages.warn.onConversationAlreadyRunning()) : null;
 
       response.sendStatus(HttpStatus.FORBIDDEN);
       return;
@@ -36,9 +35,8 @@ export class ConversationController {
 
     if (+id !== 1 && +id !== 2) {
 
-      if (this.settings.shouldLog) {
-        this.logger.warn(logMessages.warn.onIdOutOfRange(id));
-      }
+      this.settings.shouldLog
+        ? this.logger.warn(logMessages.warn.onIdOutOfRange(id)) : null;
 
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
@@ -51,16 +49,17 @@ export class ConversationController {
       const eventPayload: EventPayload = { speaker_id: +id, prompt: body.prompt };
       await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
 
-      if (this.settings.shouldLog) {
-        this.logger.log(logMessages.log.onConversationStart());
-      }
+      this.settings.shouldLog
+        ? this.logger.log(logMessages.log.onConversationStart()) : null;
 
       response.sendStatus(HttpStatus.OK);
       return;
 
     } catch (error) {
 
-      this.logger.error(logMessages.error.onConversationInitFail());
+      this.settings.shouldLog
+        ? this.logger.error(logMessages.error.onConversationInitFail()) : null;
+
       response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
       return;
     }
@@ -73,9 +72,8 @@ export class ConversationController {
 
     if (!this.settings.isConversationInProgres) {
 
-      if (this.settings.shouldLog) {
-        this.logger.warn(logMessages.warn.onBreakMissingConversation());
-      }
+      this.settings.shouldLog ?
+        this.logger.warn(logMessages.warn.onBreakMissingConversation()) : null;
 
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
@@ -84,9 +82,8 @@ export class ConversationController {
     this.settings.isConversationInProgres = false;
     this.eventEmitter.emit(event.breakConversation);
 
-    if (this.settings.shouldLog) {
-      this.logger.log(logMessages.log.onBreakConversation());
-    }
+    this.settings.shouldLog
+      ? this.logger.log(logMessages.log.onBreakConversation()) : null;
 
     response.sendStatus(HttpStatus.OK);
   }
@@ -98,22 +95,19 @@ export class ConversationController {
 
     if (!this.settings.isConversationInProgres) {
 
-      if (this.settings.shouldLog) {
-        this.logger.warn(logMessages.warn.onPauseMissingConversation());
-      }
+      this.settings.shouldLog
+        ? this.logger.warn(logMessages.warn.onPauseMissingConversation()) : null;
+
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
-
     }
 
     this.settings.isConversationInProgres = false;
-    await this.eventEmitter.emitAsync(event.pauseConversation)
+    this.settings.shouldContinue = false;
+    this.settings.shouldLog
+      ? this.logger.log(logMessages.log.onPauseConversation()) : null;
 
-    if (this.settings.shouldLog) {
-      this.logger.log(logMessages.log.onPauseConversation());
-    }
     response.sendStatus(HttpStatus.OK);
-
   }
 
   @Post(`resume`)
@@ -123,20 +117,20 @@ export class ConversationController {
 
     if (this.settings.isConversationInProgres) {
 
-      if (this.settings.shouldLog) {
-        this.logger.warn(logMessages.warn.onResumeMissingConversation());
-      }
+      this.settings.shouldLog
+        ? this.logger.warn(logMessages.warn.onResumeMissingConversation()) : null;
 
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
     this.settings.isConversationInProgres = true;
+    this.settings.shouldContinue = true;
     await this.eventEmitter.emitAsync(event.resumeConversation);
 
-    if (this.settings.shouldLog) {
-      this.logger.log(logMessages.log.onResumeConversation());
-    }
+    this.settings.shouldLog
+      ? this.logger.log(logMessages.log.onResumeConversation()) : null;
+
     response.sendStatus(HttpStatus.OK);
   }
 
@@ -148,9 +142,9 @@ export class ConversationController {
 
     if (!body) {
 
-      if (this.settings.shouldLog) {
-        this.logger.warn(logMessages.warn.onInvalidPayload());
-      }
+      this.settings.shouldLog
+        ? this.logger.warn(logMessages.warn.onInvalidPayload()) : null
+
 
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
@@ -158,9 +152,8 @@ export class ConversationController {
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
 
-      if (this.settings.shouldLog) {
-        this.logger.warn(logMessages.warn.onInvalidMode(body.mode));
-      }
+      this.settings.shouldLog
+        ? this.logger.warn(logMessages.warn.onInvalidMode(body.mode)) : null;
 
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
@@ -168,9 +161,8 @@ export class ConversationController {
 
     await this.eventEmitter.emitAsync(event.injectMessage, body);
 
-    if (this.settings.shouldLog) {
-      this.logger.log(logMessages.log.onInjectMessage())
-    }
+    this.settings.shouldLog
+      ? this.logger.log(logMessages.log.onInjectMessage()) : null;
 
     response.sendStatus(HttpStatus.OK);
   }

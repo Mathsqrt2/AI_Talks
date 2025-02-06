@@ -1,15 +1,13 @@
 import { DatabaseService } from '@libs/database';
-import { Injectable } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { event } from '../conversation.constants';
 import { InjectContentPayload } from '@libs/types/conversarion';
 import { Stats } from '@libs/types/settings';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SettingsService {
 
     constructor(
-        private readonly database: DatabaseService,
+
     ) { }
 
     public usersMessages: InjectContentPayload[] = [];
@@ -22,6 +20,8 @@ export class SettingsService {
     public shouldLog: boolean = true;
     public initialPrompt: string = process.env.INITIAL_PROMPT;
     public contextPrompt: string = process.env.OLLAMA_PROMPT;
+    public currentMessageIndex: number = 0;
+    public enqueuedMessage: string;
     public stats: Stats = {
         bot_1: {
             messages: 0,
@@ -35,11 +35,6 @@ export class SettingsService {
             totalGenerationTime: 0,
             averageGenerationTime: 0,
         }
-    }
-
-    @OnEvent(event.pauseConversation)
-    private pauseConversation() {
-        this.isConversationInProgres = false;
     }
 
 }

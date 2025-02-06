@@ -1,20 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { SettingsService } from './settings/settings.service';
+import { InjectLogger, Logger } from '@libs/logger';
+import { SettingsService } from '@libs/settings';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable } from '@nestjs/common';
 import { Bots } from '@libs/types/telegram';
-import { Ollama } from 'ollama';
+
 import { logMessages } from './conversation.responses';
 import { event } from './conversation.constants';
+import { Ollama } from 'ollama';
 
 @Injectable()
 export class ConversationService {
 
-  private readonly logger: Logger = new Logger(`Speaker`);
   private readonly model: Ollama = new Ollama({});
   private lastResponder: Bots = null;
 
   constructor(
+    @InjectLogger() private readonly logger: Logger,
     private readonly settings: SettingsService,
   ) { }
 
@@ -36,11 +38,6 @@ export class ConversationService {
 
   @OnEvent(event.breakConversation, { async: true })
   private async breakConversation(): Promise<void> {
-
-  }
-
-  @OnEvent(event.pauseConversation, { async: true })
-  private async pauseConversation(): Promise<void> {
 
   }
 

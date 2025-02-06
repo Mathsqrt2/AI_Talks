@@ -35,6 +35,24 @@
       ],
       "@libs/database/*": [
         "libs/database/src/*"
+      ],
+      "@libs/ai": [
+        "libs/ai/src"
+      ],
+      "@libs/ai/*": [
+        "libs/ai/src/*"
+      ],
+      "@libs/logger": [
+        "libs/logger/src"
+      ],
+      "@libs/logger/*": [
+        "libs/logger/src/*"
+      ],
+      "@libs/settings": [
+        "libs/settings/src"
+      ],
+      "@libs/settings/*": [
+        "libs/settings/src/*"
       ]
     },
     "types": [

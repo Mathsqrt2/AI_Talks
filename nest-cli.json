@@ -72,6 +72,33 @@
       "compilerOptions": {
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
+    },
+    "ai": {
+      "type": "library",
+      "root": "libs/ai",
+      "entryFile": "index",
+      "sourceRoot": "libs/ai/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/ai/tsconfig.lib.json"
+      }
+    },
+    "logger": {
+      "type": "library",
+      "root": "libs/logger",
+      "entryFile": "index",
+      "sourceRoot": "libs/logger/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/logger/tsconfig.lib.json"
+      }
+    },
+    "settings": {
+      "type": "library",
+      "root": "libs/settings",
+      "entryFile": "index",
+      "sourceRoot": "libs/settings/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/settings/tsconfig.lib.json"
+      }
     }
   }
 }

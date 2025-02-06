@@ -1,10 +1,13 @@
-import { ConversationController } from './conversation.controller';
+import { ConversationController } from './controllers/conversation.controller';
+import { SettingsController } from './controllers/settings.controller';
 import { ConversationService } from './conversation.service';
-import { SettingsModule } from './settings/settings.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ConfigModule } from '@nestjs/config';
-import { Module } from '@nestjs/common';
+import { SettingsModule } from '@libs/settings';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from '@libs/logger';
+import { Module } from '@nestjs/common';
+import { AiModule } from '@libs/ai';
 
 @Module({
   imports: [
@@ -12,12 +15,16 @@ import { ScheduleModule } from '@nestjs/schedule';
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot({ global: true }),
     SettingsModule,
+    LoggerModule,
+    AiModule,
   ],
   controllers: [
     ConversationController,
+    SettingsController,
   ],
   providers: [
     ConversationService,
   ],
 })
+
 export class AiConversationV3Module { }

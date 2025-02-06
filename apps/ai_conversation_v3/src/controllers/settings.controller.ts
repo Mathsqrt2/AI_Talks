@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Logger, Post, Res } from '@nestjs/common';
-import { SettingsService } from './settings.service';
 import { Response } from 'express';
 import { logMessages } from '../conversation.responses';
+import { SettingsService } from '@libs/settings';
 
 @Controller(`setings`)
 export class SettingsController {
