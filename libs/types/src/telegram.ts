@@ -1,1 +1,0 @@
-export type Bots = `bot_1` | `bot_2`;
