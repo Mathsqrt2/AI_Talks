@@ -10,40 +10,13 @@
   "monorepo": true,
   "root": "apps/rozmawiacz",
   "projects": {
-    "gadacz1": {
+    "ai_conversation": {
       "type": "application",
-      "root": "apps/gadacz1",
+      "root": "apps/ai_conversation",
       "entryFile": "main",
-      "sourceRoot": "apps/gadacz1/src",
+      "sourceRoot": "apps/ai_conversation/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/gadacz1/tsconfig.app.json"
-      }
-    },
-    "gadacz2": {
-      "type": "application",
-      "root": "apps/gadacz2",
-      "entryFile": "main",
-      "sourceRoot": "apps/gadacz2/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/gadacz2/tsconfig.app.json"
-      }
-    },
-    "ai_talks": {
-      "type": "application",
-      "root": "apps/ai_talks",
-      "entryFile": "main",
-      "sourceRoot": "apps/ai_talks/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/ai_talks/tsconfig.app.json"
-      }
-    },
-    "ai_conversation_v3": {
-      "type": "application",
-      "root": "apps/ai_conversation_v3",
-      "entryFile": "main",
-      "sourceRoot": "apps/ai_conversation_v3/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/ai_conversation_v3/tsconfig.app.json"
+        "tsConfigPath": "apps/ai_conversation/tsconfig.app.json"
       }
     },
     "telegram": {
