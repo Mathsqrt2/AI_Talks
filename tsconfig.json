@@ -17,44 +17,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@libs/telegram": [
-        "libs/telegram/src"
-      ],
-      "@libs/telegram/*": [
-        "libs/telegram/src/*"
-      ],
-      "@libs/types": [
-        "libs/types/src"
-      ],
-      "@libs/types/*": [
-        "libs/types/src/*"
-      ],
-      "@libs/database": [
-        "libs/database/src"
-      ],
-      "@libs/database/*": [
-        "libs/database/src/*"
-      ],
-      "@libs/ai": [
-        "libs/ai/src"
-      ],
-      "@libs/ai/*": [
-        "libs/ai/src/*"
-      ],
-      "@libs/logger": [
-        "libs/logger/src"
-      ],
-      "@libs/logger/*": [
-        "libs/logger/src/*"
-      ],
-      "@libs/settings": [
-        "libs/settings/src"
-      ],
-      "@libs/settings/*": [
-        "libs/settings/src/*"
-      ]
-    },
+    "paths": {},
     "types": [
       "node",
       "./.env.d.ts"

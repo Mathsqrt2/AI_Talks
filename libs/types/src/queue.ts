@@ -1,1 +1,0 @@
-export type QueueType = `BOT_MESSAGES` | `USER_MESSAGES`;
