@@ -1,3 +1,5 @@
+import { Bot } from "./telegram";
+
 export type SettingsFile = {
     isConversationInProgres: boolean,
     maxMessagesCount: number,
@@ -8,18 +10,36 @@ export type SettingsFile = {
         shouldDisplay: boolean,
         shouldLog: boolean,
     }
+
     prompts: {
-        initPrompt: string;
+        initialPrompt: string;
+        contextPrompt: string;
         contextPrompt1: string;
         contextPrompt2: string;
     }
 }
 
-export type Stats = { [key: string]: StatsProperties };
+export type Archive = {
+    bot_1: { messages: Message[] },
+    bot_2: { messages: Message[] },
+}
 
-type StatsProperties = {
-    messages: number,
-    durationRecords: number[],
+export type Stats = {
+    bot_1: StatsProperties,
+    bot_2: StatsProperties
+};
+
+export type StatsProperties = {
+    messagesCount: number,
     totalGenerationTime: number,
     averageGenerationTime: number,
+    firstMessage: Date,
+    lastMessage: Date,
+}
+
+export type Message = {
+    generationTime: number,
+    generatingStartTime: Date,
+    generatingEndTime: Date,
+    content: string,
 }

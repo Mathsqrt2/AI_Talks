@@ -1,16 +1,30 @@
-import { Body, Controller, Get, HttpStatus, Logger, Post, Res } from '@nestjs/common';
+import {
+    Body, Controller, Get, HttpStatus,
+    OnApplicationBootstrap, Post, Res
+} from '@nestjs/common';
 import { Response } from 'express';
 import { logMessages } from '../conversation.responses';
 import { SettingsService } from '@libs/settings';
+import { SettingsFile } from '@libs/types/settings';
+import { InjectLogger, Logger } from '@libs/logger';
 
 @Controller(`setings`)
-export class SettingsController {
+export class SettingsController implements OnApplicationBootstrap {
 
-    private readonly logger: Logger = new Logger(SettingsController.name);
+    private config: SettingsFile = null;
 
     constructor(
+        @InjectLogger() private readonly logger: Logger,
         private readonly settings: SettingsService,
     ) { }
+
+    public onApplicationBootstrap() {
+        this.settings.settings.subscribe((settingsFile: SettingsFile) => {
+            this.config = settingsFile;
+        })
+    }
+
+    private updateSettings = () => this.settings.settings.next(this.config);
 
     @Get()
     public findCurrentSettings() {
@@ -21,10 +35,8 @@ export class SettingsController {
     public findCurrentContextLength(
         @Res() response: Response,
     ) {
-        response.status(HttpStatus.ACCEPTED).json(this.settings.maxContextSize);
-        if (this.settings.shouldLog) {
-            this.logger.log(`Responded to user with current context length.`);
-        }
+        response.status(HttpStatus.ACCEPTED).json(this.config.maxContextSize);
+        this.logger.log(`Responded to user with current context length.`);
     }
 
     @Get(`prompt`)
@@ -50,12 +62,10 @@ export class SettingsController {
             return;
         }
 
-        this.settings.maxContextSize = body.context;
+        this.config.maxContextSize = body.context;
+        this.updateSettings();
 
-        if (this.settings.shouldLog) {
-            this.logger.log(logMessages.log.contextUpdated(body.context));
-        }
-
+        this.logger.log(logMessages.log.contextUpdated(body.context));
         response.sendStatus(HttpStatus.ACCEPTED);
     }
 
@@ -72,8 +82,8 @@ export class SettingsController {
             return;
         }
 
-        this.settings.contextPrompt = body.prompt;
-
+        this.config.prompts.contextPrompt = body.prompt;
+        this.updateSettings();
 
 
     }

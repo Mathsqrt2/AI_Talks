@@ -3,8 +3,15 @@ import { SettingsService } from './settings.service';
 import { DatabaseModule } from '@libs/database';
 
 @Module({
-  imports: [DatabaseModule],
-  providers: [SettingsService],
-  exports: [SettingsService],
+  imports: [
+    DatabaseModule
+  ],
+  providers: [
+    SettingsService
+  ],
+  exports: [
+    SettingsService
+  ],
 })
+
 export class SettingsModule { }

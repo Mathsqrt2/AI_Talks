@@ -1,21 +1,32 @@
-import { Body, Controller, HttpStatus, Logger, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpStatus, OnApplicationBootstrap, Param, Post, Res } from '@nestjs/common';
 import { BodyInitPayload, InjectContentPayload } from '@libs/types/conversarion';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InjectLogger, Logger } from '@libs/logger';
 import { EventPayload } from '@libs/types/events';
 import { SettingsService } from '@libs/settings';
 import { logMessages } from '../conversation.responses';
 import { event } from '../conversation.constants';
 import { Response } from 'express';
+import { SettingsFile } from '@libs/types/settings';
 
 @Controller()
-export class ConversationController {
+export class ConversationController implements OnApplicationBootstrap {
 
-  private readonly logger: Logger = new Logger(ConversationController.name);
+  private config: SettingsFile = null;
 
   constructor(
-    private readonly settings: SettingsService,
+    @InjectLogger() private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
+    private readonly settings: SettingsService,
   ) { }
+
+  public onApplicationBootstrap() {
+    this.settings.settings.subscribe((settingsFile: SettingsFile) => {
+      this.config = settingsFile;
+    })
+  }
+
+  private updateSettings = () => this.settings.settings.next(this.config);
 
   @Post(`init/:id`)
   public async initializeConversation(
@@ -24,42 +35,32 @@ export class ConversationController {
     @Body() body: BodyInitPayload,
   ): Promise<void> {
 
-    if (this.settings.isConversationInProgres) {
-
-      this.settings.shouldLog
-        ? this.logger.error(logMessages.warn.onConversationAlreadyRunning()) : null;
-
+    if (this.config.isConversationInProgres) {
+      this.logger.error(logMessages.warn.onConversationAlreadyRunning());
       response.sendStatus(HttpStatus.FORBIDDEN);
       return;
     }
 
     if (+id !== 1 && +id !== 2) {
-
-      this.settings.shouldLog
-        ? this.logger.warn(logMessages.warn.onIdOutOfRange(id)) : null;
-
+      this.logger.warn(logMessages.warn.onIdOutOfRange(id));
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
     try {
+      this.config.isConversationInProgres = true;
+      this.config.state.shouldContinue = true;
+      this.updateSettings();
 
-      this.settings.isConversationInProgres = true;
-      this.settings.shouldContinue = true;
       const eventPayload: EventPayload = { speaker_id: +id, prompt: body.prompt };
       await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
 
-      this.settings.shouldLog
-        ? this.logger.log(logMessages.log.onConversationStart()) : null;
-
+      this.logger.log(logMessages.log.onConversationStart());
       response.sendStatus(HttpStatus.OK);
       return;
 
     } catch (error) {
-
-      this.settings.shouldLog
-        ? this.logger.error(logMessages.error.onConversationInitFail()) : null;
-
+      this.logger.error(logMessages.error.onConversationInitFail());
       response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
       return;
     }
@@ -70,21 +71,17 @@ export class ConversationController {
     @Res() response: Response
   ): Promise<void> {
 
-    if (!this.settings.isConversationInProgres) {
-
-      this.settings.shouldLog ?
-        this.logger.warn(logMessages.warn.onBreakMissingConversation()) : null;
-
+    if (!this.config.isConversationInProgres) {
+      this.logger.warn(logMessages.warn.onBreakMissingConversation());
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
-    this.settings.isConversationInProgres = false;
+    this.config.isConversationInProgres = false;
+    this.updateSettings();
     this.eventEmitter.emit(event.breakConversation);
 
-    this.settings.shouldLog
-      ? this.logger.log(logMessages.log.onBreakConversation()) : null;
-
+    this.logger.log(logMessages.log.onBreakConversation());
     response.sendStatus(HttpStatus.OK);
   }
 
@@ -93,20 +90,16 @@ export class ConversationController {
     @Res() response: Response
   ): Promise<void> {
 
-    if (!this.settings.isConversationInProgres) {
-
-      this.settings.shouldLog
-        ? this.logger.warn(logMessages.warn.onPauseMissingConversation()) : null;
-
+    if (!this.config.isConversationInProgres) {
+      this.logger.warn(logMessages.warn.onPauseMissingConversation());
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
-    this.settings.isConversationInProgres = false;
-    this.settings.shouldContinue = false;
-    this.settings.shouldLog
-      ? this.logger.log(logMessages.log.onPauseConversation()) : null;
-
+    this.config.isConversationInProgres = false;
+    this.config.state.shouldContinue = false;
+    this.updateSettings();
+    this.logger.log(logMessages.log.onPauseConversation());
     response.sendStatus(HttpStatus.OK);
   }
 
@@ -115,22 +108,18 @@ export class ConversationController {
     @Res() response: Response
   ) {
 
-    if (this.settings.isConversationInProgres) {
-
-      this.settings.shouldLog
-        ? this.logger.warn(logMessages.warn.onResumeMissingConversation()) : null;
-
+    if (this.config.isConversationInProgres) {
+      this.logger.warn(logMessages.warn.onResumeMissingConversation());
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
-    this.settings.isConversationInProgres = true;
-    this.settings.shouldContinue = true;
+    this.config.isConversationInProgres = true;
+    this.config.state.shouldContinue = true;
+    this.updateSettings();
     await this.eventEmitter.emitAsync(event.resumeConversation);
 
-    this.settings.shouldLog
-      ? this.logger.log(logMessages.log.onResumeConversation()) : null;
-
+    this.logger.log(logMessages.log.onResumeConversation());
     response.sendStatus(HttpStatus.OK);
   }
 
@@ -141,29 +130,19 @@ export class ConversationController {
   ) {
 
     if (!body) {
-
-      this.settings.shouldLog
-        ? this.logger.warn(logMessages.warn.onInvalidPayload()) : null
-
-
+      this.logger.warn(logMessages.warn.onInvalidPayload());
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
-
-      this.settings.shouldLog
-        ? this.logger.warn(logMessages.warn.onInvalidMode(body.mode)) : null;
-
+      this.logger.warn(logMessages.warn.onInvalidMode(body.mode));
       response.sendStatus(HttpStatus.BAD_REQUEST);
       return;
     }
 
     await this.eventEmitter.emitAsync(event.injectMessage, body);
-
-    this.settings.shouldLog
-      ? this.logger.log(logMessages.log.onInjectMessage()) : null;
-
+    this.logger.log(logMessages.log.onInjectMessage());
     response.sendStatus(HttpStatus.OK);
   }
 

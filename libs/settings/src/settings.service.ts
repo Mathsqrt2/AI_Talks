@@ -1,40 +1,81 @@
 import { DatabaseService } from '@libs/database';
 import { InjectContentPayload } from '@libs/types/conversarion';
-import { Stats } from '@libs/types/settings';
+import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
+import { Bot } from '@libs/types/telegram';
 import { Injectable } from '@nestjs/common';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class SettingsService {
 
-    constructor(
+    constructor() { }
 
-    ) { }
+    public settings: BehaviorSubject<SettingsFile> = new BehaviorSubject<SettingsFile>({
+        isConversationInProgres: false,
+        maxMessagesCount: null,
+        maxContextSize: null,
+        state: {
+            shouldContinue: false,
+            shouldNotify: false,
+            shouldDisplay: false,
+            shouldLog: false,
+        },
+        prompts: {
+            initialPrompt: process.env.INITIAL_PROMPT,
+            contextPrompt: process.env.OLLAMA_PROMPT,
+            contextPrompt1: process.env.OLLAMA_PROMPT1,
+            contextPrompt2: process.env.OLLAMA_PROMPT2,
+        }
+    });
 
     public usersMessages: InjectContentPayload[] = [];
-    public isConversationInProgres: boolean = false;
-    public maxMessagesCount: number = null;
-    public maxContextSize: number = null;
-    public shouldContinue: boolean = true;
-    public shouldNotify: boolean = true;
-    public shouldDisplay: boolean = true;
-    public shouldLog: boolean = true;
-    public initialPrompt: string = process.env.INITIAL_PROMPT;
-    public contextPrompt: string = process.env.OLLAMA_PROMPT;
     public currentMessageIndex: number = 0;
     public enqueuedMessage: string;
-    public stats: Stats = {
+
+    private stats: Archive = {
         bot_1: {
-            messages: 0,
-            durationRecords: [],
-            totalGenerationTime: 0,
-            averageGenerationTime: 0,
+            messages: [],
         },
         bot_2: {
-            messages: 0,
-            durationRecords: [],
-            totalGenerationTime: 0,
-            averageGenerationTime: 0,
+            messages: [],
         }
+    }
+
+    private findAverageTime = (messages: Message[]): number => {
+        return messages.length > 0
+            ? +Number(this.findTotalTime(messages) / messages.length).toFixed(1)
+            : 0;
+    }
+
+    private findTotalTime = (messages: Message[]): number => {
+        return messages.reduce((total, entry) => total + entry.generationTime, 0);
+    }
+
+    public getStats = (who?: Bot): Stats | StatsProperties => {
+
+        const bot1Messages = this.stats.bot_1.messages;
+        const bot2Messages = this.stats.bot_2.messages;
+
+        const stats: Stats = {
+            bot_1: {
+                messagesCount: bot1Messages.length,
+                totalGenerationTime: this.findTotalTime(bot1Messages),
+                averageGenerationTime: this.findAverageTime(bot1Messages),
+                firstMessage: bot1Messages.at(0)?.generatingEndTime,
+                lastMessage: bot1Messages.at(-1)?.generatingStartTime,
+            },
+            bot_2: {
+                messagesCount: bot2Messages.length,
+                totalGenerationTime: this.findTotalTime(bot2Messages),
+                averageGenerationTime: this.findAverageTime(bot2Messages),
+                firstMessage: bot2Messages.at(0)?.generatingEndTime,
+                lastMessage: bot2Messages.at(-1)?.generatingStartTime,
+            },
+        }
+
+        if (who && who.name === `bot_1`) return stats.bot_1;
+        if (who && who.name === `bot_2`) return stats.bot_2;
+        return stats;
     }
 
 }

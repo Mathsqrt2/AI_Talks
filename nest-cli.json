@@ -1,14 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/rozmawiacz/src",
+  "sourceRoot": "apps/ai_conversation/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/rozmawiacz/tsconfig.app.json"
+    "tsConfigPath": "apps/ai_conversation/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/rozmawiacz",
+  "root": "apps/",
   "projects": {
     "ai_conversation": {
       "type": "application",
