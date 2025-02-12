@@ -9,4 +9,4 @@ export type InjectContentPayload = {
     username: string,
 }
 
-type InjectionMode = `REPLACE` | `MERGE`;
+export type InjectionMode = `REPLACE` | `MERGE`;

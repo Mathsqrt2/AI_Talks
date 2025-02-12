@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, OnApplicationBootstrap, Param, Post, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, OnApplicationBootstrap, Param, Post, Res } from '@nestjs/common';
 import { BodyInitPayload, InjectContentPayload } from '@libs/types/conversarion';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectLogger, Logger } from '@libs/logger';
@@ -6,8 +6,8 @@ import { EventPayload } from '@libs/types/events';
 import { SettingsService } from '@libs/settings';
 import { logMessages } from '../conversation.responses';
 import { event } from '../conversation.constants';
-import { Response } from 'express';
 import { SettingsFile } from '@libs/types/settings';
+import { InjectMessageDto } from '../dtos/injectMessageDto';
 
 @Controller()
 export class ConversationController implements OnApplicationBootstrap {
@@ -20,31 +20,28 @@ export class ConversationController implements OnApplicationBootstrap {
     private readonly settings: SettingsService,
   ) { }
 
+  private updateSettings = () => this.settings.settings.next(this.config);
   public onApplicationBootstrap() {
     this.settings.settings.subscribe((settingsFile: SettingsFile) => {
       this.config = settingsFile;
     })
   }
 
-  private updateSettings = () => this.settings.settings.next(this.config);
-
-  @Post(`init/:id`)
+  @Post([`init/:id`, `start/:id`, `run/:id`])
+  @HttpCode(HttpStatus.ACCEPTED)
   public async initializeConversation(
     @Param(`id`) id: number,
-    @Res() response: Response,
     @Body() body: BodyInitPayload,
   ): Promise<void> {
 
     if (this.config.isConversationInProgres) {
       this.logger.error(logMessages.warn.onConversationAlreadyRunning());
-      response.sendStatus(HttpStatus.FORBIDDEN);
-      return;
+      throw new ForbiddenException(logMessages.warn.onConversationAlreadyRunning());
     }
 
     if (+id !== 1 && +id !== 2) {
       this.logger.warn(logMessages.warn.onIdOutOfRange(id));
-      response.sendStatus(HttpStatus.BAD_REQUEST);
-      return;
+      throw new BadRequestException(logMessages.warn.onIdOutOfRange(id))
     }
 
     try {
@@ -56,94 +53,80 @@ export class ConversationController implements OnApplicationBootstrap {
       await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
 
       this.logger.log(logMessages.log.onConversationStart());
-      response.sendStatus(HttpStatus.OK);
-      return;
-
     } catch (error) {
       this.logger.error(logMessages.error.onConversationInitFail());
-      response.sendStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-      return;
+      throw new InternalServerErrorException(logMessages.error.onConversationInitFail())
     }
+
   }
 
-  @Post(`break`)
-  public async breakConversation(
-    @Res() response: Response
-  ): Promise<void> {
+  @Post([`break`, `stop`, `end`])
+  @HttpCode(HttpStatus.OK)
+  public async breakConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
       this.logger.warn(logMessages.warn.onBreakMissingConversation());
-      response.sendStatus(HttpStatus.BAD_REQUEST);
-      return;
+      throw new BadRequestException(logMessages.warn.onBreakMissingConversation())
     }
 
     this.config.isConversationInProgres = false;
     this.updateSettings();
-    this.eventEmitter.emit(event.breakConversation);
 
+    this.eventEmitter.emit(event.breakConversation);
     this.logger.log(logMessages.log.onBreakConversation());
-    response.sendStatus(HttpStatus.OK);
   }
 
   @Post(`pause`)
-  public async pauseConversation(
-    @Res() response: Response
-  ): Promise<void> {
+  @HttpCode(HttpStatus.OK)
+  public async pauseConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
       this.logger.warn(logMessages.warn.onPauseMissingConversation());
-      response.sendStatus(HttpStatus.BAD_REQUEST);
-      return;
+      throw new BadRequestException(logMessages.warn.onPauseMissingConversation())
     }
 
     this.config.isConversationInProgres = false;
     this.config.state.shouldContinue = false;
     this.updateSettings();
+
     this.logger.log(logMessages.log.onPauseConversation());
-    response.sendStatus(HttpStatus.OK);
   }
 
-  @Post(`resume`)
-  public async resumeConversation(
-    @Res() response: Response
-  ) {
+  @Post([`resume`, `continue`])
+  @HttpCode(HttpStatus.OK)
+  public async resumeConversation(): Promise<void> {
 
     if (this.config.isConversationInProgres) {
       this.logger.warn(logMessages.warn.onResumeMissingConversation());
-      response.sendStatus(HttpStatus.BAD_REQUEST);
-      return;
+      throw new BadRequestException(logMessages.warn.onResumeMissingConversation())
     }
 
     this.config.isConversationInProgres = true;
     this.config.state.shouldContinue = true;
     this.updateSettings();
-    await this.eventEmitter.emitAsync(event.resumeConversation);
 
+    await this.eventEmitter.emitAsync(event.resumeConversation);
     this.logger.log(logMessages.log.onResumeConversation());
-    response.sendStatus(HttpStatus.OK);
   }
 
-  @Post(`inject`)
+  @Post([`inject`, `modify`])
+  @HttpCode(HttpStatus.ACCEPTED)
   public async injectContentIntoConversation(
-    @Res() response: Response,
-    @Body() body: InjectContentPayload,
-  ) {
+    @Body() body: InjectMessageDto,
+  ): Promise<void> {
 
     if (!body) {
       this.logger.warn(logMessages.warn.onInvalidPayload());
-      response.sendStatus(HttpStatus.BAD_REQUEST);
-      return;
+      throw new BadRequestException(logMessages.warn.onInvalidPayload());
     }
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
       this.logger.warn(logMessages.warn.onInvalidMode(body.mode));
-      response.sendStatus(HttpStatus.BAD_REQUEST);
-      return;
+      throw new BadRequestException(logMessages.warn.onInvalidMode(body.mode));
     }
 
     await this.eventEmitter.emitAsync(event.injectMessage, body);
     this.logger.log(logMessages.log.onInjectMessage());
-    response.sendStatus(HttpStatus.OK);
   }
 
 }

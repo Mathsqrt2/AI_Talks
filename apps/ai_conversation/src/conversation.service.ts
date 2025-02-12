@@ -37,7 +37,7 @@ export class ConversationService implements OnApplicationBootstrap {
   private async startConversation(): Promise<void> {
 
     if (this.config.isConversationInProgres) {
-      this.logger.warn(logMessages.warn.conversationAlreadyRunning());
+      this.logger.warn(logMessages.warn.onConversationAlreadyRunning());
     }
 
 
