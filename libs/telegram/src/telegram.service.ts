@@ -1,4 +1,4 @@
-import { Speaker } from '@libs/types/telegram';
+import { Bot } from '@libs/types/telegram';
 import { Injectable, Logger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 
@@ -16,6 +16,7 @@ export class TelegramGateway {
             this.logger.log(`Telegram bot_1 connected successfully`);
         } catch (error) {
             this.logger.error(`Failed to connect with telegram_bot1`, error);
+            this.speaker1 = null;
         }
 
         try {
@@ -23,11 +24,12 @@ export class TelegramGateway {
             this.logger.log(`Telegram bot_2 connected.`);
         } catch (error) {
             this.logger.error(`Failed to connect with telegram_bot2`, error);
+            this.speaker2 = null;
         }
 
     }
 
-    public respondBy = async (who: Speaker, content: string): Promise<boolean> => {
+    public respondBy = async (who: Bot, content: string): Promise<boolean> => {
 
         if (!this.speaker1 || !this.speaker2) {
             this.logger.error(`Something went wrong with speakers.`);
@@ -36,9 +38,10 @@ export class TelegramGateway {
 
         try {
 
-            who === `bot_1`
-                ? this.speaker1.sendMessage(process.env.GROUP_CHAT_ID, content)
-                : this.speaker2.sendMessage(process.env.GROUP_CHAT_ID, content);
+            who.name === `bot_1`
+                ? await this.speaker1.sendMessage(process.env.GROUP_CHAT_ID, content)
+                : await this.speaker2.sendMessage(process.env.GROUP_CHAT_ID, content);
+            return true;
 
         } catch (error) {
             this.logger.error(`Failed to send message by ${who}.`, error);

@@ -3,7 +3,7 @@ import { InjectLogger, Logger } from '@libs/logger';
 import { SettingsService } from '@libs/settings';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Injectable } from '@nestjs/common';
-import { Bots } from '@libs/types/telegram';
+import { Bot } from '@libs/types/telegram';
 
 import { logMessages } from './conversation.responses';
 import { event } from './conversation.constants';
@@ -13,7 +13,7 @@ import { Ollama } from 'ollama';
 export class ConversationService {
 
   private readonly model: Ollama = new Ollama({});
-  private lastResponder: Bots = null;
+  private lastResponder: Bot = null;
 
   constructor(
     @InjectLogger() private readonly logger: Logger,
