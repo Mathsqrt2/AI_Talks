@@ -18,7 +18,7 @@ export class SettingsService {
             shouldContinue: false,
             shouldNotify: false,
             shouldDisplay: false,
-            shouldLog: false,
+            shouldLog: true,
         },
         prompts: {
             initialPrompt: process.env.INITIAL_PROMPT,

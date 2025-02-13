@@ -1,18 +1,19 @@
-import { SettingsService } from '@libs/settings';
-import { SettingsFile } from '@libs/types/settings';
-import { Bot } from '@libs/types/telegram';
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
+import { SettingsFile } from '@libs/types/settings';
+import { SettingsService } from '@libs/settings';
+import { Bot } from '@libs/types/telegram';
+import { Logger } from '@libs/logger';
 
 @Injectable()
 export class TelegramGateway implements OnApplicationBootstrap {
 
-    private logger: Logger = new Logger(TelegramGateway.name);
     private config: SettingsFile = null;
     private speaker1: TelegramBot = null;
     private speaker2: TelegramBot = null;
 
     constructor(
+        private readonly logger: Logger,
         private readonly settings: SettingsService,
     ) {
 

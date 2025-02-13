@@ -1,45 +1,112 @@
+import { Injectable, Logger as NestLogger } from '@nestjs/common';
+import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
 import { SettingsService } from '@libs/settings';
-import { SettingsFile } from '@libs/types/settings';
-import { Injectable, Scope, Logger as NestLogger, OnApplicationBootstrap } from '@nestjs/common';
+import { DatabaseService } from '@libs/database';
 
-@Injectable({ scope: Scope.TRANSIENT })
-export class Logger implements OnApplicationBootstrap {
+@Injectable()
+export class Logger {
 
+    private appName: string = __dirname.split("\\").pop();
     private logger: NestLogger;
-    private config: SettingsFile;
-
-    public setContext = (context: string) => {
-        this.logger = new NestLogger(context);
-    }
 
     constructor(
-        private readonly settings: SettingsService
+        private readonly settings: SettingsService,
+        private readonly database: DatabaseService,
     ) {
-        this.logger = new NestLogger();
+        this.logger = new NestLogger(this.appName);
     }
 
-    public onApplicationBootstrap() {
-        this.settings.settings.subscribe((settingsFile: SettingsFile) => {
-            this.config = settingsFile;
-        });
+    private shouldLog = (): boolean => {
+        return this.settings.app.getValue().state.shouldLog;
     }
 
-    public log = (message: any) => {
+    public log = (message: any, config?: LoggerConfig): void => {
 
+        const context = config?.context || null;
+        const save = config?.save || false;
 
-        this.logger.log(message);
+        if (save) {
+            try {
+                this.database.saveLog(message, config);
+            } catch (error) {
+                this.error(`Failed to save log in database.`, { error });
+            }
+        }
+
+        if (!this.shouldLog()) {
+            return;
+        }
+
+        context
+            ? this.logger.log(message, context)
+            : this.logger.log(message)
     }
 
-    public warn = (message: any) => {
-        this.logger.warn(message);
+    public warn = (message: any, config?: LoggerConfig): void => {
+
+        const context = config?.context || null;
+        const save = config?.save || false;
+
+        if (save) {
+            try {
+                this.database.saveLog(message, config);
+            } catch (error) {
+                this.error(`Failed to save warn log in database.`, { error });
+            }
+        }
+
+        if (!this.shouldLog()) {
+            return;
+        }
+
+
+        context
+            ? this.logger.warn(message, context)
+            : this.logger.warn(message)
     }
 
-    public error = (message: any) => {
-        this.logger.error(message);
+    public error = (message: any, config?: ErrorConfig): void => {
+
+        const context = config?.context || null;
+        const save = config?.save || false;
+        const error = config.error || null;
+
+        if (save) {
+            try {
+                this.database.saveLog(message, config);
+            } catch (error) {
+                this.error(`Failed to save error log in database.`, { error });
+            }
+        }
+
+        if (!this.shouldLog()) {
+            return;
+        }
+
+        error
+            ? this.logger.error(message, error)
+            : this.logger.error(message)
     }
 
-    public debug = (message: any) => {
-        this.logger.debug(message);
-    }
+    public debug = (message: any, config?: LoggerConfig): void => {
 
+        const context = config?.context || null;
+        const save = config?.save || false;
+
+        if (save) {
+            try {
+                this.database.saveLog(message, config);
+            } catch (error) {
+                this.error(`Failed to save debug log in database.`, { error });
+            }
+        }
+
+        if (!this.shouldLog()) {
+            return;
+        }
+
+        context
+            ? this.logger.debug(message, context)
+            : this.logger.debug(message);
+    }
 }

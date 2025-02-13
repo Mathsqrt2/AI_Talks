@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
 import { Logger } from './logger.service';
 import { SettingsModule } from '@libs/settings';
+import { DatabaseModule } from '@libs/database';
 
 @Module({
   imports: [
-    SettingsModule
+    DatabaseModule,
+    SettingsModule,
   ],
   providers: [
-    Logger
+    Logger,
   ],
   exports: [
-    Logger
+    Logger,
   ],
 })
 

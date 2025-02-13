@@ -1,7 +1,12 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, HttpCode, HttpStatus, InternalServerErrorException, OnApplicationBootstrap, Param, Post, Res } from '@nestjs/common';
-import { BodyInitPayload, InjectContentPayload } from '@libs/types/conversarion';
+import {
+  BadRequestException, Body, Controller,
+  ForbiddenException, HttpCode, HttpStatus,
+  InternalServerErrorException, OnApplicationBootstrap,
+  Param, Post
+} from '@nestjs/common';
+import { BodyInitPayload } from '@libs/types/conversarion';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InjectLogger, Logger } from '@libs/logger';
+import { Logger } from '@libs/logger';
 import { EventPayload } from '@libs/types/events';
 import { SettingsService } from '@libs/settings';
 import { logMessages } from '../constants/conversation.responses';
@@ -15,7 +20,7 @@ export class ConversationController implements OnApplicationBootstrap {
   private config: SettingsFile = null;
 
   constructor(
-    @InjectLogger() private readonly logger: Logger,
+    private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
   ) { }

@@ -1,13 +1,13 @@
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { InjectLogger, Logger } from '@libs/logger';
-import { SettingsService } from '@libs/settings';
-import { OnEvent } from '@nestjs/event-emitter';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { Bot } from '@libs/types/telegram';
 import { event } from './constants/conversation.constants';
-import { Ollama } from 'ollama';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { SettingsFile } from '@libs/types/settings';
 import { EventPayload } from '@libs/types/events';
+import { SettingsService } from '@libs/settings';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Bot } from '@libs/types/telegram';
+import { Logger } from '@libs/logger';
+import { Ollama } from 'ollama';
 
 @Injectable()
 export class ConversationService implements OnApplicationBootstrap {
@@ -17,8 +17,8 @@ export class ConversationService implements OnApplicationBootstrap {
   private config: SettingsFile = null;
 
   constructor(
-    @InjectLogger() private readonly logger: Logger,
     private readonly settings: SettingsService,
+    private readonly logger: Logger,
   ) { }
 
   public onApplicationBootstrap() {
@@ -29,7 +29,8 @@ export class ConversationService implements OnApplicationBootstrap {
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   private refreshSettings() {
-
+    console.log(`test`);
+    this.logger.debug("test")
   }
 
   @OnEvent(event.startConversation, { async: true })
@@ -38,8 +39,6 @@ export class ConversationService implements OnApplicationBootstrap {
     this.lastResponder = payload.speaker_id === 1
       ? { name: 'bot_1' }
       : { name: `bot_2` };
-
-
 
   }
 

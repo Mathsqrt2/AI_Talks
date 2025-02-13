@@ -6,16 +6,15 @@ import { Response } from 'express';
 import { logMessages } from '../constants/conversation.responses';
 import { SettingsService } from '@libs/settings';
 import { SettingsFile } from '@libs/types/settings';
-import { InjectLogger, Logger } from '@libs/logger';
+import { Logger } from '@libs/logger';
 
 @Controller(`setings`)
 export class SettingsController implements OnApplicationBootstrap {
 
     private config: SettingsFile = null;
-
     constructor(
-        @InjectLogger() private readonly logger: Logger,
         private readonly settings: SettingsService,
+        private readonly logger: Logger,
     ) { }
 
     public onApplicationBootstrap() {
