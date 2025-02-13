@@ -3,7 +3,7 @@ import {
     OnApplicationBootstrap, Post, Res
 } from '@nestjs/common';
 import { Response } from 'express';
-import { logMessages } from '../conversation.responses';
+import { logMessages } from '../constants/conversation.responses';
 import { SettingsService } from '@libs/settings';
 import { SettingsFile } from '@libs/types/settings';
 import { InjectLogger, Logger } from '@libs/logger';
@@ -19,12 +19,12 @@ export class SettingsController implements OnApplicationBootstrap {
     ) { }
 
     public onApplicationBootstrap() {
-        this.settings.settings.subscribe((settingsFile: SettingsFile) => {
+        this.settings.app.subscribe((settingsFile: SettingsFile) => {
             this.config = settingsFile;
         })
     }
 
-    private updateSettings = () => this.settings.settings.next(this.config);
+    private updateSettings = () => this.settings.app.next(this.config);
 
     @Get()
     public findCurrentSettings() {

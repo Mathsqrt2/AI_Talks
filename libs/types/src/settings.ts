@@ -1,3 +1,4 @@
+import { InjectContentPayload } from "./conversarion";
 import { Bot } from "./telegram";
 
 export type SettingsFile = {
@@ -17,6 +18,12 @@ export type SettingsFile = {
         contextPrompt1: string;
         contextPrompt2: string;
     }
+}
+
+export type AppState = {
+    usersMessages: InjectContentPayload[],
+    currentMessageIndex: number,
+    enqueuedMessage: string;
 }
 
 export type Archive = {

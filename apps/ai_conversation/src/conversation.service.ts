@@ -4,11 +4,10 @@ import { SettingsService } from '@libs/settings';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
-
-import { logMessages } from './conversation.responses';
-import { event } from './conversation.constants';
+import { event } from './constants/conversation.constants';
 import { Ollama } from 'ollama';
 import { SettingsFile } from '@libs/types/settings';
+import { EventPayload } from '@libs/types/events';
 
 @Injectable()
 export class ConversationService implements OnApplicationBootstrap {
@@ -23,22 +22,23 @@ export class ConversationService implements OnApplicationBootstrap {
   ) { }
 
   public onApplicationBootstrap() {
-    this.settings.settings.subscribe((settingsFile: SettingsFile) => {
+    this.settings.app.subscribe((settingsFile: SettingsFile) => {
       this.config = settingsFile;
     });
   }
 
   @Cron(CronExpression.EVERY_5_SECONDS)
   private refreshSettings() {
-    this.logger.debug('test')
+
   }
 
   @OnEvent(event.startConversation, { async: true })
-  private async startConversation(): Promise<void> {
+  private async startConversation(payload: EventPayload): Promise<void> {
 
-    if (this.config.isConversationInProgres) {
-      this.logger.warn(logMessages.warn.onConversationAlreadyRunning());
-    }
+    this.lastResponder = payload.speaker_id === 1
+      ? { name: 'bot_1' }
+      : { name: `bot_2` };
+
 
 
   }
@@ -50,6 +50,13 @@ export class ConversationService implements OnApplicationBootstrap {
 
   @OnEvent(event.resumeConversation, { async: true })
   private async resumeConversation(): Promise<void> {
+
+  }
+
+  @OnEvent(event.message, { async: true })
+  private async sendMessage(): Promise<void> {
+
+
 
   }
 

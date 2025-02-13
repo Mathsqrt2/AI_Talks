@@ -4,8 +4,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectLogger, Logger } from '@libs/logger';
 import { EventPayload } from '@libs/types/events';
 import { SettingsService } from '@libs/settings';
-import { logMessages } from '../conversation.responses';
-import { event } from '../conversation.constants';
+import { logMessages } from '../constants/conversation.responses';
+import { event } from '../constants/conversation.constants';
 import { SettingsFile } from '@libs/types/settings';
 import { InjectMessageDto } from '../dtos/injectMessageDto';
 
@@ -20,9 +20,9 @@ export class ConversationController implements OnApplicationBootstrap {
     private readonly settings: SettingsService,
   ) { }
 
-  private updateSettings = () => this.settings.settings.next(this.config);
+  private updateSettings = () => this.settings.app.next(this.config);
   public onApplicationBootstrap() {
-    this.settings.settings.subscribe((settingsFile: SettingsFile) => {
+    this.settings.app.subscribe((settingsFile: SettingsFile) => {
       this.config = settingsFile;
     })
   }

@@ -1,15 +1,20 @@
+import { SettingsService } from '@libs/settings';
+import { SettingsFile } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 
 @Injectable()
-export class TelegramGateway {
+export class TelegramGateway implements OnApplicationBootstrap {
 
     private logger: Logger = new Logger(TelegramGateway.name);
+    private config: SettingsFile = null;
     private speaker1: TelegramBot = null;
     private speaker2: TelegramBot = null;
 
-    constructor() {
+    constructor(
+        private readonly settings: SettingsService,
+    ) {
 
         try {
             this.speaker1 = new TelegramBot(process.env.TOKEN1, { polling: true });
@@ -29,6 +34,12 @@ export class TelegramGateway {
 
     }
 
+    public onApplicationBootstrap() {
+        this.settings.app.subscribe((newSettings: SettingsFile) => {
+            this.config = newSettings;
+        })
+    }
+
     public respondBy = async (who: Bot, content: string): Promise<boolean> => {
 
         if (!this.speaker1 || !this.speaker2) {
@@ -36,8 +47,11 @@ export class TelegramGateway {
             return false;
         }
 
-        try {
+        if (!this.config.state.shouldDisplay) {
+            return false;
+        }
 
+        try {
             who.name === `bot_1`
                 ? await this.speaker1.sendMessage(process.env.GROUP_CHAT_ID, content)
                 : await this.speaker2.sendMessage(process.env.GROUP_CHAT_ID, content);

@@ -1,6 +1,6 @@
 import { DatabaseService } from '@libs/database';
 import { InjectContentPayload } from '@libs/types/conversarion';
-import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
+import { AppState, Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
 import { Injectable } from '@nestjs/common';
 import { BehaviorSubject } from 'rxjs';
@@ -10,7 +10,7 @@ export class SettingsService {
 
     constructor() { }
 
-    public settings: BehaviorSubject<SettingsFile> = new BehaviorSubject<SettingsFile>({
+    public app: BehaviorSubject<SettingsFile> = new BehaviorSubject<SettingsFile>({
         isConversationInProgres: false,
         maxMessagesCount: null,
         maxContextSize: null,
@@ -28,9 +28,11 @@ export class SettingsService {
         }
     });
 
-    public usersMessages: InjectContentPayload[] = [];
-    public currentMessageIndex: number = 0;
-    public enqueuedMessage: string;
+    private state: AppState = {
+        usersMessages: [],
+        currentMessageIndex: 0,
+        enqueuedMessage: null,
+    }
 
     private stats: Archive = {
         bot_1: {

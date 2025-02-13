@@ -2,13 +2,15 @@ export type EventKeys =
     | `startConversation`
     | `breakConversation`
     | `resumeConversation`
-    | `injectMessage`;
+    | `injectMessage`
+    | `message`;
 
 export type EventTypes =
     | `start-conversation`
     | `break-conversation`
     | `resume-conversation`
-    | `inject-message`;
+    | `inject-message`
+    | `message`;
 
 export type EventPayload = {
     bot_name?: string,
