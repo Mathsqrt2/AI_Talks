@@ -59,7 +59,6 @@ export class Logger {
             return;
         }
 
-
         context
             ? this.logger.warn(message, context)
             : this.logger.warn(message)
@@ -83,9 +82,9 @@ export class Logger {
             return;
         }
 
-        error
-            ? this.logger.error(message, error)
-            : this.logger.error(message)
+        context
+            ? this.logger.error(message, error || null, context)
+            : this.logger.error(message, context)
     }
 
     public debug = (message: any, config?: LoggerConfig): void => {

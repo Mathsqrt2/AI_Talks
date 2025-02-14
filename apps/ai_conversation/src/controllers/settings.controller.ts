@@ -1,6 +1,7 @@
 import {
-    Body, Controller, Get, HttpStatus,
-    OnApplicationBootstrap, Post, Res
+    BadRequestException,
+    Body, Controller, Get, HttpCode, HttpStatus,
+    OnApplicationBootstrap, Param, Post, Res
 } from '@nestjs/common';
 import { Response } from 'express';
 import { logMessages } from '../constants/conversation.responses';
@@ -26,80 +27,104 @@ export class SettingsController implements OnApplicationBootstrap {
     private updateSettings = () => this.settings.app.next(this.config);
 
     @Get()
+    @HttpCode(HttpStatus.FOUND)
     public findCurrentSettings() {
-
+        this.logger.log(`Responded to user with current app configuration`);
+        return this.config
     }
 
     @Get(`context`)
-    public findCurrentContextLength(
-        @Res() response: Response,
-    ) {
-        response.status(HttpStatus.ACCEPTED).json(this.config.maxContextSize);
+    @HttpCode(HttpStatus.FOUND)
+    public findCurrentContextLength() {
         this.logger.log(`Responded to user with current context length.`);
+        return this.config.maxContextSize;
     }
 
-    @Get(`prompt`)
+    @Get(`prompt/:id`)
+    @HttpCode(HttpStatus.FOUND)
     public findCurrentBasePrompt(
+        @Param(`id`) id: number
+    ): { prompt: string[] } {
 
-    ): void {
+        if (id < 0 || id > 2) {
+            throw new BadRequestException(`Failed to response with prompt. ID out of range`);
+        }
 
+        if (id === 0) {
+            this.logger.log(`Responded to user with initial prompt.`);
+            return { prompt: [this.config.prompts.initialPrompt] };
+        }
+
+        if (id === 1) {
+            this.logger.log(`Responded to user with contextPrompt1.`);
+            return { prompt: [this.config.prompts.contextPrompt1] };
+        }
+
+        if (id === 2) {
+            this.logger.log(`Responded to user with contextPrompt2.`);
+            return { prompt: [this.config.prompts.contextPrompt2] };
+        }
+
+        if (id === 3) {
+            this.logger.log(`Responded to user with universalContext prompt.`);
+            return { prompt: [this.config.prompts.contextPrompt] };
+        }
+
+        const prompt: string[] = [];
+        for (const key in this.config.prompts) {
+            prompt.push(this.config.prompts[key]);
+        }
+
+        this.logger.log(`Responded to user with all prompts.`);
+        return { prompt }
     }
 
     @Post(`context`)
+    @HttpCode(HttpStatus.OK)
     public setContextLength(
-        @Res() response: Response,
         @Body() body: { context: number },
     ): void {
 
         if (!body.context) {
-            response.sendStatus(HttpStatus.BAD_REQUEST);
-            return;
+            throw new BadRequestException(`Incorrect context value.`);
         }
 
         if (Number.isNaN(+body.context)) {
-            response.sendStatus(HttpStatus.BAD_REQUEST);
-            return;
+            throw new BadRequestException(`Context must be a number.`)
         }
 
         this.config.maxContextSize = body.context;
         this.updateSettings();
 
         this.logger.log(logMessages.log.contextUpdated(body.context));
-        response.sendStatus(HttpStatus.ACCEPTED);
     }
 
-
-
     @Post(`prompt`)
+    @HttpCode(HttpStatus.OK)
     public setContextPrompt(
-        @Res() response: Response,
         @Body() body: { prompt: string }
     ): void {
 
         if (!body.prompt) {
-            response.sendStatus(HttpStatus.BAD_REQUEST);
-            return;
+            throw new BadRequestException(`Invalid body.`);
         }
 
         this.config.prompts.contextPrompt = body.prompt;
         this.updateSettings();
-
-
     }
 
     @Post(`logs`)
+    @HttpCode(HttpStatus.OK)
     public setLoggingState(
-        @Res() response: Response,
         @Body() body: { prompt: string }
     ): void {
 
     }
 
     @Post(`notifications`)
+    @HttpCode(HttpStatus.OK)
     public setNotificationsState() {
 
     }
-
-
 
 }
