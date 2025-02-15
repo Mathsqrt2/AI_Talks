@@ -28,14 +28,14 @@ export class SettingsController implements OnApplicationBootstrap {
     @Get()
     @HttpCode(HttpStatus.FOUND)
     public findCurrentSettings() {
-        this.logger.log(`Responded to user with current app configuration`);
+        this.logger.log(LogMessage.log.onUserResponseWithConfig());
         return this.config
     }
 
     @Get(`context`)
     @HttpCode(HttpStatus.FOUND)
     public findCurrentContextLength() {
-        this.logger.log(`Responded to user with current context length.`);
+        this.logger.log(LogMessage.log.onUserResponseWithContext());
         return this.config.maxContextSize;
     }
 
@@ -45,27 +45,27 @@ export class SettingsController implements OnApplicationBootstrap {
         @Param(`id`) id: number
     ): { prompt: string[] } {
 
-        if (id < 0 || id > 2) {
-            throw new BadRequestException(`Failed to response with prompt. ID out of range`);
+        if (id !== 0 && id !== 1 && id !== 2 && id !== 3) {
+            throw new BadRequestException(LogMessage.error.onFailedToResponseWithPrompt());
         }
 
         if (id === 0) {
-            this.logger.log(`Responded to user with initial prompt.`);
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`initial`));
             return { prompt: [this.config.prompts.initialPrompt] };
         }
 
         if (id === 1) {
-            this.logger.log(`Responded to user with contextPrompt1.`);
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt1`));
             return { prompt: [this.config.prompts.contextPrompt1] };
         }
 
         if (id === 2) {
-            this.logger.log(`Responded to user with contextPrompt2.`);
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt2`));
             return { prompt: [this.config.prompts.contextPrompt2] };
         }
 
         if (id === 3) {
-            this.logger.log(`Responded to user with universalContext prompt.`);
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`universalContextPrompt`));
             return { prompt: [this.config.prompts.contextPrompt] };
         }
 
@@ -74,7 +74,7 @@ export class SettingsController implements OnApplicationBootstrap {
             prompt.push(this.config.prompts[key]);
         }
 
-        this.logger.log(`Responded to user with all prompts.`);
+        this.logger.log(LogMessage.log.onUserResponseWithAllPrompts());
         return { prompt }
     }
 
@@ -85,11 +85,11 @@ export class SettingsController implements OnApplicationBootstrap {
     ): void {
 
         if (!body.context) {
-            throw new BadRequestException(`Incorrect context value.`);
+            throw new BadRequestException(LogMessage.error.onIncorrectValue(`context`));
         }
 
         if (Number.isNaN(+body.context)) {
-            throw new BadRequestException(`Context must be a number.`)
+            throw new BadRequestException(LogMessage.error.onNaNError(`context`))
         }
 
         this.config.maxContextSize = body.context;
@@ -105,7 +105,7 @@ export class SettingsController implements OnApplicationBootstrap {
     ): void {
 
         if (!body.prompt) {
-            throw new BadRequestException(`Invalid body.`);
+            throw new BadRequestException(LogMessage.error.onInvalidBody());
         }
 
         this.config.prompts.contextPrompt = body.prompt;

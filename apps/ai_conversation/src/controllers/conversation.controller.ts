@@ -13,6 +13,8 @@ import { LogMessage } from '../constants/conversation.responses';
 import { event } from '../constants/conversation.constants';
 import { SettingsFile } from '@libs/types/settings';
 import { InjectMessageDto } from '../dtos/injectMessageDto';
+import { ApiParam } from '@nestjs/swagger';
+import { SwaggerMessages } from '../constants/swagger.descriptions';
 
 @Controller()
 export class ConversationController implements OnApplicationBootstrap {
@@ -34,9 +36,10 @@ export class ConversationController implements OnApplicationBootstrap {
 
   @Post([`init/:id`, `start/:id`, `run/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiParam({ name: `id`, description: SwaggerMessages.description.aboutInitId(), required: false })
   public async initializeConversation(
-    @Param(`id`) id: number,
     @Body() body: BodyInitPayload,
+    @Param(`id`) id?: number,
   ): Promise<void> {
 
     if (this.config.isConversationInProgres) {

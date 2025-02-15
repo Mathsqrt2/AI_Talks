@@ -14,6 +14,10 @@ export class LogMessage {
 
     public static error: LogMessageContent = {
         onConversationInitFail: (): string => `Failed to initialize conversation.`,
+        onFailedToResponseWithPrompt: (): string => `Failed to response with prompt. ID out of range`,
+        onIncorrectValue: (property: string) => `Incorrect ${property} value.`,
+        onNaNError: (property: string) => `${property.charAt(0).toUpperCase()}${property.slice(1)} value must be a number.`,
+        onInvalidBody: (): string => `Invalid body params.`,
     };
 
     public static log: LogMessageContent = {
@@ -23,6 +27,10 @@ export class LogMessage {
         onPauseConversation: (): string => `Successfully paused current conversation.`,
         onResumeConversation: (): string => `Successfully resumed current conversation.`,
         onInjectMessage: (): string => `Successfully injected outer message into conversation.`,
+        onUserResponseWithConfig: (): string => `Responded to user with current app configuration`,
+        onUserResponseWithContext: (): string => `Responded to user with current context length.`,
+        onUserResponseWithPrompt: (type: string): string => `Responded to user with ${type} prompt.`,
+        onUserResponseWithAllPrompts: (): string => `Responded to user with all prompts.`,
     };
 
 }

@@ -68,7 +68,7 @@ export class Logger {
 
         const context = config?.context || null;
         const save = config?.save || false;
-        const error = config.error || null;
+        const error = config?.error || null;
 
         if (save) {
             try {
