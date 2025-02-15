@@ -1,6 +1,6 @@
-export type LogMessages = { [key in `error` | `warn` | `log`]: LogMessage };
-type LogMessage = { [key: string]: LogFunction };
-type LogFunction = (() => string) | ((param?: number | string) => string);
+export type LogMessages = { [key in `error` | `warn` | `log`]: LogMessageContent };
+export type LogMessageContent = { [key: string]: LogMessageFunction };
+type LogMessageFunction = (() => string) | ((param?: number | string) => string);
 
 export type LoggerConfig = {
     context?: any,

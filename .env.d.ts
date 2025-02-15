@@ -1,5 +1,7 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
+    API_PORT: number;
+
     OLLAMA_PROMPT: string;
     OLLAMA_PROMPT1: string;
     OLLAMA_PROMPT2: string;

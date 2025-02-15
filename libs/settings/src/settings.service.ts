@@ -1,9 +1,9 @@
-import { DatabaseService } from '@libs/database';
-import { InjectContentPayload } from '@libs/types/conversarion';
-import { AppState, Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
+import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
 import { Injectable } from '@nestjs/common';
 import { BehaviorSubject } from 'rxjs';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 @Injectable()
 export class SettingsService {
@@ -19,6 +19,10 @@ export class SettingsService {
             shouldNotify: false,
             shouldDisplay: false,
             shouldLog: true,
+            usersMessages: [],
+            currentMessageIndex: 0,
+            lastBotMessages: [],
+
         },
         prompts: {
             initialPrompt: process.env.INITIAL_PROMPT,
@@ -27,12 +31,6 @@ export class SettingsService {
             contextPrompt2: process.env.OLLAMA_PROMPT2,
         }
     });
-
-    private state: AppState = {
-        usersMessages: [],
-        currentMessageIndex: 0,
-        enqueuedMessage: null,
-    }
 
     private stats: Archive = {
         bot_1: {
@@ -51,6 +49,12 @@ export class SettingsService {
 
     private findTotalTime = (messages: Message[]): number => {
         return messages.reduce((total, entry) => total + entry.generationTime, 0);
+    }
+
+    private archiveCurrentState = async (): Promise<void> => {
+
+
+
     }
 
     public getStats = (who?: Bot): Stats | StatsProperties => {

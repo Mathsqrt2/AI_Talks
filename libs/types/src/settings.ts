@@ -10,6 +10,9 @@ export type SettingsFile = {
         shouldNotify: boolean,
         shouldDisplay: boolean,
         shouldLog: boolean,
+        usersMessages: InjectContentPayload[],
+        currentMessageIndex: number,
+        lastBotMessages: Message[]
     }
 
     prompts: {
@@ -49,4 +52,5 @@ export type Message = {
     generatingStartTime: Date,
     generatingEndTime: Date,
     content: string,
+    author: string,
 }

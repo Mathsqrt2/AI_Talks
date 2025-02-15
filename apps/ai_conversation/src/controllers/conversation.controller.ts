@@ -9,7 +9,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Logger } from '@libs/logger';
 import { EventPayload } from '@libs/types/events';
 import { SettingsService } from '@libs/settings';
-import { logMessages } from '../constants/conversation.responses';
+import { LogMessage } from '../constants/conversation.responses';
 import { event } from '../constants/conversation.constants';
 import { SettingsFile } from '@libs/types/settings';
 import { InjectMessageDto } from '../dtos/injectMessageDto';
@@ -40,13 +40,13 @@ export class ConversationController implements OnApplicationBootstrap {
   ): Promise<void> {
 
     if (this.config.isConversationInProgres) {
-      this.logger.error(logMessages.warn.onConversationAlreadyRunning());
-      throw new ForbiddenException(logMessages.warn.onConversationAlreadyRunning());
+      this.logger.error(LogMessage.warn.onConversationAlreadyRunning());
+      throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
 
     if (+id !== 1 && +id !== 2) {
-      this.logger.warn(logMessages.warn.onIdOutOfRange(id));
-      throw new BadRequestException(logMessages.warn.onIdOutOfRange(id))
+      this.logger.warn(LogMessage.warn.onIdOutOfRange(id));
+      throw new BadRequestException(LogMessage.warn.onIdOutOfRange(id))
     }
 
     try {
@@ -57,10 +57,10 @@ export class ConversationController implements OnApplicationBootstrap {
       const eventPayload: EventPayload = { speaker_id: +id, prompt: body.prompt };
       await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
 
-      this.logger.log(logMessages.log.onConversationStart());
+      this.logger.log(LogMessage.log.onConversationStart());
     } catch (error) {
-      this.logger.error(logMessages.error.onConversationInitFail());
-      throw new InternalServerErrorException(logMessages.error.onConversationInitFail())
+      this.logger.error(LogMessage.error.onConversationInitFail());
+      throw new InternalServerErrorException(LogMessage.error.onConversationInitFail())
     }
 
   }
@@ -70,15 +70,15 @@ export class ConversationController implements OnApplicationBootstrap {
   public async breakConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
-      this.logger.warn(logMessages.warn.onBreakMissingConversation());
-      throw new BadRequestException(logMessages.warn.onBreakMissingConversation())
+      this.logger.warn(LogMessage.warn.onBreakMissingConversation());
+      throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
     this.config.isConversationInProgres = false;
     this.updateSettings();
 
     this.eventEmitter.emit(event.breakConversation);
-    this.logger.log(logMessages.log.onBreakConversation());
+    this.logger.log(LogMessage.log.onBreakConversation());
   }
 
   @Post(`pause`)
@@ -86,24 +86,24 @@ export class ConversationController implements OnApplicationBootstrap {
   public async pauseConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
-      this.logger.warn(logMessages.warn.onPauseMissingConversation());
-      throw new BadRequestException(logMessages.warn.onPauseMissingConversation())
+      this.logger.warn(LogMessage.warn.onPauseMissingConversation());
+      throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
 
     this.config.isConversationInProgres = false;
     this.config.state.shouldContinue = false;
     this.updateSettings();
 
-    this.logger.log(logMessages.log.onPauseConversation());
+    this.logger.log(LogMessage.log.onPauseConversation());
   }
 
   @Post([`resume`, `continue`])
   @HttpCode(HttpStatus.OK)
   public async resumeConversation(): Promise<void> {
 
-    if (this.config.isConversationInProgres) {
-      this.logger.warn(logMessages.warn.onResumeMissingConversation());
-      throw new BadRequestException(logMessages.warn.onResumeMissingConversation())
+    if (!this.config.isConversationInProgres) {
+      this.logger.warn(LogMessage.warn.onResumeMissingConversation());
+      throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
     this.config.isConversationInProgres = true;
@@ -111,7 +111,26 @@ export class ConversationController implements OnApplicationBootstrap {
     this.updateSettings();
 
     await this.eventEmitter.emitAsync(event.resumeConversation);
-    this.logger.log(logMessages.log.onResumeConversation());
+    this.logger.log(LogMessage.log.onResumeConversation());
+  }
+
+  @Post([`reset`, `clear`])
+  @HttpCode(HttpStatus.OK)
+  public async resetConversation(): Promise<void> {
+
+    if (!this.config.isConversationInProgres) {
+      this.logger.warn(LogMessage.warn.onResumeMissingConversation());
+      throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
+    }
+
+    this.config.state.shouldContinue = false;
+
+    this.config.state.shouldNotify = false;
+    this.config.state.lastBotMessages = [];
+    this.config.state.currentMessageIndex = 0;
+
+    this.config.isConversationInProgres = false
+
   }
 
   @Post([`inject`, `modify`])
@@ -121,17 +140,17 @@ export class ConversationController implements OnApplicationBootstrap {
   ): Promise<void> {
 
     if (!body) {
-      this.logger.warn(logMessages.warn.onInvalidPayload());
-      throw new BadRequestException(logMessages.warn.onInvalidPayload());
+      this.logger.warn(LogMessage.warn.onInvalidPayload());
+      throw new BadRequestException(LogMessage.warn.onInvalidPayload());
     }
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
-      this.logger.warn(logMessages.warn.onInvalidMode(body.mode));
-      throw new BadRequestException(logMessages.warn.onInvalidMode(body.mode));
+      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode));
+      throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
 
     await this.eventEmitter.emitAsync(event.injectMessage, body);
-    this.logger.log(logMessages.log.onInjectMessage());
+    this.logger.log(LogMessage.log.onInjectMessage());
   }
 
 }

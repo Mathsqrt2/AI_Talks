@@ -1,10 +1,9 @@
 import {
     BadRequestException,
     Body, Controller, Get, HttpCode, HttpStatus,
-    OnApplicationBootstrap, Param, Post, Res
+    OnApplicationBootstrap, Param, Post
 } from '@nestjs/common';
-import { Response } from 'express';
-import { logMessages } from '../constants/conversation.responses';
+import { LogMessage } from '../constants/conversation.responses';
 import { SettingsService } from '@libs/settings';
 import { SettingsFile } from '@libs/types/settings';
 import { Logger } from '@libs/logger';
@@ -96,7 +95,7 @@ export class SettingsController implements OnApplicationBootstrap {
         this.config.maxContextSize = body.context;
         this.updateSettings();
 
-        this.logger.log(logMessages.log.contextUpdated(body.context));
+        this.logger.log(LogMessage.log.contextUpdated(body.context));
     }
 
     @Post(`prompt`)
