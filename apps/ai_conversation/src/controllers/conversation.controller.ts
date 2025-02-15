@@ -12,7 +12,7 @@ import { LogMessage } from '../constants/conversation.responses';
 import { event } from '../constants/conversation.constants';
 import { SettingsFile } from '@libs/types/settings';
 import { InjectMessageDto } from '../dtos/inject-message.dto';
-import { ApiAcceptedResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiBadRequestResponse, ApiBody, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ConversationInitDto } from '../dtos/conversation-init.dto';
 
@@ -37,6 +37,7 @@ export class ConversationController implements OnApplicationBootstrap {
   @Post([`init/:id`, `start/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiParam({ name: `id`, description: SwaggerMessages.init.aboutIdParam(), required: true, type: Number, example: 1 })
+  @ApiBody({ required: false })
   @ApiAcceptedResponse({ description: SwaggerMessages.init.aboutAcceptedResponse() })
   @ApiForbiddenResponse({ description: SwaggerMessages.init.aboutForbiddenResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.init.aboutBadRequestResponse() })
@@ -47,7 +48,7 @@ export class ConversationController implements OnApplicationBootstrap {
   ): Promise<void> {
 
     if (this.localSettings.isConversationInProgres) {
-      this.logger.error(LogMessage.warn.onConversationAlreadyRunning());
+      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning());
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
 
