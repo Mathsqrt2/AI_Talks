@@ -1,5 +1,4 @@
 import { LogMessageContent } from "@libs/types/logs"
-import { ApiBadRequestResponse, ApiFoundResponse } from "@nestjs/swagger"
 
 export class SwaggerMessages {
 
@@ -47,8 +46,15 @@ export class SwaggerMessages {
         usernameDescription: (): string => `The username of the person triggering the injection.`,
     }
 
-    public static conversationInitDto: LogMessageContent = {
+    public static conversationInitDto: LogMessageContent | any = {
+        examples: {
+            example1: {
+                description: `A text message to be used as initial prompt.`,
+                value: `What do you think about astronomy?`,
+            },
+        },
         promptDescription: (): string => `A text message to be used as initial prompt.`,
+        promptExample: (): string => `What do you think about astronomy?`,
     }
 
     public static responseInjectDto: LogMessageContent = {

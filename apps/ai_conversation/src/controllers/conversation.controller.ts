@@ -1,26 +1,29 @@
 import {
+  ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
+  ApiForbiddenResponse, ApiInternalServerErrorResponse,
+  ApiOkResponse, ApiParam
+} from '@nestjs/swagger';
+import {
   BadRequestException, Body, Controller,
   ForbiddenException, HttpCode, HttpStatus,
   InternalServerErrorException, OnApplicationBootstrap,
   Param, Post
 } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Logger } from '@libs/logger';
-import { EventPayload } from '@libs/types/events';
-import { SettingsService } from '@libs/settings';
-import { LogMessage } from '../constants/conversation.responses';
-import { event } from '../constants/conversation.constants';
-import { SettingsFile } from '@libs/types/settings';
-import { InjectMessageDto } from '../dtos/inject-message.dto';
-import { ApiAcceptedResponse, ApiBadRequestResponse, ApiBody, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ConversationInitDto } from '../dtos/conversation-init.dto';
+import { LogMessage } from '../constants/conversation.responses';
+import { InjectMessageDto } from '../dtos/inject-message.dto';
+import { event } from '../constants/conversation.constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SettingsFile } from '@libs/types/settings';
+import { EventPayload } from '@libs/types/events';
+import { SettingsService } from '@libs/settings';
+import { Logger } from '@libs/logger';
 
 @Controller()
 export class ConversationController implements OnApplicationBootstrap {
 
   private localSettings: SettingsFile = null;
-
   constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
@@ -37,7 +40,7 @@ export class ConversationController implements OnApplicationBootstrap {
   @Post([`init/:id`, `start/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiParam({ name: `id`, description: SwaggerMessages.init.aboutIdParam(), required: true, type: Number, example: 1 })
-  @ApiBody({ required: false })
+  @ApiBody({ required: false, examples: SwaggerMessages.conversationInitDto.examples })
   @ApiAcceptedResponse({ description: SwaggerMessages.init.aboutAcceptedResponse() })
   @ApiForbiddenResponse({ description: SwaggerMessages.init.aboutForbiddenResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.init.aboutBadRequestResponse() })

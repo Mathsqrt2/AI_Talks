@@ -4,9 +4,9 @@ import { IsOptional, IsString } from "class-validator";
 
 export class ConversationInitDto {
 
-    @ApiProperty({ description: SwaggerMessages.conversationInitDto.promptDescription(), example: `What do you think about astronomy?` })
+    @ApiProperty({ description: SwaggerMessages.conversationInitDto.promptDescription(), example: SwaggerMessages.conversationInitDto.promptExample() })
     @IsString()
     @IsOptional()
-    prompt: string;
+    prompt?: string;
 
 }
