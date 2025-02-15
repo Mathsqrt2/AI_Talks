@@ -7,6 +7,10 @@ import { LogMessage } from '../constants/conversation.responses';
 import { SettingsService } from '@libs/settings';
 import { SettingsFile } from '@libs/types/settings';
 import { Logger } from '@libs/logger';
+import { ApiBadRequestResponse, ApiFoundResponse } from '@nestjs/swagger';
+import { ResponseSettingsDto } from '../dtos/response-settings.dto';
+import { SwaggerMessages } from '../constants/swagger.descriptions';
+import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
 
 @Controller(`setings`)
 export class SettingsController implements OnApplicationBootstrap {
@@ -27,13 +31,15 @@ export class SettingsController implements OnApplicationBootstrap {
 
     @Get()
     @HttpCode(HttpStatus.FOUND)
-    public findCurrentSettings() {
+    @ApiFoundResponse({ description: SwaggerMessages.findCurrentSettings.ApiFoundResponse(), type: ResponseSettingsDto })
+    public findCurrentSettings(): ResponseSettingsDto {
         this.logger.log(LogMessage.log.onUserResponseWithConfig());
         return this.localSettings
     }
 
     @Get(`context`)
     @HttpCode(HttpStatus.FOUND)
+    @ApiFoundResponse({ description: SwaggerMessages.findCurrentContextLength.ApiFoundResponse(), type: Number, example: 4096 })
     public findCurrentContextLength() {
         this.logger.log(LogMessage.log.onUserResponseWithContext());
         return this.localSettings.maxContextSize;
@@ -41,6 +47,8 @@ export class SettingsController implements OnApplicationBootstrap {
 
     @Get([`prompt`, `prompt/:id`])
     @HttpCode(HttpStatus.FOUND)
+    @ApiFoundResponse({ description: SwaggerMessages.findCurrentPrompt.ApiFoundResponse(), type: ResponsePromptsDto })
+    @ApiBadRequestResponse({ description: SwaggerMessages.findCurrentPrompt.ApiBadRequestResponse() })
     public findCurrentPrompt(
         @Param(`id`) id?: number
     ): { prompt: string[] } {
