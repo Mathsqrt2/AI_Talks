@@ -26,6 +26,7 @@ export class LogMessage {
         onBreakConversation: (): string => `Successfully broke the current conversation.`,
         onPauseConversation: (): string => `Successfully paused current conversation.`,
         onResumeConversation: (): string => `Successfully resumed current conversation.`,
+        onResetConversation: (): string => `Successfully reset the current conversation and cleared all states.`,
         onInjectMessage: (): string => `Successfully injected outer message into conversation.`,
         onUserResponseWithConfig: (): string => `Responded to user with current app configuration`,
         onUserResponseWithContext: (): string => `Responded to user with current context length.`,

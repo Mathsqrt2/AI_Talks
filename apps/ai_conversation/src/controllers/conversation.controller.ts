@@ -13,7 +13,7 @@ import { LogMessage } from '../constants/conversation.responses';
 import { event } from '../constants/conversation.constants';
 import { SettingsFile } from '@libs/types/settings';
 import { InjectMessageDto } from '../dtos/injectMessageDto';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 
 @Controller()
@@ -36,7 +36,11 @@ export class ConversationController implements OnApplicationBootstrap {
 
   @Post([`init/:id`, `start/:id`, `run/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiParam({ name: `id`, description: SwaggerMessages.description.aboutInitId(), required: false })
+  @ApiParam({ name: `id`, description: SwaggerMessages.init.aboutIdParam(), required: true, type: Number, example: 1 })
+  @ApiAcceptedResponse({ description: SwaggerMessages.init.aboutAcceptedResponse() })
+  @ApiForbiddenResponse({ description: SwaggerMessages.init.aboutForbiddenResponse() })
+  @ApiBadRequestResponse({ description: SwaggerMessages.init.aboutBadRequestResponse() })
+  @ApiInternalServerErrorResponse({ description: SwaggerMessages.init.aboutInternalServerError() })
   public async initializeConversation(
     @Body() body: BodyInitPayload,
     @Param(`id`) id?: number,
@@ -70,6 +74,8 @@ export class ConversationController implements OnApplicationBootstrap {
 
   @Post([`break`, `stop`, `end`])
   @HttpCode(HttpStatus.OK)
+  @ApiBadRequestResponse({ description: SwaggerMessages.break.aboutBadRequestResponse() })
+  @ApiOkResponse({ description: SwaggerMessages.break.aboutOkResponse() })
   public async breakConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
@@ -86,6 +92,8 @@ export class ConversationController implements OnApplicationBootstrap {
 
   @Post(`pause`)
   @HttpCode(HttpStatus.OK)
+  @ApiBadRequestResponse({ description: SwaggerMessages.pause.aboutBadRequestResponse() })
+  @ApiOkResponse({ description: SwaggerMessages.pause.aboutOkResponse() })
   public async pauseConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
@@ -93,7 +101,6 @@ export class ConversationController implements OnApplicationBootstrap {
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
 
-    this.config.isConversationInProgres = false;
     this.config.state.shouldContinue = false;
     this.updateSettings();
 
@@ -102,6 +109,8 @@ export class ConversationController implements OnApplicationBootstrap {
 
   @Post([`resume`, `continue`])
   @HttpCode(HttpStatus.OK)
+  @ApiBadRequestResponse({ description: SwaggerMessages.resume.aboutBadRequestResponse() })
+  @ApiOkResponse({ description: SwaggerMessages.resume.aboutOkResponse() })
   public async resumeConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
@@ -109,7 +118,6 @@ export class ConversationController implements OnApplicationBootstrap {
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
-    this.config.isConversationInProgres = true;
     this.config.state.shouldContinue = true;
     this.updateSettings();
 
@@ -117,8 +125,10 @@ export class ConversationController implements OnApplicationBootstrap {
     this.logger.log(LogMessage.log.onResumeConversation());
   }
 
-  @Post([`reset`, `clear`])
+  @Post([`reset`])
   @HttpCode(HttpStatus.OK)
+  @ApiBadRequestResponse({ description: SwaggerMessages.reset.aboutBadRequestResponse() })
+  @ApiOkResponse({ description: SwaggerMessages.reset.aboutOkResponse() })
   public async resetConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
@@ -127,17 +137,19 @@ export class ConversationController implements OnApplicationBootstrap {
     }
 
     this.config.state.shouldContinue = false;
-
     this.config.state.shouldNotify = false;
     this.config.state.lastBotMessages = [];
     this.config.state.currentMessageIndex = 0;
+    this.config.isConversationInProgres = false;
 
-    this.config.isConversationInProgres = false
-
+    this.updateSettings();
+    this.logger.log(LogMessage.log.onResetConversation());
   }
 
   @Post([`inject`, `modify`])
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiBadRequestResponse({ description: SwaggerMessages.inject.aboutBadRequestResponse() })
+  @ApiOkResponse({ description: SwaggerMessages.inject.aboutOkResponse() })
   public async injectContentIntoConversation(
     @Body() body: InjectMessageDto,
   ): Promise<void> {
