@@ -4,7 +4,7 @@ import { DatabaseModule } from '@libs/database';
 
 @Module({
   imports: [
-    DatabaseModule
+    DatabaseModule,
   ],
   providers: [
     SettingsService

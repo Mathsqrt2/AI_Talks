@@ -39,11 +39,15 @@ export class SwaggerMessages {
         aboutAcceptedResponse: (): string => `Content successfully injected in the conversation.`,
     }
 
-    public static InjectMessageDto: LogMessageContent = {
+    public static injectMessageDto: LogMessageContent = {
         promptDescription: (): string => `A text message to be injected or merged into the conversation.`,
         modeDescription: (): string => `Defines how the new content will be integrated (MERGE or INJECT).`,
         botIdDescription: (): string => `Specifies the ID of the bot (must be 1 or 2).`,
         usernameDescription: (): string => `The username of the person triggering the injection.`,
+    }
+
+    public static conversationInitDto: LogMessageContent = {
+        promptDescription: (): string => `A text message to be used as initial prompt.`
     }
 
     public static example: LogMessageContent = {

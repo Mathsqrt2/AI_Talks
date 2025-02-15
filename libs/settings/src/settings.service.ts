@@ -1,25 +1,23 @@
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { BehaviorSubject } from 'rxjs';
+import { OnEvent } from '@nestjs/event-emitter';
+import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@libs/logger';
-import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
 
 @Injectable()
 export class SettingsService {
 
-    constructor(
-        private readonly logger: Logger,
-    ) { }
+    private readonly logger: Logger = new Logger(SettingsService.name);
+    constructor() { }
 
     public app: BehaviorSubject<SettingsFile> = new BehaviorSubject<SettingsFile>({
         conversationName: null,
         isConversationInProgres: false,
-        maxMessagesCount: null,
-        maxContextSize: null,
+        maxMessagesCount: 100,
+        maxContextSize: 4096,
         state: {
             shouldContinue: false,
             shouldDisplay: false,
