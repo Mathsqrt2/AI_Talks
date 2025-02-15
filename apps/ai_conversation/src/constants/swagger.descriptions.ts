@@ -18,11 +18,6 @@ export class SwaggerMessages {
         aboutInternalServerError: (): string => `An internal error occurred during the conversation initialization.`,
     }
 
-    public static break: LogMessageContent = {
-        aboutBadRequestResponse: (): string => `No active conversation to break.`,
-        aboutOkResponse: (): string => `Conversation successfully ended.`,
-    }
-
     public static pause: LogMessageContent = {
         aboutBadRequestResponse: (): string => `No active conversation to pause.`,
         aboutOkResponse: (): string => `Conversation successfully paused.`,
@@ -31,16 +26,17 @@ export class SwaggerMessages {
     public static resume: LogMessageContent = {
         aboutBadRequestResponse: (): string => `No active conversation to resume.`,
         aboutOkResponse: (): string => `Conversation successfully resumed.`,
+        aboutInternalServerError: (): string => `An internal error occurred during the conversation pause.`,
     }
 
-    public static reset: LogMessageContent = {
-        aboutBadRequestResponse: (): string => `No active conversation to reset.`,
-        aboutOkResponse: (): string => `Successfully reset the conversation and cleared related data.`,
+    public static break: LogMessageContent = {
+        aboutBadRequestResponse: (): string => `No active conversation to break.`,
+        aboutOkResponse: (): string => `Conversation successfully ended.`,
     }
 
     public static inject: LogMessageContent = {
         aboutBadRequestResponse: (): string => `No request body provided or invalid 'mode'. Only 'REPLACE' and 'MERGE' are allowed.`,
-        aboutOkResponse: (): string => `Content successfully injected in the conversation.`,
+        aboutAcceptedResponse: (): string => `Content successfully injected in the conversation.`,
     }
 
     public static InjectMessageDto: LogMessageContent = {

@@ -5,7 +5,7 @@ export type BodyInitPayload = {
 export type InjectContentPayload = {
     prompt: string,
     mode: InjectionMode
-    bot_id: number,
+    botId: number,
     username: string,
 }
 

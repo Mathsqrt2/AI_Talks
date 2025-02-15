@@ -1,16 +1,16 @@
 import { InjectContentPayload } from "./conversarion";
-import { Bot } from "./telegram";
 
 export type SettingsFile = {
+    conversationName: string,
     isConversationInProgres: boolean,
     maxMessagesCount: number,
     maxContextSize: number,
     state: {
         shouldContinue: boolean,
-        shouldNotify: boolean,
         shouldDisplay: boolean,
         shouldLog: boolean,
-        usersMessages: InjectContentPayload[],
+        enqueuedMessage: string,
+        usersMessagesStack: InjectContentPayload[],
         currentMessageIndex: number,
         lastBotMessages: Message[]
     }

@@ -4,25 +4,30 @@ import { Injectable } from '@nestjs/common';
 import { BehaviorSubject } from 'rxjs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Logger } from '@libs/logger';
+import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
 
 @Injectable()
 export class SettingsService {
 
-    constructor() { }
+    constructor(
+        private readonly logger: Logger,
+    ) { }
 
     public app: BehaviorSubject<SettingsFile> = new BehaviorSubject<SettingsFile>({
+        conversationName: null,
         isConversationInProgres: false,
         maxMessagesCount: null,
         maxContextSize: null,
         state: {
             shouldContinue: false,
-            shouldNotify: false,
             shouldDisplay: false,
             shouldLog: true,
-            usersMessages: [],
-            currentMessageIndex: 0,
+            enqueuedMessage: null,
+            usersMessagesStack: [],
             lastBotMessages: [],
-
+            currentMessageIndex: 0,
         },
         prompts: {
             initialPrompt: process.env.INITIAL_PROMPT,
@@ -32,6 +37,11 @@ export class SettingsService {
         }
     });
 
+    @OnEvent(event.message)
+    private insertMessageIntoStats() {
+
+    }
+
     private stats: Archive = {
         bot_1: {
             messages: [],
@@ -39,6 +49,13 @@ export class SettingsService {
         bot_2: {
             messages: [],
         }
+    }
+
+    public clearStats = async (): Promise<void> => {
+
+        await this.archiveCurrentState()
+        this.stats.bot_1.messages = [];
+        this.stats.bot_2.messages = [];
     }
 
     private findAverageTime = (messages: Message[]): number => {
@@ -53,7 +70,18 @@ export class SettingsService {
 
     private archiveCurrentState = async (): Promise<void> => {
 
+        const outPath = path.join(__dirname, `${this.app.getValue().conversationName}.json`);
+        const data = {
+            stats: this.getStats(),
+            settings: this.app.getValue(),
+        }
 
+        try {
+            await fs.writeFile(outPath, JSON.stringify(data));
+        } catch (error) {
+            this.logger.error(``, { error });
+            throw error
+        }
 
     }
 

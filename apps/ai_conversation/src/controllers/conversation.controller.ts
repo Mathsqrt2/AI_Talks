@@ -22,9 +22,9 @@ export class ConversationController implements OnApplicationBootstrap {
   private config: SettingsFile = null;
 
   constructor(
-    private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
+    private readonly logger: Logger,
   ) { }
 
   private updateSettings = () => this.settings.app.next(this.config);
@@ -34,7 +34,7 @@ export class ConversationController implements OnApplicationBootstrap {
     })
   }
 
-  @Post([`init/:id`, `start/:id`, `run/:id`])
+  @Post([`init/:id`, `start/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiParam({ name: `id`, description: SwaggerMessages.init.aboutIdParam(), required: true, type: Number, example: 1 })
   @ApiAcceptedResponse({ description: SwaggerMessages.init.aboutAcceptedResponse() })
@@ -72,25 +72,7 @@ export class ConversationController implements OnApplicationBootstrap {
 
   }
 
-  @Post([`break`, `stop`, `end`])
-  @HttpCode(HttpStatus.OK)
-  @ApiBadRequestResponse({ description: SwaggerMessages.break.aboutBadRequestResponse() })
-  @ApiOkResponse({ description: SwaggerMessages.break.aboutOkResponse() })
-  public async breakConversation(): Promise<void> {
-
-    if (!this.config.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onBreakMissingConversation());
-      throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
-    }
-
-    this.config.isConversationInProgres = false;
-    this.updateSettings();
-
-    this.eventEmitter.emit(event.breakConversation);
-    this.logger.log(LogMessage.log.onBreakConversation());
-  }
-
-  @Post(`pause`)
+  @Post([`pause`])
   @HttpCode(HttpStatus.OK)
   @ApiBadRequestResponse({ description: SwaggerMessages.pause.aboutBadRequestResponse() })
   @ApiOkResponse({ description: SwaggerMessages.pause.aboutOkResponse() })
@@ -103,7 +85,6 @@ export class ConversationController implements OnApplicationBootstrap {
 
     this.config.state.shouldContinue = false;
     this.updateSettings();
-
     this.logger.log(LogMessage.log.onPauseConversation());
   }
 
@@ -111,6 +92,7 @@ export class ConversationController implements OnApplicationBootstrap {
   @HttpCode(HttpStatus.OK)
   @ApiBadRequestResponse({ description: SwaggerMessages.resume.aboutBadRequestResponse() })
   @ApiOkResponse({ description: SwaggerMessages.resume.aboutOkResponse() })
+  @ApiInternalServerErrorResponse({ description: SwaggerMessages.resume.aboutInternalServerError() })
   public async resumeConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
@@ -118,38 +100,49 @@ export class ConversationController implements OnApplicationBootstrap {
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
-    this.config.state.shouldContinue = true;
-    this.updateSettings();
+    try {
 
-    await this.eventEmitter.emitAsync(event.resumeConversation);
-    this.logger.log(LogMessage.log.onResumeConversation());
+      this.config.state.shouldContinue = true;
+      this.updateSettings();
+      await this.eventEmitter.emitAsync(event.resumeConversation);
+      this.logger.log(LogMessage.log.onResumeConversation());
+
+    } catch (error) {
+      this.logger.error(LogMessage.error.onResumeConversationFail())
+      throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
+    }
+
   }
 
-  @Post([`reset`])
+  @Post([`break`, `stop`, `reset`])
   @HttpCode(HttpStatus.OK)
-  @ApiBadRequestResponse({ description: SwaggerMessages.reset.aboutBadRequestResponse() })
-  @ApiOkResponse({ description: SwaggerMessages.reset.aboutOkResponse() })
-  public async resetConversation(): Promise<void> {
+  @ApiBadRequestResponse({ description: SwaggerMessages.break.aboutBadRequestResponse() })
+  @ApiOkResponse({ description: SwaggerMessages.break.aboutOkResponse() })
+  public async breakConversation(): Promise<void> {
 
     if (!this.config.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onResumeMissingConversation());
-      throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
+      this.logger.warn(LogMessage.warn.onBreakMissingConversation());
+      throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
     this.config.state.shouldContinue = false;
-    this.config.state.shouldNotify = false;
+    this.config.state.enqueuedMessage = null;
+    this.config.state.usersMessagesStack = [];
     this.config.state.lastBotMessages = [];
     this.config.state.currentMessageIndex = 0;
     this.config.isConversationInProgres = false;
+    this.config.conversationName = null;
 
+    this.settings.clearStats();
     this.updateSettings();
-    this.logger.log(LogMessage.log.onResetConversation());
+    this.logger.log(LogMessage.log.onBreakConversation(this.config.conversationName))
+
   }
 
-  @Post([`inject`, `modify`])
+  @Post([`inject`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiBadRequestResponse({ description: SwaggerMessages.inject.aboutBadRequestResponse() })
-  @ApiOkResponse({ description: SwaggerMessages.inject.aboutOkResponse() })
+  @ApiAcceptedResponse({ description: SwaggerMessages.inject.aboutAcceptedResponse() })
   public async injectContentIntoConversation(
     @Body() body: InjectMessageDto,
   ): Promise<void> {
@@ -164,7 +157,8 @@ export class ConversationController implements OnApplicationBootstrap {
       throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
 
-    await this.eventEmitter.emitAsync(event.injectMessage, body);
+    this.config.state.usersMessagesStack.push(body);
+    this.updateSettings();
     this.logger.log(LogMessage.log.onInjectMessage());
   }
 

@@ -14,6 +14,7 @@ export class LogMessage {
 
     public static error: LogMessageContent = {
         onConversationInitFail: (): string => `Failed to initialize conversation.`,
+        onResumeConversationFail: (): string => `An internal error occurred during the conversation initialization.`,
         onFailedToResponseWithPrompt: (): string => `Failed to response with prompt. ID out of range`,
         onIncorrectValue: (property: string) => `Incorrect ${property} value.`,
         onNaNError: (property: string) => `${property.charAt(0).toUpperCase()}${property.slice(1)} value must be a number.`,
@@ -23,11 +24,10 @@ export class LogMessage {
     public static log: LogMessageContent = {
         onContextUpdated: (contextLength?: number): string => `Context updated successfully.${contextLength ? ` New valuie: ${contextLength}` : ``}`,
         onConversationStart: (): string => `Conversation initialized.`,
-        onBreakConversation: (): string => `Successfully broke the current conversation.`,
+        onBreakConversation: (name?: string): string => `Successfully broke the current conversation.${name ? ` ID: ${name}` : ``}`,
         onPauseConversation: (): string => `Successfully paused current conversation.`,
         onResumeConversation: (): string => `Successfully resumed current conversation.`,
-        onResetConversation: (): string => `Successfully reset the current conversation and cleared all states.`,
-        onInjectMessage: (): string => `Successfully injected outer message into conversation.`,
+        onInjectMessage: (): string => `Successfully pushed external message into user messages stack.`,
         onUserResponseWithConfig: (): string => `Responded to user with current app configuration`,
         onUserResponseWithContext: (): string => `Responded to user with current context length.`,
         onUserResponseWithPrompt: (type: string): string => `Responded to user with ${type} prompt.`,

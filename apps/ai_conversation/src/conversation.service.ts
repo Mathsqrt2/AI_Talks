@@ -4,10 +4,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { SettingsFile } from '@libs/types/settings';
 import { EventPayload } from '@libs/types/events';
 import { SettingsService } from '@libs/settings';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 import { Ollama } from 'ollama';
+import { SHA256 } from 'crypto-js';
 
 @Injectable()
 export class ConversationService implements OnApplicationBootstrap {
@@ -17,6 +18,7 @@ export class ConversationService implements OnApplicationBootstrap {
   private config: SettingsFile = null;
 
   constructor(
+    private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
   ) { }
@@ -27,39 +29,30 @@ export class ConversationService implements OnApplicationBootstrap {
     });
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
-  private refreshSettings() {
-    console.log(`test`);
-    this.logger.debug("test")
-  }
-
   @OnEvent(event.startConversation, { async: true })
   private async startConversation(payload: EventPayload): Promise<void> {
 
+    this.config.conversationName = SHA256(`${JSON.stringify(this.config)}${Date.now()}`).toString()
     this.lastResponder = payload.speaker_id === 1
       ? { name: 'bot_1' }
       : { name: `bot_2` };
 
   }
 
-  @OnEvent(event.breakConversation, { async: true })
-  private async breakConversation(): Promise<void> {
-
-  }
-
   @OnEvent(event.resumeConversation, { async: true })
   private async resumeConversation(): Promise<void> {
+
+    this.config.state.shouldContinue = true;
+    await this.eventEmitter.emitAsync(event.message, this.config.state);
 
   }
 
   @OnEvent(event.message, { async: true })
   private async sendMessage(): Promise<void> {
 
+    if (this.config.state.shouldContinue) {
 
-
-  }
-
-  public async initializeConversation(): Promise<void> {
+    }
 
   }
 
