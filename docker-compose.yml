@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  ai_talks_database:
+    image: mysql:8.0
+    container_name: ai_talks_database
+    ports:
+      - 13306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: redirections
+    networks:
+      - ai_talks_network
+  ai_talks_adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - ai_talks_database
+    ports:
+      - 18080:8080
+    networks:
+      - ai_talks_network
+  ai_talks:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    working_dir: /app
+    networks:
+      - ai_talks_network
+    depends_on:
+      - ai_talks_database
+      - ai_talks_adminer
+    volumes:
+      - .:/app
+    command: [ sh, -c, 'npm run start:conversation:dev' ]
+
+networks:
+  ai_talks_network:
