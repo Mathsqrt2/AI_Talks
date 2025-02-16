@@ -1,8 +1,10 @@
+import { MessageEventPayload } from '@libs/types/conversarion';
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
+import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -37,8 +39,11 @@ export class ConfigService {
     };
 
     @OnEvent(event.message)
-    private insertMessageIntoStats() {
-
+    private insertMessageIntoStats(payload: MessageEventPayload) {
+        payload.message.author.name === `bot_1`
+            ? this.stats.bot_1.messages.push(payload.message)
+            : this.stats.bot_2.messages.push(payload.message);
+        this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
     }
 
     private stats: Archive = {
@@ -48,23 +53,6 @@ export class ConfigService {
         bot_2: {
             messages: [],
         }
-    }
-
-    public clearStats = async (): Promise<void> => {
-
-        await this.archiveCurrentState()
-        this.stats.bot_1.messages = [];
-        this.stats.bot_2.messages = [];
-    }
-
-    private findAverageTime = (messages: Message[]): number => {
-        return messages.length > 0
-            ? +Number(this.findTotalTime(messages) / messages.length).toFixed(1)
-            : 0;
-    }
-
-    private findTotalTime = (messages: Message[]): number => {
-        return messages.reduce((total, entry) => total + entry.generationTime, 0);
     }
 
     private archiveCurrentState = async (): Promise<void> => {
@@ -82,6 +70,16 @@ export class ConfigService {
             throw error
         }
 
+    }
+
+    private findAverageTime = (messages: Message[]): number => {
+        return messages.length > 0
+            ? +Number(this.findTotalTime(messages) / messages.length).toFixed(1)
+            : 0;
+    }
+
+    private findTotalTime = (messages: Message[]): number => {
+        return messages.reduce((total, entry) => total + entry.generationTime, 0);
     }
 
     public getStats = (who?: Bot): Stats | StatsProperties => {
@@ -109,6 +107,12 @@ export class ConfigService {
         if (who && who.name === `bot_1`) return stats.bot_1;
         if (who && who.name === `bot_2`) return stats.bot_2;
         return stats;
+    }
+
+    public clearStats = async (): Promise<void> => {
+        await this.archiveCurrentState()
+        this.stats.bot_1.messages = [];
+        this.stats.bot_2.messages = [];
     }
 
 }

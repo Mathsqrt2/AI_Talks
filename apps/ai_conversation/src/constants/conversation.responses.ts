@@ -38,7 +38,7 @@ export class LogMessage {
         onUserResponseWithAllPrompts: (): string => `Responded to user with all prompts.`,
         onMessageEventEmitted: (bot: string, id: number): string => `Message ${id} successfully announced by Telegram ${bot}.`,
         onBotConnected: (name: string) => `${name} connected successfully.`,
-
+        onSuccessfullyInsertedMessage: (id: number): string => `Message ${id} successfully archived.`,
     };
 
 }

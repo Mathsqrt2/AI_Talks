@@ -55,5 +55,5 @@ export type Message = {
     generatingStartTime: Date,
     generatingEndTime: Date,
     content: string,
-    author: string,
+    author: Bot,
 }

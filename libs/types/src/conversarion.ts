@@ -1,3 +1,5 @@
+import { Message } from "./settings";
+
 export type BodyInitPayload = {
     prompt: string,
 }
@@ -10,3 +12,7 @@ export type InjectContentPayload = {
 }
 
 export type InjectionMode = `REPLACE` | `MERGE`;
+
+export type MessageEventPayload = {
+    message: Message,
+}

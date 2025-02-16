@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsNumber, IsString } from "class-validator";
 import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { Bot } from "@libs/types/telegram";
 
 export class ResponseMessageDto {
 
@@ -20,7 +21,7 @@ export class ResponseMessageDto {
     @IsString()
     content: string;
 
-    @ApiProperty({ description: SwaggerMessages.responseMessageDto.authorDescription(), example: "System" })
+    @ApiProperty({ description: SwaggerMessages.responseMessageDto.authorDescription(), example: "bot_1" })
     @IsString()
-    author: string;
+    author: Bot;
 }

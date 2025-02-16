@@ -7,6 +7,7 @@ import { Logger } from '@libs/logger';
 import { SHA256 } from 'crypto-js';
 import { LogMessage } from './constants/conversation.responses';
 import { Bot } from '@libs/types/telegram';
+import { MessageEventPayload } from '@libs/types/conversarion';
 
 @Injectable()
 export class ConversationService {
@@ -23,10 +24,10 @@ export class ConversationService {
   }
 
   @OnEvent(event.startConversation, { async: true })
-  private async startConversation(payload: InitEventPayload): Promise<void> {
+  private async startConversation(initPayload: InitEventPayload): Promise<void> {
 
     this.generateConversationName();
-    const currentBot: Bot = payload.speaker_id === 1
+    const currentBot: Bot = initPayload.speaker_id === 1
       ? { name: 'bot_1' }
       : { name: `bot_2` };
 
@@ -34,7 +35,17 @@ export class ConversationService {
     this.config.app.state.shouldContinue = true;
     this.config.app.state.lastResponder = currentBot;
 
-    await this.eventEmitter.emitAsync(event.message);
+    const payload: MessageEventPayload = {
+      message: {
+        generatingStartTime: new Date(),
+        author: currentBot,
+        content: initPayload.prompt,
+        generationTime: 0,
+        generatingEndTime: new Date()
+      }
+    };
+
+    await this.eventEmitter.emitAsync(event.message, payload);
     this.logger.log(LogMessage.log.onMessageEventEmitted(
       currentBot.name,
       this.config.app.state.currentMessageIndex++
