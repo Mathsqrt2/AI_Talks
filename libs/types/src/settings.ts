@@ -12,8 +12,9 @@ export type SettingsFile = {
         shouldDisplayResponse: boolean,
         shouldLog: boolean,
         lastResponder: Bot,
-        enqueuedMessage: string,
-        usersMessagesStack: InjectContentPayload[],
+        enqueuedMessage: Message,
+        usersMessagesStackForBot1: InjectContentPayload[],
+        usersMessagesStackForBot2: InjectContentPayload[],
         lastBotMessages: Message[]
         currentMessageIndex: number,
     }

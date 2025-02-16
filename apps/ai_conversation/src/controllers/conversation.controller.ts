@@ -18,6 +18,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InitEventPayload } from '@libs/types/events';
 import { ConfigService } from '@libs/settings';
 import { Logger } from '@libs/logger';
+import { MessageEventPayload } from '@libs/types/conversarion';
 
 @Controller()
 export class ConversationController {
@@ -93,10 +94,13 @@ export class ConversationController {
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
-    try {
+    this.config.app.state.shouldContinue = true;
+    const payload: MessageEventPayload = {
+      message: this.config.app.state.enqueuedMessage
+    };
 
-      this.config.app.state.shouldContinue = true;
-      await this.eventEmitter.emitAsync(event.resumeConversation);
+    try {
+      await this.eventEmitter.emitAsync(event.message, payload);
       this.logger.log(LogMessage.log.onResumeConversation());
 
     } catch (error) {
@@ -121,7 +125,8 @@ export class ConversationController {
 
     this.config.app.state.shouldContinue = false;
     this.config.app.state.enqueuedMessage = null;
-    this.config.app.state.usersMessagesStack = [];
+    this.config.app.state.usersMessagesStackForBot1 = [];
+    this.config.app.state.usersMessagesStackForBot2 = [];
     this.config.app.state.lastBotMessages = [];
     this.config.app.state.currentMessageIndex = 0;
     this.config.app.isConversationInProgres = false;
@@ -148,7 +153,9 @@ export class ConversationController {
       throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
 
-    this.config.app.state.usersMessagesStack.push(body);
+    body.botId === 1
+      ? this.config.app.state.usersMessagesStackForBot1.push(body)
+      : this.config.app.state.usersMessagesStackForBot2.push(body);
     this.logger.log(LogMessage.log.onInjectMessage());
   }
 

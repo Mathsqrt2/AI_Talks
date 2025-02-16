@@ -25,13 +25,19 @@ export class ResponseStateDto {
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: "Switch the topic to AI innovations!" })
     @IsString()
-    enqueuedMessage: string;
+    enqueuedMessage: ResponseMessageDto;
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ prompt: "Discuss the latest tech trends", mode: "MERGE", botId: 1, username: "alice" }] })
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ResponseInjectContentPayloadDto)
-    usersMessagesStack: ResponseInjectContentPayloadDto[];
+    usersMessagesStackForBot1: ResponseInjectContentPayloadDto[];
+
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ prompt: "Discuss the latest tech trends", mode: "MERGE", botId: 1, username: "alice" }] })
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ResponseInjectContentPayloadDto)
+    usersMessagesStackForBot2: ResponseInjectContentPayloadDto[];
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: 100 })
     @IsNumber()

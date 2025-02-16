@@ -1,3 +1,4 @@
+import { InjectContentPayload } from '@libs/types/conversarion';
 import { Injectable } from '@nestjs/common';
 import { Ollama } from 'ollama';
 
@@ -8,12 +9,12 @@ export class AiService {
 
     constructor() { }
 
-    public merge = async (message1: string, message2: string): Promise<string> => {
+    public merge = async (message1: InjectContentPayload, message2: string): Promise<string> => {
         return ``;
     }
 
-    public respondTo = async (message: string) => {
-
+    public respondTo = async (message: string): Promise<string> => {
+        return ``;
     }
 
 }

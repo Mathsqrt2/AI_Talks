@@ -53,6 +53,7 @@ export class TelegramGateway {
             who.name === `bot_1`
                 ? await this.speaker1.sendMessage(process.env.GROUP_CHAT_ID, content)
                 : await this.speaker2.sendMessage(process.env.GROUP_CHAT_ID, content);
+            this.logger.log(`Message send to the telegram channel by ${who.name}`)
             return true;
 
         } catch (error) {

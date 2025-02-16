@@ -7,15 +7,20 @@ import { Logger } from '@libs/logger';
 import { SHA256 } from 'crypto-js';
 import { LogMessage } from './constants/conversation.responses';
 import { Bot } from '@libs/types/telegram';
-import { MessageEventPayload } from '@libs/types/conversarion';
+import { InjectContentPayload, MessageEventPayload } from '@libs/types/conversarion';
+import { TelegramGateway } from '@libs/telegram';
+import { Message } from '@libs/types/settings';
+import { AiService } from '@libs/ai';
 
 @Injectable()
 export class ConversationService {
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
+    private readonly telegram: TelegramGateway,
     private readonly config: ConfigService,
     private readonly logger: Logger,
+    private readonly ai: AiService,
   ) { }
 
   private generateConversationName = (): void => {
@@ -45,38 +50,62 @@ export class ConversationService {
       }
     };
 
+    await this.telegram.respondBy(currentBot, payload.message.content);
     await this.eventEmitter.emitAsync(event.message, payload);
     this.logger.log(LogMessage.log.onMessageEventEmitted(
       currentBot.name,
       this.config.app.state.currentMessageIndex++
     ));
-
-  }
-
-  @OnEvent(event.resumeConversation, { async: true })
-  private async resumeConversation(): Promise<void> {
-
-    this.config.app.state.shouldContinue = true;
-    await this.eventEmitter.emitAsync(event.message, this.config.app.state);
-
   }
 
   @OnEvent(event.message, { async: true })
-  private async sendMessage(): Promise<void> {
+  private async sendMessage(payload: MessageEventPayload): Promise<void> {
 
-    if (this.config.app.state.shouldContinue) {
+    const generatingStartTime: Date = new Date();
+    let message: Message = payload.message;
+
+    const respondBy: Bot = {
+      name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1`
+    };
+
+    if (!this.config.app.isConversationInProgres) {
+      this.logger.error(`Conversation break`);
+      return;
+    }
+
+    if (!this.config.app.state.shouldContinue) {
+      this.config.app.state.enqueuedMessage = payload.message;
+      this.logger.warn(`Conversation is currently paused`)
+      return;
+    }
+
+    if (respondBy.name === `bot_1` && this.config.app.state.usersMessagesStackForBot1?.length > 0) {
+
+      const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
+      message.content = await this.ai.merge(messageFromOutside, payload.message.content);
+
+    } else if (respondBy.name === `bot_2` && this.config.app.state.usersMessagesStackForBot2?.length > 0) {
+
+      const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
+      message.content = await this.ai.merge(messageFromOutside, payload.message.content);
 
     }
 
+    const response = await this.ai.respondTo(message.content);
+    await this.telegram.respondBy(payload.message.author, response);
+
+    const newPayload: MessageEventPayload = {
+      message: {
+        author: respondBy,
+        content: response,
+        generatingStartTime,
+        generatingEndTime: new Date(),
+        generationTime: Date.now() - generatingStartTime.getTime(),
+      }
+    }
+
+    await this.eventEmitter.emitAsync(event.message, newPayload);
+    this.logger.log(`Message emitted successfully`);
   }
-
-  private async generateResponse(): Promise<string> {
-    return ``;
-  }
-
-  private toggleContext(): void {
-
-  }
-
 
 }
