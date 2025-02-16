@@ -1,4 +1,5 @@
 import { InjectContentPayload } from "./conversarion";
+import { Bot } from "./telegram";
 
 export type SettingsFile = {
     conversationName: string,
@@ -6,6 +7,7 @@ export type SettingsFile = {
     maxMessagesCount: number,
     maxContextSize: number,
     state: {
+        lastResponder: Bot,
         shouldContinue: boolean,
         shouldDisplay: boolean,
         shouldLog: boolean,

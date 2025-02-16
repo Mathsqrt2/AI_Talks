@@ -4,7 +4,7 @@ import {
 
 } from '@nestjs/common';
 import { LogMessage } from '../constants/conversation.responses';
-import { SettingsService } from '@libs/settings';
+import { ConfigService } from '@libs/settings';
 import { Logger } from '@libs/logger';
 import { ApiBadRequestResponse, ApiFoundResponse } from '@nestjs/swagger';
 import { ResponseSettingsDto } from '../dtos/response-settings.dto';
@@ -15,7 +15,7 @@ import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
 export class SettingsController {
 
     constructor(
-        private readonly settings: SettingsService,
+        private readonly settings: ConfigService,
         private readonly logger: Logger,
     ) { }
 

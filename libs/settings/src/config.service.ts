@@ -7,9 +7,9 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 
 @Injectable()
-export class SettingsService {
+export class ConfigService {
 
-    private readonly logger: Logger = new Logger(SettingsService.name);
+    private readonly logger: Logger = new Logger(ConfigService.name);
     constructor() { }
 
     public app: SettingsFile = {
@@ -18,6 +18,7 @@ export class SettingsService {
         maxMessagesCount: 100,
         maxContextSize: 4096,
         state: {
+            lastResponder: null,
             shouldContinue: false,
             shouldDisplay: false,
             shouldLog: true,

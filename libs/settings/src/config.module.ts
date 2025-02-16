@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SettingsService } from './settings.service';
+import { ConfigService } from './config.service';
 import { DatabaseModule } from '@libs/database';
 
 @Module({
@@ -7,10 +7,10 @@ import { DatabaseModule } from '@libs/database';
     DatabaseModule,
   ],
   providers: [
-    SettingsService
+    ConfigService
   ],
   exports: [
-    SettingsService
+    ConfigService
   ],
 })
 

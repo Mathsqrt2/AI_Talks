@@ -1,6 +1,6 @@
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
-import { SettingsService } from '@libs/settings';
+import { ConfigService } from '@libs/settings';
 import { DatabaseService } from '@libs/database';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class Logger {
     private logger: NestLogger;
 
     constructor(
-        private readonly settings: SettingsService,
+        private readonly settings: ConfigService,
         private readonly database: DatabaseService,
     ) {
         this.logger = new NestLogger(this.appName);
