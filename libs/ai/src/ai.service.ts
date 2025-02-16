@@ -1,12 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { Ollama } from 'ollama';
 
 @Injectable()
 export class AiService {
 
+    private readonly model: Ollama = new Ollama({});
+
     constructor() { }
 
-    public mergeMessages = async (message: string): Promise<string> => {
+    public merge = async (message1: string, message2: string): Promise<string> => {
         return ``;
+    }
+
+    public respondTo = async (message: string) => {
+
     }
 
 }

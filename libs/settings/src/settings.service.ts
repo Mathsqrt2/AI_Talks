@@ -1,7 +1,6 @@
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
 import { Injectable, Logger } from '@nestjs/common';
-import { BehaviorSubject } from 'rxjs';
 import { OnEvent } from '@nestjs/event-emitter';
 import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
 import * as fs from 'fs/promises';
@@ -13,7 +12,7 @@ export class SettingsService {
     private readonly logger: Logger = new Logger(SettingsService.name);
     constructor() { }
 
-    public app: BehaviorSubject<SettingsFile> = new BehaviorSubject<SettingsFile>({
+    public app: SettingsFile = {
         conversationName: null,
         isConversationInProgres: false,
         maxMessagesCount: 100,
@@ -33,7 +32,7 @@ export class SettingsService {
             contextPrompt1: process.env.OLLAMA_PROMPT1,
             contextPrompt2: process.env.OLLAMA_PROMPT2,
         }
-    });
+    };
 
     @OnEvent(event.message)
     private insertMessageIntoStats() {
@@ -68,10 +67,10 @@ export class SettingsService {
 
     private archiveCurrentState = async (): Promise<void> => {
 
-        const outPath = path.join(__dirname, `${this.app.getValue().conversationName}.json`);
+        const outPath = path.join(__dirname, `${this.app.conversationName}.json`);
         const data = {
             stats: this.getStats(),
-            settings: this.app.getValue(),
+            settings: this.app,
         }
 
         try {

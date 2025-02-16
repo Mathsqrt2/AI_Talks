@@ -10,7 +10,7 @@ export class InjectMessageDto {
 
     @ApiProperty({ description: SwaggerMessages.injectMessageDto.modeDescription(), example: `MERGE` })
     @IsString()
-    @IsIn([`MERGE`, `INJECT`])
+    @IsIn([`MERGE`, `REPLACE`])
     mode: InjectionMode;
 
     @ApiProperty({ description: SwaggerMessages.injectMessageDto.botIdDescription(), example: 1 })

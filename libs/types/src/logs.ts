@@ -7,7 +7,7 @@ export type LogMessageContent = {
 type LogMessageFunction = (() => string) | ((param?: number | string) => string);
 
 export type LoggerConfig = {
-    context?: any,
+    context?: unknown,
     save?: boolean,
 }
 

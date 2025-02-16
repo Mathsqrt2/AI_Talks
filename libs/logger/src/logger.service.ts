@@ -17,7 +17,7 @@ export class Logger {
     }
 
     private shouldLog = (): boolean => {
-        return this.settings.app.getValue().state.shouldLog;
+        return this.settings.app.state.shouldLog;
     }
 
     public log = (message: any, config?: LoggerConfig): void => {

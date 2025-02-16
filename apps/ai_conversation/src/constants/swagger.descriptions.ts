@@ -41,7 +41,7 @@ export class SwaggerMessages {
 
     public static injectMessageDto: LogMessageContent = {
         promptDescription: (): string => `A text message to be injected or merged into the conversation.`,
-        modeDescription: (): string => `Defines how the new content will be integrated (MERGE or INJECT).`,
+        modeDescription: (): string => `Defines how the new content will be integrated (MERGE or REPLACE).`,
         botIdDescription: (): string => `Specifies the ID of the bot (must be 1 or 2).`,
         usernameDescription: (): string => `The username of the person triggering the injection.`,
     }
@@ -59,7 +59,7 @@ export class SwaggerMessages {
 
     public static responseInjectDto: LogMessageContent = {
         promptDescription: (): string => `The content or message to be injected into the conversation.`,
-        modeDescription: (): string => `Specifies how the new content should be integrated (e.g., MERGE or INJECT).`,
+        modeDescription: (): string => `Specifies how the new content should be integrated (e.g., MERGE or REPLACE).`,
         botIdDescription: (): string => `Indicates the ID of the bot to which the content is directed.`,
         usernameDescription: (): string => `The username of the person requesting the content injection.`,
     }
@@ -97,7 +97,7 @@ export class SwaggerMessages {
         usersMessagesStackDescription: (): string => `A stack of user-provided messages awaiting processing in the conversation flow.`,
         currentMessageIndexDescription: (): string => `Tracks the index of the current message in the ongoing conversation.`,
         lastBotMessagesDescription: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
-        lastBotMessagesExample: (): any => `A list of the most recent bot messages to maintain context or for replay.`,
+        lastBotMessagesExample: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
 
     }
 
