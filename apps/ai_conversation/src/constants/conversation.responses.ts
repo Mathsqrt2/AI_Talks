@@ -1,6 +1,4 @@
 import { LogMessageContent } from "@libs/types/logs";
-import { Bot } from "@libs/types/telegram";
-
 export class LogMessage {
 
     public static warn: LogMessageContent = {
@@ -10,7 +8,8 @@ export class LogMessage {
         onPauseMissingConversation: (): string => `Failed to pause. Currently there are no processed talks.`,
         onResumeMissingConversation: (): string => `Failed to continue. Currently there are no processed talks.`,
         onInvalidPayload: (): string => `Failed to inject content. Invalid payload.`,
-        onInvalidMode: (mode?: string) => `Failed to inject message. Incorrect mode${mode ? ` "${mode}"` : ``}`,
+        onInvalidMode: (mode?: string) => `Failed to inject message. Incorrect mode${mode ? ` "${mode}"` : ``}.`,
+        onConversationInterrupt: (): string => `Conversation is currently paused.`,
     };
 
     public static error: LogMessageContent = {
@@ -23,6 +22,9 @@ export class LogMessage {
         onBotConnectionFail: (name: string): string => `Failed to connect with Telegram ${name}.`,
         onInvalidTelegramBot: (): string => `Something went wrong with speakers.`,
         onSendBotMessageFail: (who: string) => `Failed to send message by ${who}.`,
+        onLocalFileSaveFail: (): string => `Failed to save application state in local copy.`,
+        onSaveLogFail: (type: string) => `Failed to save ${type} log in database.`,
+        onMessageAfterConversationBreak: (): string => `Failed to continue. Current conversation doesn't exist.`,
     };
 
     public static log: LogMessageContent = {
@@ -39,6 +41,8 @@ export class LogMessage {
         onMessageEventEmitted: (bot: string, id: number): string => `Message ${id} successfully announced by Telegram ${bot}.`,
         onBotConnected: (name: string) => `${name} connected successfully.`,
         onSuccessfullyInsertedMessage: (id: number): string => `Message ${id} successfully archived.`,
+        onTelegramMessageSend: (name: string): string => `Message send to the telegram channel by ${name}.`,
+        onMessageEmission: (id: number): string => `Message ${id} emitted successfully.`
     };
 
 }

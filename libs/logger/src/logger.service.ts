@@ -2,6 +2,7 @@ import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
 import { ConfigService } from '@libs/settings';
 import { DatabaseService } from '@libs/database';
+import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
 
 @Injectable()
 export class Logger {
@@ -29,7 +30,7 @@ export class Logger {
             try {
                 this.database.saveLog(message, config);
             } catch (error) {
-                this.error(`Failed to save log in database.`, { error });
+                this.error(LogMessage.error.onSaveLogFail(`log`), { error });
             }
         }
 
@@ -51,7 +52,7 @@ export class Logger {
             try {
                 this.database.saveLog(message, config);
             } catch (error) {
-                this.error(`Failed to save warn log in database.`, { error });
+                this.error(LogMessage.error.onSaveLogFail(`warn`), { error });
             }
         }
 
@@ -74,7 +75,7 @@ export class Logger {
             try {
                 this.database.saveLog(message, config);
             } catch (error) {
-                this.error(`Failed to save error log in database.`, { error });
+                this.error(LogMessage.error.onSaveLogFail(`error`), { error });
             }
         }
 
@@ -101,7 +102,7 @@ export class Logger {
             try {
                 this.database.saveLog(message, config);
             } catch (error) {
-                this.error(`Failed to save debug log in database.`, { error });
+                this.error(LogMessage.error.onSaveLogFail(`debug`), { error });
             }
         }
 

@@ -1,10 +1,10 @@
-import { MessageEventPayload } from '@libs/types/conversarion';
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
-import { Bot } from '@libs/types/telegram';
+import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
+import { MessageEventPayload } from '@libs/types/conversarion';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
-import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { Bot } from '@libs/types/telegram';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -21,12 +21,13 @@ export class ConfigService {
         maxContextSize: 4096,
         state: {
             shouldContinue: false,
-            shouldSendToTelegram: false,
+            shouldSendToTelegram: true,
             shouldDisplayResponse: true,
-            shouldLog: true,
+            shouldLog: false,
             lastResponder: null,
             enqueuedMessage: null,
-            usersMessagesStack: [],
+            usersMessagesStackForBot1: [],
+            usersMessagesStackForBot2: [],
             lastBotMessages: [],
             currentMessageIndex: 0,
         },
@@ -43,7 +44,10 @@ export class ConfigService {
         payload.message.author.name === `bot_1`
             ? this.stats.bot_1.messages.push(payload.message)
             : this.stats.bot_2.messages.push(payload.message);
-        this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
+
+        if (this.app.state.shouldLog) {
+            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
+        }
     }
 
     private stats: Archive = {
@@ -66,7 +70,7 @@ export class ConfigService {
         try {
             await fs.writeFile(outPath, JSON.stringify(data));
         } catch (error) {
-            this.logger.error(``, { error });
+            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error });
             throw error
         }
 

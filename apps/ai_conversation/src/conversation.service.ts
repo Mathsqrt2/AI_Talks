@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { event } from './constants/conversation.constants';
-import { InitEventPayload } from '@libs/types/events';
-import { ConfigService } from '@libs/settings';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { Logger } from '@libs/logger';
-import { SHA256 } from 'crypto-js';
-import { LogMessage } from './constants/conversation.responses';
-import { Bot } from '@libs/types/telegram';
 import { InjectContentPayload, MessageEventPayload } from '@libs/types/conversarion';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { InitEventPayload } from '@libs/types/events';
 import { TelegramGateway } from '@libs/telegram';
+import { ConfigService } from '@libs/settings';
 import { Message } from '@libs/types/settings';
+import { Injectable } from '@nestjs/common';
+import { Bot } from '@libs/types/telegram';
+import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
+import { LogMessage } from './constants/conversation.responses';
+import { event } from './constants/conversation.constants';
+import { SHA256 } from 'crypto-js';
 
 @Injectable()
 export class ConversationService {
@@ -54,7 +54,7 @@ export class ConversationService {
     await this.eventEmitter.emitAsync(event.message, payload);
     this.logger.log(LogMessage.log.onMessageEventEmitted(
       currentBot.name,
-      this.config.app.state.currentMessageIndex++
+      this.config.app.state.currentMessageIndex
     ));
   }
 
@@ -62,41 +62,25 @@ export class ConversationService {
   private async sendMessage(payload: MessageEventPayload): Promise<void> {
 
     const generatingStartTime: Date = new Date();
+    this.config.app.state.lastBotMessages.push(payload.message);
     let message: Message = payload.message;
 
-    const respondBy: Bot = {
+    const currentBot: Bot = {
       name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1`
     };
 
-    if (!this.config.app.isConversationInProgres) {
-      this.logger.error(`Conversation break`);
-      return;
-    }
-
-    if (!this.config.app.state.shouldContinue) {
-      this.config.app.state.enqueuedMessage = payload.message;
-      this.logger.warn(`Conversation is currently paused`)
-      return;
-    }
-
-    if (respondBy.name === `bot_1` && this.config.app.state.usersMessagesStackForBot1?.length > 0) {
-
+    if (currentBot.name === `bot_1` && this.config.app.state.usersMessagesStackForBot1?.length > 0) {
       const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
-      message.content = await this.ai.merge(messageFromOutside, payload.message.content);
-
-    } else if (respondBy.name === `bot_2` && this.config.app.state.usersMessagesStackForBot2?.length > 0) {
-
+      message.content = await this.ai.merge(messageFromOutside, message);
+    } else if (currentBot.name === `bot_2` && this.config.app.state.usersMessagesStackForBot2?.length > 0) {
       const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
-      message.content = await this.ai.merge(messageFromOutside, payload.message.content);
-
+      message.content = await this.ai.merge(messageFromOutside, message);
     }
 
     const response = await this.ai.respondTo(message.content);
-    await this.telegram.respondBy(payload.message.author, response);
-
     const newPayload: MessageEventPayload = {
       message: {
-        author: respondBy,
+        author: currentBot,
         content: response,
         generatingStartTime,
         generatingEndTime: new Date(),
@@ -104,8 +88,23 @@ export class ConversationService {
       }
     }
 
+    const currentMessageIndex = this.config.app.state.currentMessageIndex++;
+    this.config.app.state.lastResponder = currentBot;
+
+    if (!this.config.app.isConversationInProgres) {
+      this.logger.error(LogMessage.error.onMessageAfterConversationBreak());
+      return;
+    }
+
+    if (!this.config.app.state.shouldContinue) {
+      this.config.app.state.enqueuedMessage = payload.message;
+      this.logger.warn(LogMessage.warn.onConversationInterrupt());
+      return;
+    }
+
+    await this.telegram.respondBy(currentBot, response);
     await this.eventEmitter.emitAsync(event.message, newPayload);
-    this.logger.log(`Message emitted successfully`);
+    this.logger.log(LogMessage.log.onMessageEmission(currentMessageIndex));
   }
 
 }

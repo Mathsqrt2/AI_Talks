@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '@libs/logger';
 import { Module } from '@nestjs/common';
 import { AiModule } from '@libs/ai';
+import { TelegramModule } from '@libs/telegram';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AiModule } from '@libs/ai';
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot({ global: true }),
     SettingsModule,
+    TelegramModule,
     LoggerModule,
     AiModule,
   ],

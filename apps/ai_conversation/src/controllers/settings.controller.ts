@@ -10,7 +10,7 @@ import { ResponseSettingsDto } from '../dtos/response-settings.dto';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
 
-@Controller(`setings`)
+@Controller(`settings`)
 export class SettingsController {
 
     constructor(
