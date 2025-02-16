@@ -7,14 +7,15 @@ export type SettingsFile = {
     maxMessagesCount: number,
     maxContextSize: number,
     state: {
-        lastResponder: Bot,
         shouldContinue: boolean,
-        shouldDisplay: boolean,
+        shouldSendToTelegram: boolean,
+        shouldDisplayResponse: boolean,
         shouldLog: boolean,
+        lastResponder: Bot,
         enqueuedMessage: string,
         usersMessagesStack: InjectContentPayload[],
-        currentMessageIndex: number,
         lastBotMessages: Message[]
+        currentMessageIndex: number,
     }
 
     prompts: {

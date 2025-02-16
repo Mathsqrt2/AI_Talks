@@ -1,4 +1,5 @@
 import { LogMessageContent } from "@libs/types/logs";
+import { Bot } from "@libs/types/telegram";
 
 export class LogMessage {
 
@@ -19,6 +20,9 @@ export class LogMessage {
         onIncorrectValue: (property: string) => `Incorrect ${property} value.`,
         onNaNError: (property: string) => `${property.charAt(0).toUpperCase()}${property.slice(1)} value must be a number.`,
         onInvalidBody: (): string => `Invalid body params.`,
+        onBotConnectionFail: (name: string): string => `Failed to connect with Telegram ${name}.`,
+        onInvalidTelegramBot: (): string => `Something went wrong with speakers.`,
+        onSendBotMessageFail: (who: string) => `Failed to send message by ${who}.`,
     };
 
     public static log: LogMessageContent = {
@@ -32,6 +36,9 @@ export class LogMessage {
         onUserResponseWithContext: (): string => `Responded to user with current context length.`,
         onUserResponseWithPrompt: (type: string): string => `Responded to user with ${type} prompt.`,
         onUserResponseWithAllPrompts: (): string => `Responded to user with all prompts.`,
+        onMessageEventEmitted: (bot: string, id: number): string => `Message ${id} successfully announced by Telegram ${bot}.`,
+        onBotConnected: (name: string) => `${name} connected successfully.`,
+
     };
 
 }

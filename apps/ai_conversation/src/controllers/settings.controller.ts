@@ -1,7 +1,6 @@
 import {
     BadRequestException, Param, Post,
     Body, Controller, Get, HttpCode, HttpStatus,
-
 } from '@nestjs/common';
 import { LogMessage } from '../constants/conversation.responses';
 import { ConfigService } from '@libs/settings';

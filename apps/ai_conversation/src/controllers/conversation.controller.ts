@@ -15,7 +15,7 @@ import { LogMessage } from '../constants/conversation.responses';
 import { InjectMessageDto } from '../dtos/inject-message.dto';
 import { event } from '../constants/conversation.constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { EventPayload } from '@libs/types/events';
+import { InitEventPayload } from '@libs/types/events';
 import { ConfigService } from '@libs/settings';
 import { Logger } from '@libs/logger';
 
@@ -37,8 +37,8 @@ export class ConversationController {
   @ApiBadRequestResponse({ description: SwaggerMessages.init.aboutBadRequestResponse() })
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.init.aboutInternalServerError() })
   public async initializeConversation(
-    @Body() body?: ConversationInitDto,
-    @Param(`id`) id?: number,
+    @Body() body: ConversationInitDto,
+    @Param(`id`) id: number,
   ): Promise<void> {
 
     if (this.config.app.isConversationInProgres) {
@@ -52,16 +52,13 @@ export class ConversationController {
     }
 
     try {
-      this.config.app.isConversationInProgres = true;
-      this.config.app.state.shouldContinue = true;
-
-      const eventPayload: EventPayload = {
+      const initEventPayload: InitEventPayload = {
         speaker_id: +id,
         prompt: body?.prompt || process.env.INITIAL_PROMPT,
       };
-      await this.eventEmitter.emitAsync(event.startConversation, eventPayload);
-
+      await this.eventEmitter.emitAsync(event.startConversation, initEventPayload);
       this.logger.log(LogMessage.log.onConversationStart());
+
     } catch (error) {
       this.logger.error(LogMessage.error.onConversationInitFail());
       throw new InternalServerErrorException(LogMessage.error.onConversationInitFail())

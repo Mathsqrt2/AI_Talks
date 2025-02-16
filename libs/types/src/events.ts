@@ -14,8 +14,7 @@ export type EventTypes =
     | `inject-message`
     | `message`;
 
-export type EventPayload = {
-    bot_name?: string,
+export type InitEventPayload = {
     speaker_id: number,
     prompt: string,
 }

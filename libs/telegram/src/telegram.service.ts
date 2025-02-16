@@ -1,54 +1,51 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
 import * as TelegramBot from 'node-telegram-bot-api';
-import { SettingsFile } from '@libs/types/settings';
-import { SettingsService } from '@libs/settings';
+import { ConfigService } from '@libs/settings';
+import { Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 
 @Injectable()
-export class TelegramGateway implements OnApplicationBootstrap {
+export class TelegramGateway {
 
-    private config: SettingsFile = null;
     private speaker1: TelegramBot = null;
     private speaker2: TelegramBot = null;
 
     constructor(
         private readonly logger: Logger,
-        private readonly settings: SettingsService,
+        private readonly config: ConfigService,
     ) {
 
         try {
             this.speaker1 = new TelegramBot(process.env.TOKEN1, { polling: true });
-            this.logger.log(`Telegram bot_1 connected successfully`);
+            this.logger.log(LogMessage.log.onBotConnected(`bot_1`));
         } catch (error) {
-            this.logger.error(`Failed to connect with telegram_bot1`, error);
+            this.logger.error(LogMessage.error.onBotConnectionFail(`bot_1`), error);
             this.speaker1 = null;
         }
 
         try {
             this.speaker1 = new TelegramBot(process.env.TOKEN2, { polling: true });
-            this.logger.log(`Telegram bot_2 connected.`);
+            this.logger.log(LogMessage.log.onBotConnected(`bot_2`));
         } catch (error) {
-            this.logger.error(`Failed to connect with telegram_bot2`, error);
+            this.logger.error(LogMessage.error.onBotConnectionFail(`bot_2`), error);
             this.speaker2 = null;
         }
 
     }
 
-    public onApplicationBootstrap() {
-        this.settings.app.subscribe((newSettings: SettingsFile) => {
-            this.config = newSettings;
-        })
-    }
-
     public respondBy = async (who: Bot, content: string): Promise<boolean> => {
 
         if (!this.speaker1 || !this.speaker2) {
-            this.logger.error(`Something went wrong with speakers.`);
+            this.logger.error(LogMessage.error.onBotConnectionFail());
             return false;
         }
 
-        if (!this.config.state.shouldDisplay) {
+        if (this.config.app.state.shouldDisplayResponse) {
+            this.logger.log(LogMessage.log.onDisplayLLMResponse(who.name, content))
+        }
+
+        if (!this.config.app.state.shouldSendToTelegram) {
             return false;
         }
 
@@ -59,7 +56,7 @@ export class TelegramGateway implements OnApplicationBootstrap {
             return true;
 
         } catch (error) {
-            this.logger.error(`Failed to send message by ${who}.`, error);
+            this.logger.error(LogMessage.error.onBotConnectionFail(who.name), error);
             return false;
         }
 

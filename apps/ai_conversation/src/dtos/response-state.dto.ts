@@ -13,7 +13,11 @@ export class ResponseStateDto {
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: false })
     @IsBoolean()
-    shouldDisplay: boolean;
+    shouldSendToTelegram: boolean;
+
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: false })
+    @IsBoolean()
+    shouldDisplayResponse: boolean;
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: true })
     @IsBoolean()

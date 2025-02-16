@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { event } from './constants/conversation.constants';
-import { EventPayload } from '@libs/types/events';
+import { InitEventPayload } from '@libs/types/events';
 import { ConfigService } from '@libs/settings';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Logger } from '@libs/logger';
 import { SHA256 } from 'crypto-js';
+import { LogMessage } from './constants/conversation.responses';
+import { Bot } from '@libs/types/telegram';
 
 @Injectable()
 export class ConversationService {
@@ -15,13 +17,28 @@ export class ConversationService {
     private readonly logger: Logger,
   ) { }
 
-  @OnEvent(event.startConversation, { async: true })
-  private async startConversation(payload: EventPayload): Promise<void> {
+  private generateConversationName = (): void => {
+    const seed = `${JSON.stringify(this.config.app)}${Date.now()}`;
+    this.config.app.conversationName = SHA256(seed).toString();
+  }
 
-    this.config.app.conversationName = SHA256(`${JSON.stringify(this.config.app)}${Date.now()}`).toString()
-    this.config.app.state.lastResponder = payload.speaker_id === 1
+  @OnEvent(event.startConversation, { async: true })
+  private async startConversation(payload: InitEventPayload): Promise<void> {
+
+    this.generateConversationName();
+    const currentBot: Bot = payload.speaker_id === 1
       ? { name: 'bot_1' }
       : { name: `bot_2` };
+
+    this.config.app.isConversationInProgres = true;
+    this.config.app.state.shouldContinue = true;
+    this.config.app.state.lastResponder = currentBot;
+
+    await this.eventEmitter.emitAsync(event.message);
+    this.logger.log(LogMessage.log.onMessageEventEmitted(
+      currentBot.name,
+      this.config.app.state.currentMessageIndex++
+    ));
 
   }
 
