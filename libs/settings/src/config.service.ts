@@ -21,7 +21,7 @@ export class ConfigService {
         maxContextSize: 4096,
         state: {
             shouldContinue: false,
-            shouldSendToTelegram: true,
+            shouldSendToTelegram: false,
             shouldDisplayResponse: true,
             shouldLog: false,
             lastResponder: null,

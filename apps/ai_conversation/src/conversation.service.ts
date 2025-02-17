@@ -52,22 +52,20 @@ export class ConversationService {
 
     await this.telegram.respondBy(currentBot, payload.message.content);
     await this.eventEmitter.emitAsync(event.message, payload);
-    this.logger.log(LogMessage.log.onMessageEventEmitted(
-      currentBot.name,
-      this.config.app.state.currentMessageIndex
-    ));
   }
 
   @OnEvent(event.message, { async: true })
   private async sendMessage(payload: MessageEventPayload): Promise<void> {
 
     const generatingStartTime: Date = new Date();
-    this.config.app.state.lastBotMessages.push(payload.message);
+    const currentBot: Bot = { name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1` };
     let message: Message = payload.message;
 
-    const currentBot: Bot = {
-      name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1`
-    };
+    const lastMessages = this.config.app.state.lastBotMessages;
+    lastMessages.push(payload.message);
+
+    const maxHistorySize: number = this.config.app.maxMessagesCount;
+    this.config.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
 
     if (currentBot.name === `bot_1` && this.config.app.state.usersMessagesStackForBot1?.length > 0) {
       const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();

@@ -38,7 +38,6 @@ export class LogMessage {
         onUserResponseWithContext: (): string => `Responded to user with current context length.`,
         onUserResponseWithPrompt: (type: string): string => `Responded to user with ${type} prompt.`,
         onUserResponseWithAllPrompts: (): string => `Responded to user with all prompts.`,
-        onMessageEventEmitted: (bot: string, id: number): string => `Message ${id} successfully announced by Telegram ${bot}.`,
         onBotConnected: (name: string) => `${name} connected successfully.`,
         onSuccessfullyInsertedMessage: (id: number): string => `Message ${id} successfully archived.`,
         onTelegramMessageSend: (name: string): string => `Message send to the telegram channel by ${name}.`,
