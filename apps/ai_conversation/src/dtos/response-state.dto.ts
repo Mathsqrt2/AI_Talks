@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { ResponseInjectContentPayloadDto } from "./response-inject-content-payload.dto";
 import { ResponseMessageDto } from "./response-message.dto";
-import { IsArray, IsBoolean, IsNumber, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { SwaggerMessages } from "../constants/swagger.descriptions";
 
@@ -48,5 +48,10 @@ export class ResponseStateDto {
     @ValidateNested({ each: true })
     @Type(() => ResponseMessageDto)
     lastBotMessages: ResponseMessageDto[];
+
+    @ApiProperty({ description: `` })
+    @IsBoolean()
+    @IsOptional()
+    isConversationInProgress?: boolean;
 
 }

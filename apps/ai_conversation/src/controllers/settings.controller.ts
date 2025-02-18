@@ -9,6 +9,7 @@ import { ApiBadRequestResponse, ApiFoundResponse } from '@nestjs/swagger';
 import { ResponseSettingsDto } from '../dtos/response-settings.dto';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
+import { ResponseStateDto } from '../dtos/response-state.dto';
 
 @Controller(`settings`)
 export class SettingsController {
@@ -77,7 +78,8 @@ export class SettingsController {
 
     @Get(`state`)
     @HttpCode(HttpStatus.FOUND)
-    public findCurrentState() {
+    @ApiFoundResponse({ description: `` })
+    public findCurrentState(): ResponseStateDto {
         return {
             ...this.settings.app.state,
             isConversationInProgress: this.settings.app.isConversationInProgres
@@ -86,9 +88,19 @@ export class SettingsController {
 
     @Get(`state/:param`)
     @HttpCode(HttpStatus.FOUND)
+    @ApiBadRequestResponse({ description: `` })
+    @ApiFoundResponse({ description: `` })
     public findCurrentStateForParam(
         @Param(`param`) param: string,
     ) {
+
+        if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
+            this.logger.error('')
+            throw new BadRequestException(`Property ${param} doesn't exist in state.`);
+        }
+
+        this.logger.log(`Responded with ${param} value`);
+        return this.settings.app.state[param];
 
     }
 
