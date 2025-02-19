@@ -21,9 +21,9 @@ export class ConfigService {
         maxContextSize: 4096,
         state: {
             shouldContinue: false,
-            shouldSendToTelegram: false,
-            shouldDisplayResponse: true,
-            shouldLog: false,
+            shouldSendToTelegram: true,
+            shouldDisplayResponse: false,
+            shouldLog: true,
             lastResponder: null,
             enqueuedMessage: null,
             usersMessagesStackForBot1: [],
