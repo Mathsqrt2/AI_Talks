@@ -34,6 +34,9 @@ export type AppState = {
 }
 
 export type Archive = {
+    startTime: Date,
+    pause: Date[],
+    resume: Date[],
     bot_1: { messages: Message[] },
     bot_2: { messages: Message[] },
 }

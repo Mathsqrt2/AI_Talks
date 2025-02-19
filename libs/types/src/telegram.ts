@@ -1,1 +1,1 @@
-export type Bot = { name: `bot_1` } | { name: `bot_2` };
+export type Bot = { name: `bot_1` } | { name: `bot_2` } | { name: `system` };

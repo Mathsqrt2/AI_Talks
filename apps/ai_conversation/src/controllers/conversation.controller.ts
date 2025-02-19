@@ -79,6 +79,7 @@ export class ConversationController {
     }
 
     this.config.app.state.shouldContinue = false;
+    this.config.noticeInterrupt(`pause`);
     this.logger.log(LogMessage.log.onPauseConversation());
   }
 
@@ -101,6 +102,7 @@ export class ConversationController {
 
     try {
       await this.eventEmitter.emitAsync(event.message, payload);
+      this.config.noticeInterrupt(`resume`);
       this.logger.log(LogMessage.log.onResumeConversation());
 
     } catch (error) {

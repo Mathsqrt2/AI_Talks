@@ -50,13 +50,25 @@ export class ConfigService {
         }
     }
 
+    @OnEvent(event.startConversation)
+    private onStartConversation() {
+        this.stats.startTime = new Date();
+    }
+
     private stats: Archive = {
+        startTime: null,
+        pause: [],
+        resume: [],
         bot_1: {
             messages: [],
         },
         bot_2: {
             messages: [],
         }
+    }
+
+    public noticeInterrupt = (type: `pause` | `resume`): void => {
+        this.stats[type].push(new Date())
     }
 
     private archiveCurrentState = async (): Promise<void> => {
