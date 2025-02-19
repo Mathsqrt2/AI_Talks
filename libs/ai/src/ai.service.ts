@@ -1,3 +1,4 @@
+import { Logger } from '@libs/logger';
 import { InjectContentPayload } from '@libs/types/conversarion';
 import { Message } from '@libs/types/settings';
 import { Bot } from '@libs/types/telegram';
@@ -11,17 +12,28 @@ export class AiService {
     private readonly ollama: Ollama = new Ollama({ host: process.env.OLLAMA_HOST1 });
 
     constructor(
-        private readonly config: ConfigModule
+        private readonly logger: Logger,
+        private readonly config: ConfigModule,
     ) { }
 
     private toggleContext = (): OllamaMessage[] => {
         return
     }
 
-    public merge = async (message1: InjectContentPayload, message2: Message): Promise<string> => {
+    public merge = async (message2: InjectContentPayload, message1: Message): Promise<string> => {
 
+        let prompt: string = `${process.env.WORKER_CONTEXT}\n\n`;
+        prompt += `"- message1: ${message1.content}"`;
+        prompt += `"- message2: ${message2.prompt}"`;
+        prompt += `"- mode: ${message2.mode}"`;
 
-        return new Promise((resolve) => setTimeout(() => { resolve(`works`) }, 10000));
+        try {
+            const newContent = await this.ollama.generate({ model: `deepseek-r1:8b_merger`, prompt })
+            return newContent.response;
+        } catch (error) {
+            this.logger.error(`Failed to merge mssages`, { error });
+            return message1.content;
+        }
     }
 
     public chatAs = async (bot: Bot): Promise<string> => {
