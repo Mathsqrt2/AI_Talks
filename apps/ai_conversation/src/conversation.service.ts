@@ -77,27 +77,30 @@ export class ConversationService {
       message.content = await this.ai.merge(messageFromOutside, message);
     }
 
-    const lastMessages = this.config.app.state.lastBotMessages;
-    const initialPrompt = lastMessages.shift();
+    const lastMessages = [...this.config.app.state.lastBotMessages];
+    const maxHistorySize: number = this.config.app.maxMessagesCount;
     lastMessages.push(message);
 
-    const maxHistorySize: number = this.config.app.maxMessagesCount;
-    this.config.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
-    this.config.app.state.lastBotMessages.unshift(initialPrompt);
+    if (lastMessages.length > maxHistorySize) {
+      const initialPrompt = lastMessages.shift();
+      this.config.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
+      this.config.app.state.lastBotMessages.unshift(initialPrompt);
+    }
 
-    const response = await this.ai.chatAs(currentBot);
+    const content = await this.ai.chatAs(currentBot);
     const newPayload: MessageEventPayload = {
       message: {
         author: currentBot,
-        content: response,
+        content,
         generatingStartTime,
         generatingEndTime: new Date(),
         generationTime: Date.now() - generatingStartTime.getTime(),
       }
     }
 
-    const currentMessageIndex = this.config.app.state.currentMessageIndex++;
-    this.config.app.state.lastResponder = currentBot;
+    this.logger.debug(newPayload);
+
+
 
     if (!this.config.app.isConversationInProgres) {
       this.logger.error(LogMessage.error.onMessageAfterConversationBreak());
@@ -110,10 +113,19 @@ export class ConversationService {
       return;
     }
 
-    await this.telegram.respondBy(currentBot, response);
-    await this.eventEmitter.emitAsync(event.message, newPayload);
-    this.config.app.state.lastBotMessages.push(newPayload.message);
-    this.logger.log(LogMessage.log.onMessageEmission(currentMessageIndex));
+    try {
+
+      await this.telegram.respondBy(currentBot, content);
+      await this.eventEmitter.emitAsync(event.message, newPayload);
+      this.config.app.state.lastBotMessages.push(newPayload.message);
+      this.config.app.state.lastResponder = currentBot;
+      this.logger.log(
+        LogMessage.log.onMessageEmission(this.config.app.state.currentMessageIndex++)
+      );
+
+    } catch (error) {
+      this.logger.error(`Fail`);
+    }
   }
 
 }

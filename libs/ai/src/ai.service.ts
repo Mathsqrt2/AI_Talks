@@ -34,7 +34,7 @@ export class AiService {
 
     public chatAs = async (bot: Bot): Promise<string> => {
 
-        const lastMessages = this.config.app.state.lastBotMessages;
+        const lastMessages = [...this.config.app.state.lastBotMessages];
         const initialMessage = lastMessages.shift();
 
         const messages: OllamaMessage[] = lastMessages
@@ -52,4 +52,14 @@ export class AiService {
         return modelResponse.message.content;
     }
 
+    public respondTo = async (message: Message, bot: Bot) => {
+
+        const context: number[] = [];
+        const model = bot.name === `bot_1`
+            ? `gemma2:9b_speaker1`
+            : `gemma2:9b_speaker2`;
+
+        const modelResponse = await this.ollama.generate({ model, prompt: ``, context });
+        return modelResponse.response;
+    }
 }
