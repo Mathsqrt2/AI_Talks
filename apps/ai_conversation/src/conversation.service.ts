@@ -101,6 +101,7 @@ export class ConversationService {
       try {
 
         content = await this.ai.chatAs(currentBot);
+        isMessageGenerated = true;
 
       } catch (error) {
         this.logger.error(LogMessage.error.onGenerateMessageFail())

@@ -75,7 +75,7 @@ export class ConfigService {
 
     public archiveCurrentState = async (): Promise<void> => {
 
-        const outPath = path.join(__dirname, `${this.app.conversationName}.${new Date()}.json`);
+        const outPath = path.join(__dirname, `${this.app.conversationName}.${Date.now()}.json`);
         const data = {
             stats: this.getStats(),
             settings: this.app,
