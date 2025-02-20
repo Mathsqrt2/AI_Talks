@@ -28,6 +28,10 @@ export class ConversationService {
     this.config.app.conversationName = SHA256(seed).toString();
   }
 
+  private wait = async (timeInMiliseconds: number = 10000): Promise<void> => (
+    new Promise(resolve => setTimeout(() => resolve(), timeInMiliseconds))
+  );
+
   @OnEvent(event.startConversation, { async: true })
   private async startConversation(initPayload: InitEventPayload): Promise<void> {
 
@@ -58,6 +62,7 @@ export class ConversationService {
       generationTime: 0,
     });
 
+    await this.telegram.respondBy(currentBot, process.env.SEPARATOR);
     await this.telegram.respondBy(currentBot, payload.message.content);
     await this.eventEmitter.emitAsync(event.message, payload);
   }
@@ -68,6 +73,11 @@ export class ConversationService {
     const generatingStartTime: Date = new Date();
     const currentBot: Bot = { name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1` };
     let message: Message = payload.message;
+    let isMessageDelivered: boolean = false;
+    let isMessageGenerated: boolean = false;
+    let deliveryAttempts: number = this.config.app.maxAttempts;
+    let generateAttempts: number = this.config.app.maxAttempts;
+    let content: string;
 
     if (currentBot.name === `bot_1` && this.config.app.state.usersMessagesStackForBot1?.length > 0) {
       const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
@@ -87,7 +97,24 @@ export class ConversationService {
       this.config.app.state.lastBotMessages.unshift(initialPrompt);
     }
 
-    const content = await this.ai.chatAs(currentBot);
+    while (!isMessageGenerated && generateAttempts-- > 0) {
+      try {
+
+        content = await this.ai.chatAs(currentBot);
+
+      } catch (error) {
+        this.logger.error(LogMessage.error.onGenerateMessageFail())
+        await this.wait(this.config.app.retryAfterTimeInMiliseconds);
+      }
+    }
+
+    if (!isMessageGenerated && generateAttempts <= 0) {
+      await this.config.archiveCurrentState();
+      this.config.app.state.shouldContinue = false;
+      this.logger.error(LogMessage.error.onGenerateRetryFail());
+      return;
+    }
+
     const newPayload: MessageEventPayload = {
       message: {
         author: currentBot,
@@ -97,10 +124,6 @@ export class ConversationService {
         generationTime: Date.now() - generatingStartTime.getTime(),
       }
     }
-
-    this.logger.debug(newPayload);
-
-
 
     if (!this.config.app.isConversationInProgres) {
       this.logger.error(LogMessage.error.onMessageAfterConversationBreak());
@@ -113,18 +136,31 @@ export class ConversationService {
       return;
     }
 
-    try {
 
-      await this.telegram.respondBy(currentBot, content);
-      await this.eventEmitter.emitAsync(event.message, newPayload);
-      this.config.app.state.lastBotMessages.push(newPayload.message);
-      this.config.app.state.lastResponder = currentBot;
-      this.logger.log(
-        LogMessage.log.onMessageEmission(this.config.app.state.currentMessageIndex++)
-      );
+    while (!isMessageDelivered && deliveryAttempts-- > 0) {
 
-    } catch (error) {
-      this.logger.error(`Fail`);
+      try {
+
+        await this.telegram.respondBy(currentBot, newPayload.message.content);
+        await this.eventEmitter.emitAsync(event.message, newPayload);
+        this.config.app.state.lastBotMessages.push(newPayload.message);
+        this.config.app.state.lastResponder = currentBot;
+        this.logger.log(LogMessage.log.onMessageEmission(this.config.app.state.currentMessageIndex++));
+        isMessageDelivered = true;
+
+      } catch (error) {
+        this.logger.error(LogMessage.error.onDeliveryFail(), { error });
+        await this.wait(this.config.app.retryAfterTimeInMiliseconds);
+      }
+
+    }
+
+    if (!isMessageDelivered && deliveryAttempts <= 0) {
+
+      await this.config.archiveCurrentState();
+      this.config.app.state.shouldContinue = false;
+      this.logger.error(LogMessage.error.onRetryFail());
+      return;
     }
   }
 

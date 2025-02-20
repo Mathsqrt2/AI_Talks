@@ -5,6 +5,7 @@ declare namespace NodeJS {
     OLLAMA_PROMPT: string;
     OLLAMA_PROMPT1: string;
     OLLAMA_PROMPT2: string;
+    SEPARATOR: string;
     WORKER_CONTEXT: string;
     HOST: string;
 

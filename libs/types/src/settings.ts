@@ -6,6 +6,8 @@ export type SettingsFile = {
     isConversationInProgres: boolean,
     maxMessagesCount: number,
     maxContextSize: number,
+    maxAttempts: number,
+    retryAfterTimeInMiliseconds: number,
     state: {
         shouldContinue: boolean,
         shouldSendToTelegram: boolean,

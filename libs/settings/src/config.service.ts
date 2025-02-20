@@ -19,6 +19,8 @@ export class ConfigService {
         isConversationInProgres: false,
         maxMessagesCount: 100,
         maxContextSize: 4096,
+        maxAttempts: 10,
+        retryAfterTimeInMiliseconds: 10000,
         state: {
             shouldContinue: false,
             shouldSendToTelegram: true,
@@ -71,9 +73,9 @@ export class ConfigService {
         this.stats[type].push(new Date())
     }
 
-    private archiveCurrentState = async (): Promise<void> => {
+    public archiveCurrentState = async (): Promise<void> => {
 
-        const outPath = path.join(__dirname, `${this.app.conversationName}.json`);
+        const outPath = path.join(__dirname, `${this.app.conversationName}.${new Date()}.json`);
         const data = {
             stats: this.getStats(),
             settings: this.app,

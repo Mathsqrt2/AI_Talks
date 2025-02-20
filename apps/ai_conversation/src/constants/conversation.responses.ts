@@ -25,6 +25,10 @@ export class LogMessage {
         onLocalFileSaveFail: (): string => `Failed to save application state in local copy.`,
         onSaveLogFail: (type: string) => `Failed to save ${type} log in database.`,
         onMessageAfterConversationBreak: (): string => `Failed to continue. Current conversation doesn't exist.`,
+        onDeliveryFail: (): string => `Failed to delivery LLM response.`,
+        onRetryFail: (): string => `Failed to delivery message. App state saved.`,
+        onGenerateMessageFail: (): string => `Failed to generate response`,
+        onGenerateRetryFail: (): string => `Failed to generate response too many times. App state saved.`,
     };
 
     public static log: LogMessageContent = {
