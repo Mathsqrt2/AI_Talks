@@ -12,6 +12,8 @@ declare namespace NodeJS {
     OLLAMA_HOST: string;
     OLLAMA_PORT: number;
 
+    SUMMARIZER_CONTEXT: string;
+
     TOKEN1: string;
     TOKEN2: string;
 

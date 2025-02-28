@@ -28,6 +28,7 @@ export class ConfigService {
             shouldLog: true,
             lastResponder: null,
             enqueuedMessage: null,
+            isGeneratingOnAir: false,
             usersMessagesStackForBot1: [],
             usersMessagesStackForBot2: [],
             lastBotMessages: [],

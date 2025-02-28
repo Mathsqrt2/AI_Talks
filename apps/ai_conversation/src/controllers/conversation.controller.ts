@@ -5,7 +5,7 @@ import {
 } from '@nestjs/swagger';
 import {
   BadRequestException, Body, Controller,
-  ForbiddenException, HttpCode, HttpStatus,
+  ForbiddenException, Get, HttpCode, HttpStatus,
   InternalServerErrorException,
   Param, Post
 } from '@nestjs/common';
@@ -28,6 +28,10 @@ export class ConversationController {
     private readonly config: ConfigService,
     private readonly logger: Logger,
   ) { }
+
+  private wait = async (timeInMiliseconds: number = 10000): Promise<void> => (
+    new Promise(resolve => setTimeout(() => resolve(), timeInMiliseconds))
+  );
 
   @Post([`init/:id`, `start/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
@@ -161,4 +165,28 @@ export class ConversationController {
     this.logger.log(LogMessage.log.onInjectMessage());
   }
 
+  @Get([`summary`])
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({ description: `` })
+  public async prepareCurrentTalkSummary() {
+
+    let maximumAttemptsNumber: number = 12;
+
+    if (this.config.app.state.shouldContinue) {
+      this.config.app.state.shouldContinue = false;
+    }
+
+    while (this.config.app.state.isGeneratingOnAir && maximumAttemptsNumber-- > 0) {
+      const timeInMiliseconds = 30000;
+      await this.wait(timeInMiliseconds)
+    }
+
+    if (maximumAttemptsNumber === 0) {
+      throw new InternalServerErrorException(`Failed to generate summary`)
+    }
+
+
+
+    this.config.app.state.shouldContinue = true;
+  }
 }

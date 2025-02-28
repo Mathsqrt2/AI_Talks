@@ -13,6 +13,7 @@ export type SettingsFile = {
         shouldSendToTelegram: boolean,
         shouldDisplayResponse: boolean,
         shouldLog: boolean,
+        isGeneratingOnAir: boolean,
         lastResponder: Bot,
         enqueuedMessage: Message,
         usersMessagesStackForBot1: InjectContentPayload[],
