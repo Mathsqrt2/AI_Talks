@@ -1,6 +1,6 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { Log } from './entities/log.entity';
+import { Log } from './entities/log/log.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
 
@@ -10,7 +10,7 @@ export class DatabaseService implements OnApplicationBootstrap {
     private readonly logger: Logger = new Logger(DatabaseService.name);
 
     constructor(
-        //  @InjectRepository(Log) private log: Repository<Log>
+        @Inject(`LOG`) private readonly log: Repository<Log>,
     ) { }
 
     public async onApplicationBootstrap(): Promise<void> {

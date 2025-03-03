@@ -1,5 +1,7 @@
 import { InjectContentPayload, MessageEventPayload } from '@libs/types/conversarion';
+import { LogMessage } from './constants/conversation.responses';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { event } from './constants/conversation.constants';
 import { InitEventPayload } from '@libs/types/events';
 import { TelegramGateway } from '@libs/telegram';
 import { ConfigService } from '@libs/settings';
@@ -8,8 +10,6 @@ import { Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
-import { LogMessage } from './constants/conversation.responses';
-import { event } from './constants/conversation.constants';
 import { SHA256 } from 'crypto-js';
 
 @Injectable()

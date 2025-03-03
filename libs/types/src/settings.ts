@@ -21,7 +21,6 @@ export type SettingsFile = {
         lastBotMessages: Message[]
         currentMessageIndex: number,
     }
-
     prompts: {
         initialPrompt: string;
         contextPrompt: string;

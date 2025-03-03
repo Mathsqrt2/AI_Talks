@@ -2,13 +2,13 @@ import { ConversationController } from './controllers/conversation.controller';
 import { SettingsController } from './controllers/settings.controller';
 import { ConversationService } from './conversation.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { SettingsModule } from '@libs/settings';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TelegramModule } from '@libs/telegram';
+import { SettingsModule } from '@libs/settings';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '@libs/logger';
 import { Module } from '@nestjs/common';
 import { AiModule } from '@libs/ai';
-import { TelegramModule } from '@libs/telegram';
 
 @Module({
   imports: [

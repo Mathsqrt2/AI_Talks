@@ -6,11 +6,14 @@ export class Log {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ type: `varchar`, length: 2048 })
     content: string;
 
-    @Column({ nullable: true })
+    @Column({ type: `varchar`, nullable: true, length: 256 })
     label?: string;
+
+    @Column({ type: `int`, nullable: true })
+    conversation_id?: number;
 
     @Column()
     created_at: number;
