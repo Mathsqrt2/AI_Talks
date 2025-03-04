@@ -50,6 +50,11 @@ export class TelegramGateway {
             return false;
         }
 
+        if (content === ``) {
+            NestLogger.warn(`Message content is empty`, who.name);
+            return false;
+        }
+
         try {
             who.name === `bot_1`
                 ? await this.speaker1.sendMessage(process.env.GROUP_CHAT_ID, content)

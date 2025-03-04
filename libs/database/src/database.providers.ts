@@ -13,6 +13,7 @@ import { Message } from "./entities/message/message.entity";
 import { Settings } from "./entities/settings/settings.entity";
 import { State } from "./entities/state/state.entity";
 import { LogMessage } from "apps/ai_conversation/src/constants/conversation.responses";
+import { stateProvider } from "./entities/state/state.provider";
 
 export const databaseProviders: Provider[] = [
     {
@@ -43,4 +44,5 @@ export const databaseProviders: Provider[] = [
     logProvider,
     messageProvider,
     settingsProvider,
+    stateProvider,
 ]

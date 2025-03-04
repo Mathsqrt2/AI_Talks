@@ -1,5 +1,7 @@
+import { Message as MessageEntity } from '@libs/database/entities/message/message.entity';
 import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
 import { InjectContentPayload, MessageEventPayload } from '@libs/types/conversarion';
+import { State } from '@libs/database/entities/state/state.entity';
 import { LogMessage } from './constants/conversation.responses';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { event } from './constants/conversation.constants';
@@ -20,6 +22,8 @@ export class ConversationService {
 
   constructor(
     @Inject(`CONVERSATION`) private readonly conversation: Repository<Conversation>,
+    @Inject(`MESSAGE`) private readonly message: Repository<MessageEntity>,
+    @Inject(`STATE`) private readonly state: Repository<State>,
     private readonly eventEmitter: EventEmitter2,
     private readonly telegram: TelegramGateway,
     private readonly settings: SettingsService,
@@ -125,6 +129,11 @@ export class ConversationService {
       try {
 
         content = await this.ai.chatAs(currentBot);
+
+        if (content === ``) {
+          continue;
+        }
+
         isMessageGenerated = true;
 
       } catch (error) {
@@ -167,6 +176,15 @@ export class ConversationService {
 
         await this.telegram.respondBy(currentBot, newPayload.message.content);
         await this.eventEmitter.emitAsync(event.message, newPayload);
+        await this.message.save({
+          conversationId: this.settings.app.conversationId,
+          content: newPayload.message.content,
+          generationTime: newPayload.message.generationTime,
+          generatingStartTime: newPayload.message.generatingStartTime.getTime(),
+          generatingEndTime: newPayload.message.generatingEndTime.getTime(),
+          author: newPayload.message.author.name,
+          createdAt: Date.now(),
+        })
         this.settings.app.state.lastBotMessages.push(newPayload.message);
         this.settings.app.state.lastResponder = currentBot;
         this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++), { save: true });
@@ -178,6 +196,23 @@ export class ConversationService {
       }
 
     }
+
+    let currentStateArchive = await this.state.findOneBy({ conversationId: this.settings.app.conversationId }) || {};
+    const { lastResponder, enqueuedMessage, ...state } = this.settings.app.state;
+
+    currentStateArchive = {
+      ...currentStateArchive,
+      ...state,
+      conversationId: this.settings.app.conversationId,
+      lastResponderName: lastResponder?.name || null,
+      enqueuedMessageContent: enqueuedMessage?.content || null,
+      enqueuedMessageAuthor: enqueuedMessage?.author.name || null,
+      createdAt: Date.now(),
+    };
+
+    await this.state.save(currentStateArchive).catch(error => {
+      this.logger.error(error, { error });
+    });
 
     if (!isMessageDelivered && deliveryAttempts <= 0) {
 

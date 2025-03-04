@@ -7,7 +7,7 @@ services:
     restart: always
     tty: true
     ports:
-      - "11435:11434"
+      - "10001:11434"
 
   ai_talks_database:
     image: mysql:8.0

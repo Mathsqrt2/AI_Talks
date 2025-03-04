@@ -137,6 +137,7 @@ export class ConversationController {
     this.settings.app.state.currentMessageIndex = 0;
     this.settings.app.isConversationInProgres = false;
     this.settings.app.conversationName = null;
+    this.settings.app.conversationId = null;
 
     this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { save: true });
   }

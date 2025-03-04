@@ -1,19 +1,23 @@
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
 import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
+import { prompts } from 'apps/ai_conversation/src/constants/prompts';
+import { State } from '@libs/database/entities/state/state.entity';
 import { MessageEventPayload } from '@libs/types/conversarion';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Bot } from '@libs/types/telegram';
+import { Repository } from 'typeorm';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { prompts } from 'apps/ai_conversation/src/constants/prompts';
 
 @Injectable()
 export class SettingsService {
 
     private readonly logger: Logger = new Logger(SettingsService.name);
-    constructor() { }
+    constructor(
+        @Inject(`STATE`) private readonly state: Repository<State>,
+    ) { }
 
     public app: SettingsFile = {
         conversationName: null,

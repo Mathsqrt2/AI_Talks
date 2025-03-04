@@ -33,6 +33,6 @@ export class Message {
     generatingEndTime: number;
 
     @Column({ type: `bigint` })
-    created_at: number;
+    createdAt: number;
 
 }
