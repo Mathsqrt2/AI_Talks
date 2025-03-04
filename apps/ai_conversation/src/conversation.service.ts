@@ -4,28 +4,46 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { event } from './constants/conversation.constants';
 import { InitEventPayload } from '@libs/types/events';
 import { TelegramGateway } from '@libs/telegram';
-import { ConfigService } from '@libs/settings';
+import { SettingsService } from '@libs/settings';
 import { Message } from '@libs/types/settings';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
+import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
 import { AiService } from '@libs/ai';
 import { SHA256 } from 'crypto-js';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ConversationService {
 
   constructor(
+    @Inject(`CONVERSATION`) private readonly conversation: Repository<Conversation>,
     private readonly eventEmitter: EventEmitter2,
     private readonly telegram: TelegramGateway,
-    private readonly config: ConfigService,
+    private readonly settings: SettingsService,
     private readonly logger: Logger,
     private readonly ai: AiService,
   ) { }
 
-  private generateConversationName = (): void => {
-    const seed = `${JSON.stringify(this.config.app)}${Date.now()}`;
-    this.config.app.conversationName = SHA256(seed).toString();
+  private generateConversationName = async (): Promise<boolean> => {
+    const seed = `${JSON.stringify(this.settings.app)}${Date.now()}`;
+    const currentStateHash: string = SHA256(seed).toString();
+
+    try {
+
+      this.settings.app.conversationName = currentStateHash;
+      this.settings.app.conversationId = (await this.conversation.save({
+        conversationName: currentStateHash,
+        initialPrompt: process.env.INITIAL_PROMPT,
+        createdAt: Date.now(),
+      })).id
+
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to save conversation in database.`, { error });
+      return false;
+    }
   }
 
   private wait = async (timeInMiliseconds: number = 10000): Promise<void> => (
@@ -35,14 +53,19 @@ export class ConversationService {
   @OnEvent(event.startConversation, { async: true })
   private async startConversation(initPayload: InitEventPayload): Promise<void> {
 
-    this.generateConversationName();
+    const isNameGeneratedSuccessfully: boolean = await this.generateConversationName();
+    if (!isNameGeneratedSuccessfully) {
+      this.logger.warn(`Failed to initialize new conversation.`);
+      return;
+    }
+
     const currentBot: Bot = initPayload.speaker_id === 1
       ? { name: 'bot_1' }
       : { name: `bot_2` };
 
-    this.config.app.isConversationInProgres = true;
-    this.config.app.state.shouldContinue = true;
-    this.config.app.state.lastResponder = currentBot;
+    this.settings.app.isConversationInProgres = true;
+    this.settings.app.state.shouldContinue = true;
+    this.settings.app.state.lastResponder = currentBot;
 
     const payload: MessageEventPayload = {
       message: {
@@ -54,7 +77,7 @@ export class ConversationService {
       }
     };
 
-    this.config.app.state.lastBotMessages.push({
+    this.settings.app.state.lastBotMessages.push({
       author: { name: `system` },
       content: process.env.OLLAMA_PROMPT,
       generatingStartTime: new Date(),
@@ -75,26 +98,26 @@ export class ConversationService {
     let message: Message = payload.message;
     let isMessageDelivered: boolean = false;
     let isMessageGenerated: boolean = false;
-    let deliveryAttempts: number = this.config.app.maxAttempts;
-    let generateAttempts: number = this.config.app.maxAttempts;
+    let deliveryAttempts: number = this.settings.app.maxAttempts;
+    let generateAttempts: number = this.settings.app.maxAttempts;
     let content: string;
 
-    if (currentBot.name === `bot_1` && this.config.app.state.usersMessagesStackForBot1?.length > 0) {
-      const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
+    if (currentBot.name === `bot_1` && this.settings.app.state.usersMessagesStackForBot1?.length > 0) {
+      const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot1.shift();
       message.content = await this.ai.merge(messageFromOutside, message);
-    } else if (currentBot.name === `bot_2` && this.config.app.state.usersMessagesStackForBot2?.length > 0) {
-      const messageFromOutside: InjectContentPayload = this.config.app.state.usersMessagesStackForBot1.shift();
+    } else if (currentBot.name === `bot_2` && this.settings.app.state.usersMessagesStackForBot2?.length > 0) {
+      const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot1.shift();
       message.content = await this.ai.merge(messageFromOutside, message);
     }
 
-    const lastMessages = [...this.config.app.state.lastBotMessages];
-    const maxHistorySize: number = this.config.app.maxMessagesCount;
+    const lastMessages = [...this.settings.app.state.lastBotMessages];
+    const maxHistorySize: number = this.settings.app.maxMessagesCount;
     lastMessages.push(message);
 
     if (lastMessages.length > maxHistorySize) {
       const initialPrompt = lastMessages.shift();
-      this.config.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
-      this.config.app.state.lastBotMessages.unshift(initialPrompt);
+      this.settings.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
+      this.settings.app.state.lastBotMessages.unshift(initialPrompt);
     }
 
     while (!isMessageGenerated && generateAttempts-- > 0) {
@@ -105,13 +128,13 @@ export class ConversationService {
 
       } catch (error) {
         this.logger.error(LogMessage.error.onGenerateMessageFail())
-        await this.wait(this.config.app.retryAfterTimeInMiliseconds);
+        await this.wait(this.settings.app.retryAfterTimeInMiliseconds);
       }
     }
 
     if (!isMessageGenerated && generateAttempts <= 0) {
-      await this.config.archiveCurrentState();
-      this.config.app.state.shouldContinue = false;
+      await this.settings.archiveCurrentState();
+      this.settings.app.state.shouldContinue = false;
       this.logger.error(LogMessage.error.onGenerateRetryFail());
       return;
     }
@@ -126,13 +149,13 @@ export class ConversationService {
       }
     }
 
-    if (!this.config.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgres) {
       this.logger.error(LogMessage.error.onMessageAfterConversationBreak());
       return;
     }
 
-    if (!this.config.app.state.shouldContinue) {
-      this.config.app.state.enqueuedMessage = payload.message;
+    if (!this.settings.app.state.shouldContinue) {
+      this.settings.app.state.enqueuedMessage = payload.message;
       this.logger.warn(LogMessage.warn.onConversationInterrupt());
       return;
     }
@@ -144,22 +167,22 @@ export class ConversationService {
 
         await this.telegram.respondBy(currentBot, newPayload.message.content);
         await this.eventEmitter.emitAsync(event.message, newPayload);
-        this.config.app.state.lastBotMessages.push(newPayload.message);
-        this.config.app.state.lastResponder = currentBot;
-        this.logger.log(LogMessage.log.onMessageEmission(this.config.app.state.currentMessageIndex++));
+        this.settings.app.state.lastBotMessages.push(newPayload.message);
+        this.settings.app.state.lastResponder = currentBot;
+        this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++));
         isMessageDelivered = true;
 
       } catch (error) {
         this.logger.error(LogMessage.error.onDeliveryFail(), { error });
-        await this.wait(this.config.app.retryAfterTimeInMiliseconds);
+        await this.wait(this.settings.app.retryAfterTimeInMiliseconds);
       }
 
     }
 
     if (!isMessageDelivered && deliveryAttempts <= 0) {
 
-      await this.config.archiveCurrentState();
-      this.config.app.state.shouldContinue = false;
+      await this.settings.archiveCurrentState();
+      this.settings.app.state.shouldContinue = false;
       this.logger.error(LogMessage.error.onRetryFail());
       return;
     }

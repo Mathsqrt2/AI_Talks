@@ -9,13 +9,14 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 
 @Injectable()
-export class ConfigService {
+export class SettingsService {
 
-    private readonly logger: Logger = new Logger(ConfigService.name);
+    private readonly logger: Logger = new Logger(SettingsService.name);
     constructor() { }
 
     public app: SettingsFile = {
         conversationName: null,
+        conversationId: null,
         isConversationInProgres: false,
         maxMessagesCount: 100,
         maxContextSize: 4096,

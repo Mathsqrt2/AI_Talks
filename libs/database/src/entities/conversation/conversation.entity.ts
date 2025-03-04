@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Settings } from "../settings/settings.entity";
+import { Comment } from "../comment/comment.entity";
+import { Message } from "../message/message.entity";
+import { State } from "../state/state.entity";
+import { Log } from "../log/log.entity";
+import {
+    Column, Entity, JoinColumn,
+    OneToMany, PrimaryGeneratedColumn
+} from "typeorm";
 
 @Entity()
 export class Conversation {
@@ -13,5 +21,26 @@ export class Conversation {
     initialPrompt: string;
 
     @Column()
-    created_at: number;
+    createdAt: number;
+
+    @OneToMany(() => Comment, comment => comment.assignedConversation)
+    @JoinColumn()
+    comments: Comment[];
+
+    @OneToMany(() => Log, log => log.assignedConversation)
+    @JoinColumn()
+    logs: Log[];
+
+    @OneToMany(() => Message, message => message.assignedConversation)
+    @JoinColumn()
+    messages: Message[];
+
+    @OneToMany(() => Settings, settings => settings.assignedConversation)
+    @JoinColumn()
+    settings: Settings[];
+
+    @OneToMany(() => State, state => state.assignedConversation)
+    @JoinColumn()
+    states: State[];
+
 }

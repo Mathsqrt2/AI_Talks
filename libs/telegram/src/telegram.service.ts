@@ -1,7 +1,7 @@
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
-import * as TelegramBot from 'node-telegram-bot-api';
-import { ConfigService } from '@libs/settings';
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
+import * as TelegramBot from 'node-telegram-bot-api';
+import { SettingsService } from '@libs/settings';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 
@@ -9,12 +9,11 @@ import { Logger } from '@libs/logger';
 @Injectable()
 export class TelegramGateway {
 
-    private readonly nestLogger: NestLogger = new NestLogger(TelegramGateway.name);
     private speaker1: TelegramBot = null;
     private speaker2: TelegramBot = null;
 
     constructor(
-        private readonly config: ConfigService,
+        private readonly settings: SettingsService,
         private readonly logger: Logger,
     ) {
 
@@ -23,6 +22,7 @@ export class TelegramGateway {
             this.logger.log(LogMessage.log.onBotConnected(`bot_1`));
         } catch (error) {
             this.logger.error(LogMessage.error.onBotConnectionFail(`bot_1`), error);
+            this.logger.debug(error);
             this.speaker1 = null;
         }
 
@@ -30,6 +30,7 @@ export class TelegramGateway {
             this.speaker2 = new TelegramBot(process.env.TOKEN2, { polling: true });
             this.logger.log(LogMessage.log.onBotConnected(`bot_2`));
         } catch (error) {
+            this.logger.debug(error);
             this.logger.error(LogMessage.error.onBotConnectionFail(`bot_2`), error);
             this.speaker2 = null;
         }
@@ -43,11 +44,11 @@ export class TelegramGateway {
             return false;
         }
 
-        if (this.config.app.state.shouldDisplayResponse) {
+        if (this.settings.app.state.shouldDisplayResponse) {
             NestLogger.log(content, who.name);
         }
 
-        if (!this.config.app.state.shouldSendToTelegram) {
+        if (!this.settings.app.state.shouldSendToTelegram) {
             return false;
         }
 

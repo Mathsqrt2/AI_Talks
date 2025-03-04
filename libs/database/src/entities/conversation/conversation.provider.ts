@@ -1,6 +1,5 @@
-import { DataSource } from "typeorm";
 import { Conversation } from "./conversation.entity";
-
+import { DataSource } from "typeorm";
 
 export const conversationProvider = {
     provide: `CONVERSATION`,

@@ -1,12 +1,14 @@
-import { Module } from '@nestjs/common';
 import { TelegramGateway } from './telegram.service';
+import { DatabaseModule } from '@libs/database';
 import { SettingsModule } from '@libs/settings';
 import { LoggerModule } from '@libs/logger';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    LoggerModule,
+    DatabaseModule,
     SettingsModule,
+    LoggerModule,
   ],
   providers: [
     TelegramGateway,

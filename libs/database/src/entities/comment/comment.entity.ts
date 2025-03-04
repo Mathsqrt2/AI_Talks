@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Conversation } from "../conversation/conversation.entity";
 
 @Entity()
 export class Comment {
@@ -6,8 +7,12 @@ export class Comment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: `int` })
-    conversation_id: number;
+    @Column({ type: `int`, select: false })
+    conversationId: number;
+
+    @ManyToOne(() => Conversation, conversation => conversation.comments)
+    @JoinColumn({ name: `conversationId` })
+    assignedConversation: Conversation;
 
     @Column({ type: `varchar`, length: 128 })
     mode: string;
@@ -19,5 +24,6 @@ export class Comment {
     username: string;
 
     @Column()
-    created_at: number;
+    createdAt: number;
+
 }

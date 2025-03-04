@@ -16,7 +16,7 @@ import { InjectMessageDto } from '../dtos/inject-message.dto';
 import { event } from '../constants/conversation.constants';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InitEventPayload } from '@libs/types/events';
-import { ConfigService } from '@libs/settings';
+import { SettingsService } from '@libs/settings';
 import { Logger } from '@libs/logger';
 import { MessageEventPayload } from '@libs/types/conversarion';
 
@@ -25,7 +25,7 @@ export class ConversationController {
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
-    private readonly config: ConfigService,
+    private readonly settings: SettingsService,
     private readonly logger: Logger,
   ) { }
 
@@ -46,7 +46,7 @@ export class ConversationController {
     @Param(`id`) id: number,
   ): Promise<void> {
 
-    if (this.config.app.isConversationInProgres) {
+    if (this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onConversationAlreadyRunning());
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
@@ -77,13 +77,13 @@ export class ConversationController {
   @ApiOkResponse({ description: SwaggerMessages.pause.aboutOkResponse() })
   public async pauseConversation(): Promise<void> {
 
-    if (!this.config.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onPauseMissingConversation());
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
 
-    this.config.app.state.shouldContinue = false;
-    this.config.noticeInterrupt(`pause`);
+    this.settings.app.state.shouldContinue = false;
+    this.settings.noticeInterrupt(`pause`);
     this.logger.log(LogMessage.log.onPauseConversation());
   }
 
@@ -94,19 +94,19 @@ export class ConversationController {
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.resume.aboutInternalServerError() })
   public async resumeConversation(): Promise<void> {
 
-    if (!this.config.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onResumeMissingConversation());
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
-    this.config.app.state.shouldContinue = true;
+    this.settings.app.state.shouldContinue = true;
     const payload: MessageEventPayload = {
-      message: this.config.app.state.enqueuedMessage
+      message: this.settings.app.state.enqueuedMessage
     };
 
     try {
       await this.eventEmitter.emitAsync(event.message, payload);
-      this.config.noticeInterrupt(`resume`);
+      this.settings.noticeInterrupt(`resume`);
       this.logger.log(LogMessage.log.onResumeConversation());
 
     } catch (error) {
@@ -122,23 +122,23 @@ export class ConversationController {
   @ApiOkResponse({ description: SwaggerMessages.break.aboutOkResponse() })
   public async breakConversation(): Promise<void> {
 
-    if (!this.config.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onBreakMissingConversation());
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
-    await this.config.clearStats();
+    await this.settings.clearStats();
 
-    this.config.app.state.shouldContinue = false;
-    this.config.app.state.enqueuedMessage = null;
-    this.config.app.state.usersMessagesStackForBot1 = [];
-    this.config.app.state.usersMessagesStackForBot2 = [];
-    this.config.app.state.lastBotMessages = [];
-    this.config.app.state.currentMessageIndex = 0;
-    this.config.app.isConversationInProgres = false;
-    this.config.app.conversationName = null;
+    this.settings.app.state.shouldContinue = false;
+    this.settings.app.state.enqueuedMessage = null;
+    this.settings.app.state.usersMessagesStackForBot1 = [];
+    this.settings.app.state.usersMessagesStackForBot2 = [];
+    this.settings.app.state.lastBotMessages = [];
+    this.settings.app.state.currentMessageIndex = 0;
+    this.settings.app.isConversationInProgres = false;
+    this.settings.app.conversationName = null;
 
-    this.logger.log(LogMessage.log.onBreakConversation(this.config.app.conversationName));
+    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName));
   }
 
   @Post([`inject`])
@@ -160,8 +160,8 @@ export class ConversationController {
     }
 
     body.botId === 1
-      ? this.config.app.state.usersMessagesStackForBot1.push(body)
-      : this.config.app.state.usersMessagesStackForBot2.push(body);
+      ? this.settings.app.state.usersMessagesStackForBot1.push(body)
+      : this.settings.app.state.usersMessagesStackForBot2.push(body);
     this.logger.log(LogMessage.log.onInjectMessage());
   }
 
@@ -172,11 +172,11 @@ export class ConversationController {
 
     let maximumAttemptsNumber: number = 12;
 
-    if (this.config.app.state.shouldContinue) {
-      this.config.app.state.shouldContinue = false;
+    if (this.settings.app.state.shouldContinue) {
+      this.settings.app.state.shouldContinue = false;
     }
 
-    while (this.config.app.state.isGeneratingOnAir && maximumAttemptsNumber-- > 0) {
+    while (this.settings.app.state.isGeneratingOnAir && maximumAttemptsNumber-- > 0) {
       const timeInMiliseconds = 30000;
       await this.wait(timeInMiliseconds)
     }
@@ -187,6 +187,6 @@ export class ConversationController {
 
 
 
-    this.config.app.state.shouldContinue = true;
+    this.settings.app.state.shouldContinue = true;
   }
 }

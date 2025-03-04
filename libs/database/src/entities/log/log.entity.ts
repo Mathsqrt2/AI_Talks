@@ -1,20 +1,32 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Conversation } from "../conversation/conversation.entity";
+import {
+    Column, Entity, JoinColumn,
+    ManyToOne, PrimaryGeneratedColumn
+} from "typeorm";
 
-@Entity()
+@Entity({ name: 'logs' })
 export class Log {
 
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: `varchar`, length: 2048 })
+    @Column({ type: `text` })
     content: string;
+
+
+    @Column({ type: `text`, nullable: true })
+    error?: string;
 
     @Column({ type: `varchar`, nullable: true, length: 256 })
     label?: string;
 
-    @Column({ type: `int`, nullable: true })
-    conversation_id?: number;
+    @Column({ type: `int`, select: false, nullable: true })
+    conversationId: number;
+
+    @ManyToOne(() => Conversation, conversation => conversation.comments)
+    @JoinColumn({ name: `conversationId` })
+    assignedConversation: Conversation;
 
     @Column()
-    created_at: number;
+    createdAt: number;
 }

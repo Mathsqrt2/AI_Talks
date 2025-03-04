@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { AiService } from './ai.service';
 import { SettingsModule } from '@libs/settings';
 import { LoggerModule } from '@libs/logger';
+import { AiService } from './ai.service';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [

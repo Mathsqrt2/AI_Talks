@@ -9,9 +9,11 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from '@libs/logger';
 import { Module } from '@nestjs/common';
 import { AiModule } from '@libs/ai';
+import { DatabaseModule } from '@libs/database';
 
 @Module({
   imports: [
+    DatabaseModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot({ global: true }),

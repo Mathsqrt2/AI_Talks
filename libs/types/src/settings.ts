@@ -3,6 +3,7 @@ import { Bot } from "./telegram";
 
 export type SettingsFile = {
     conversationName: string,
+    conversationId: number,
     isConversationInProgres: boolean,
     maxMessagesCount: number,
     maxContextSize: number,
