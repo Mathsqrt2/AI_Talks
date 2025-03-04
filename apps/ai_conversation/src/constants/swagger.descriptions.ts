@@ -1,4 +1,5 @@
 import { LogMessageContent } from "@libs/types/logs"
+import { ApiAcceptedResponse, ApiInternalServerErrorResponse } from "@nestjs/swagger"
 
 export class SwaggerMessages {
 
@@ -98,7 +99,11 @@ export class SwaggerMessages {
         currentMessageIndexDescription: (): string => `Tracks the index of the current message in the ongoing conversation.`,
         lastBotMessagesDescription: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
         lastBotMessagesExample: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
+    }
 
+    public static summaryGeneration: LogMessageContent = {
+        aboutAcceptedResponse: (): string => `Returns summary as text when it is generated successfully`,
+        aboutInternalServerError: (): string => `An internal error occurred during the conversation summarizing.`,
     }
 
     public static findCurrentSettings: LogMessageContent = {

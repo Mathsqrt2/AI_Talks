@@ -10,6 +10,7 @@ import { Logger, LoggerModule } from '@libs/logger';
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { AiModule } from '@libs/ai';
 import { DatabaseModule } from '@libs/database';
+import { LogMessage } from './constants/conversation.responses';
 
 @Module({
   imports: [
@@ -38,6 +39,6 @@ export class AiConversationV3Module implements OnApplicationBootstrap {
   ) { }
 
   public onApplicationBootstrap() {
-    this.logger.log(`Application launched successfully.`, { context: AiConversationV3Module.name, save: true })
+    this.logger.log(LogMessage.log.onApplicationBootstrap(), { context: AiConversationV3Module.name, save: true })
   }
 }

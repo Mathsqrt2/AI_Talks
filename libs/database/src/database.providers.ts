@@ -12,6 +12,7 @@ import { Conversation } from "./entities/conversation/conversation.entity";
 import { Message } from "./entities/message/message.entity";
 import { Settings } from "./entities/settings/settings.entity";
 import { State } from "./entities/state/state.entity";
+import { LogMessage } from "apps/ai_conversation/src/constants/conversation.responses";
 
 export const databaseProviders: Provider[] = [
     {
@@ -33,7 +34,7 @@ export const databaseProviders: Provider[] = [
                 return dataSource.initialize();
 
             } catch (error) {
-                Logger.error(`Failed to initalize database connection.`, error);
+                Logger.error(LogMessage.error.onDatabaseConnectionFail(), error);
             }
         }
     },

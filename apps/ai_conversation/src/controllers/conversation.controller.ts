@@ -1,3 +1,13 @@
+import { SwaggerMessages } from '../constants/swagger.descriptions';
+import { ConversationInitDto } from '../dtos/conversation-init.dto';
+import { LogMessage } from '../constants/conversation.responses';
+import { MessageEventPayload } from '@libs/types/conversarion';
+import { InjectMessageDto } from '../dtos/inject-message.dto';
+import { event } from '../constants/conversation.constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InitEventPayload } from '@libs/types/events';
+import { SettingsService } from '@libs/settings';
+import { Logger } from '@libs/logger';
 import {
   ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
   ApiForbiddenResponse, ApiInternalServerErrorResponse,
@@ -9,16 +19,6 @@ import {
   InternalServerErrorException,
   Param, Post
 } from '@nestjs/common';
-import { SwaggerMessages } from '../constants/swagger.descriptions';
-import { ConversationInitDto } from '../dtos/conversation-init.dto';
-import { LogMessage } from '../constants/conversation.responses';
-import { InjectMessageDto } from '../dtos/inject-message.dto';
-import { event } from '../constants/conversation.constants';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InitEventPayload } from '@libs/types/events';
-import { SettingsService } from '@libs/settings';
-import { Logger } from '@libs/logger';
-import { MessageEventPayload } from '@libs/types/conversarion';
 
 @Controller()
 export class ConversationController {
@@ -128,7 +128,6 @@ export class ConversationController {
     }
 
     await this.settings.clearStats();
-
     this.settings.app.state.shouldContinue = false;
     this.settings.app.state.enqueuedMessage = null;
     this.settings.app.state.usersMessagesStackForBot1 = [];
@@ -167,11 +166,10 @@ export class ConversationController {
 
   @Get([`summary`])
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse({ description: `` })
+  @ApiAcceptedResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
   public async prepareCurrentTalkSummary() {
 
     let maximumAttemptsNumber: number = 12;
-
     if (this.settings.app.state.shouldContinue) {
       this.settings.app.state.shouldContinue = false;
     }
@@ -182,10 +180,8 @@ export class ConversationController {
     }
 
     if (maximumAttemptsNumber === 0) {
-      throw new InternalServerErrorException(`Failed to generate summary`)
+      throw new InternalServerErrorException(LogMessage.error.onSummaryGenerationFail());
     }
-
-
 
     this.settings.app.state.shouldContinue = true;
   }

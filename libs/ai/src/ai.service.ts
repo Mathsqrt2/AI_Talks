@@ -5,6 +5,7 @@ import { Message } from '@libs/types/settings';
 import { Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
+import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
 
 @Injectable()
 export class AiService {
@@ -32,7 +33,7 @@ export class AiService {
 
         } catch (error) {
 
-            this.logger.error(`Failed to merge mssages`, { error, save: true });
+            this.logger.error(LogMessage.error.onMergeMessagesFail(this.settings.app.conversationName), { error, save: true });
             this.settings.app.state.isGeneratingOnAir = false;
             return message1.content;
 
@@ -89,7 +90,7 @@ export class AiService {
 
         } catch (error) {
 
-            this.logger.error(`Failed to summarize.`, { error, save: true });
+            this.logger.error(LogMessage.error.onCreateSummaryFail(this.settings.app.conversationName), { error, save: true });
             this.settings.app.state.isGeneratingOnAir = false;
             throw error;
 

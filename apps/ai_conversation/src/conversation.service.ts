@@ -41,7 +41,7 @@ export class ConversationService {
 
       return true;
     } catch (error) {
-      this.logger.error(`Failed to save conversation in database.`, { error, save: true });
+      this.logger.error(LogMessage.error.onSaveConversationNameFail(currentStateHash), { error, save: true });
       return false;
     }
   }
@@ -55,7 +55,7 @@ export class ConversationService {
 
     const isNameGeneratedSuccessfully: boolean = await this.generateConversationName();
     if (!isNameGeneratedSuccessfully) {
-      this.logger.warn(`Failed to initialize new conversation.`, { save: true });
+      this.logger.warn(LogMessage.warn.onInitializationFail(), { save: true });
       return;
     }
 
@@ -159,7 +159,6 @@ export class ConversationService {
       this.logger.warn(LogMessage.warn.onConversationInterrupt(), { save: true });
       return;
     }
-
 
     while (!isMessageDelivered && deliveryAttempts-- > 0) {
 

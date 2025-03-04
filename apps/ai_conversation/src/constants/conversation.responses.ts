@@ -10,6 +10,7 @@ export class LogMessage {
         onInvalidPayload: (): string => `Failed to inject content. Invalid payload.`,
         onInvalidMode: (mode?: string) => `Failed to inject message. Incorrect mode${mode ? ` "${mode}"` : ``}.`,
         onConversationInterrupt: (): string => `Conversation is currently paused.`,
+        onInitializationFail: (): string => `Failed to initialize new conversation.`,
     };
 
     public static error: LogMessageContent = {
@@ -27,8 +28,14 @@ export class LogMessage {
         onMessageAfterConversationBreak: (): string => `Failed to continue. Current conversation doesn't exist.`,
         onDeliveryFail: (): string => `Failed to delivery LLM response.`,
         onRetryFail: (): string => `Failed to delivery message. App state saved.`,
-        onGenerateMessageFail: (): string => `Failed to generate response`,
+        onGenerateMessageFail: (): string => `Failed to generate response.`,
         onGenerateRetryFail: (): string => `Failed to generate response too many times. App state saved.`,
+        onSummaryGenerationFail: (): string => `Failed to generate summary.`,
+        onUndefinedParam: (param: string): string => `Property ${param} doesn't exist in state.`,
+        onSaveConversationNameFail: (name: string) => `Failed to save conversation ${name} in database.`,
+        onMergeMessagesFail: (name: string): string => `Failed to merge mssages in ${name}.`,
+        onCreateSummaryFail: (name: string): string => `Failed to summarize conversation ${name}.`,
+        onDatabaseConnectionFail: (): string => `Failed to initalize database connection.`,
     };
 
     public static log: LogMessageContent = {
@@ -45,7 +52,9 @@ export class LogMessage {
         onBotConnected: (name: string) => `${name} connected successfully.`,
         onSuccessfullyInsertedMessage: (id: number): string => `Message ${id} successfully archived.`,
         onTelegramMessageSend: (name: string): string => `Message send to the telegram channel by ${name}.`,
-        onMessageEmission: (id: number): string => `Message ${id} emitted successfully.`
+        onMessageEmission: (id: number): string => `Message ${id} emitted successfully.`,
+        onParamResponse: (param: string): string => `Responded with ${param} value`,
+        onApplicationBootstrap: (): string => `Application launched successfully.`,
     };
 
 }

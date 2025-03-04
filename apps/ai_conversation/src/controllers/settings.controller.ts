@@ -1,15 +1,15 @@
-import {
-    BadRequestException, Param, Post,
-    Body, Controller, Get, HttpCode, HttpStatus,
-} from '@nestjs/common';
-import { LogMessage } from '../constants/conversation.responses';
-import { SettingsService } from '@libs/settings';
-import { Logger } from '@libs/logger';
 import { ApiBadRequestResponse, ApiFoundResponse } from '@nestjs/swagger';
 import { ResponseSettingsDto } from '../dtos/response-settings.dto';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
+import { LogMessage } from '../constants/conversation.responses';
 import { ResponseStateDto } from '../dtos/response-state.dto';
+import {
+    BadRequestException, Param, Post, HttpStatus,
+    Body, Controller, Get, HttpCode,
+} from '@nestjs/common';
+import { SettingsService } from '@libs/settings';
+import { Logger } from '@libs/logger';
 
 @Controller(`settings`)
 export class SettingsController {
@@ -95,11 +95,11 @@ export class SettingsController {
     ) {
 
         if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
-            this.logger.error(`Property ${param} doesn't exist in state.`, { save: true })
-            throw new BadRequestException(`Property ${param} doesn't exist in state.`);
+            this.logger.error(LogMessage.error.onUndefinedParam(param), { save: true })
+            throw new BadRequestException(LogMessage.error.onUndefinedParam(param));
         }
 
-        this.logger.log(`Responded with ${param} value`, { save: true });
+        this.logger.log(LogMessage.log.onParamResponse(param), { save: true });
         return this.settings.app.state[param];
 
     }
