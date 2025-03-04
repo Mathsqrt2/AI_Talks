@@ -1,21 +1,24 @@
+import { Settings as SettingsEntity } from '@libs/database/entities/settings/settings.entity';
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
 import { prompts } from 'apps/ai_conversation/src/constants/prompts';
 import { State } from '@libs/database/entities/state/state.entity';
 import { MessageEventPayload } from '@libs/types/conversarion';
-import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Bot } from '@libs/types/telegram';
 import { Repository } from 'typeorm';
+import { SHA256 } from 'crypto-js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 @Injectable()
-export class SettingsService {
+export class SettingsService implements OnApplicationBootstrap {
 
     private readonly logger: Logger = new Logger(SettingsService.name);
     constructor(
+        @Inject(`SETTINGS`) private readonly settings: Repository<SettingsEntity>,
         @Inject(`STATE`) private readonly state: Repository<State>,
     ) { }
 
@@ -23,7 +26,7 @@ export class SettingsService {
         conversationName: null,
         conversationId: null,
         isConversationInProgres: false,
-        maxMessagesCount: 100,
+        maxMessagesCount: 64,
         maxContextSize: 4096,
         maxAttempts: 10,
         retryAfterTimeInMiliseconds: 10000,
@@ -47,6 +50,73 @@ export class SettingsService {
             contextPrompt2: prompts.ollamaPrompt2,
         }
     };
+
+    public async onApplicationBootstrap() {
+
+        const previousSettings = await this.settings.findOne({ order: { id: `desc` } });
+
+        if (previousSettings?.maxMessagesCount) {
+            this.app.maxMessagesCount = previousSettings.maxMessagesCount;
+        }
+
+        if (previousSettings?.maxContextSize) {
+            this.app.maxContextSize = previousSettings.maxContextSize;
+        }
+
+        if (previousSettings?.maxAttempts) {
+            this.app.maxAttempts = previousSettings.maxAttempts;
+        }
+
+        if (previousSettings?.retryAfterTimeInMiliseconds) {
+            this.app.retryAfterTimeInMiliseconds = previousSettings.retryAfterTimeInMiliseconds;
+        }
+
+        await this.archiveSettings();
+    }
+
+    private prepareComparableSettingsString = (settings: SettingsEntity): string => {
+        let output: string = ``;
+        output += settings.retryAfterTimeInMiliseconds ?? `noRetryTime`;
+        output += settings.maxAttempts ?? `noMaxAttempts`;
+        output += settings.maxContextSize ?? `noMaxContext`;
+        output += settings.maxMessagesCount ?? `noMaxMessagesCount`;
+        return output;
+    }
+
+    private areSettingsEqual = (previous: SettingsEntity, current: SettingsEntity): boolean => {
+        const previousSettingsHash = SHA256(this.prepareComparableSettingsString(previous)).toString();
+        const currentSettingsHash = SHA256(this.prepareComparableSettingsString(current)).toString();
+        return previousSettingsHash === currentSettingsHash
+    }
+
+    private findCurrentSettings = (): SettingsEntity => {
+        return {
+            id: null,
+            conversationId: this.app?.conversationId || null,
+            assignedConversation: null,
+            maxMessagesCount: this.app?.maxMessagesCount || null,
+            maxContextSize: this.app?.maxContextSize || null,
+            maxAttempts: this.app?.maxAttempts || null,
+            retryAfterTimeInMiliseconds: this.app?.retryAfterTimeInMiliseconds || null,
+            createdAt: Date.now(),
+        }
+    }
+
+    public archiveSettings = async (): Promise<void> => {
+
+        const previousSettings = await this.settings.findOne({ order: { id: `desc` } });
+        const currentSettings = this.findCurrentSettings();
+
+        if (this.areSettingsEqual(previousSettings, currentSettings)) {
+            return;
+        }
+
+        try {
+            await this.settings.save(currentSettings);
+        } catch (error) {
+            this.logger.error(`Failed to save current settings.`);
+        }
+    }
 
     @OnEvent(event.message)
     private insertMessageIntoStats(payload: MessageEventPayload) {

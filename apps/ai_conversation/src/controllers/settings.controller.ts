@@ -124,9 +124,9 @@ export class SettingsController {
 
     @Post(`context`)
     @HttpCode(HttpStatus.ACCEPTED)
-    public setContextLength(
+    public async setContextLength(
         @Body() body: { context: number },
-    ): void {
+    ): Promise<void> {
 
         if (!body.context) {
             throw new BadRequestException(LogMessage.error.onIncorrectValue(`context`));
@@ -137,6 +137,7 @@ export class SettingsController {
         }
 
         this.settings.app.maxContextSize = body.context;
+        await this.settings.archiveSettings();
         this.logger.log(LogMessage.log.contextUpdated(body.context), { save: true });
     }
 

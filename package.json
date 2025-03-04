@@ -29,6 +29,7 @@
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.0.9",
+    "@types/crypto-js": "^4.2.2",
     "@types/node-telegram-bot-api": "^0.64.7",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

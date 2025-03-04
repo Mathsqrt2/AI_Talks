@@ -10,7 +10,7 @@ export class Settings {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: `int`, select: false })
+    @Column({ type: `int`, nullable: true, select: false })
     conversationId: number;
 
     @ManyToOne(() => Conversation, conversation => conversation.comments)
@@ -28,9 +28,6 @@ export class Settings {
 
     @Column({ type: `int`, nullable: true })
     retryAfterTimeInMiliseconds: number;
-
-    @Column({ type: `varchar`, nullable: true, length: 128 })
-    tag: string;
 
     @Column({ type: `bigint` })
     createdAt: number;
