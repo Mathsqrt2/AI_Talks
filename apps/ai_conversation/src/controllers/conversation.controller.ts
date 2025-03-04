@@ -19,6 +19,7 @@ import {
   InternalServerErrorException,
   Param, Post
 } from '@nestjs/common';
+import { prompts } from '../constants/prompts';
 
 @Controller()
 export class ConversationController {
@@ -59,7 +60,7 @@ export class ConversationController {
     try {
       const initEventPayload: InitEventPayload = {
         speaker_id: +id,
-        prompt: body?.prompt || process.env.INITIAL_PROMPT,
+        prompt: body?.prompt || prompts.initialPrompt,
       };
       await this.eventEmitter.emitAsync(event.startConversation, initEventPayload);
       this.logger.log(LogMessage.log.onConversationStart(), { save: true });

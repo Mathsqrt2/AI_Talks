@@ -1,24 +1,15 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
     API_PORT: number;
-
-    OLLAMA_PROMPT: string;
-    OLLAMA_PROMPT1: string;
-    OLLAMA_PROMPT2: string;
-    SEPARATOR: string;
-    WORKER_CONTEXT: string;
     HOST: string;
-
     OLLAMA_HOST: string;
     OLLAMA_PORT: number;
-
-    SUMMARIZER_CONTEXT: string;
 
     TOKEN1: string;
     TOKEN2: string;
 
+    PUBLIC_TELEGRAM_CHAT_ID: string;
     GROUP_CHAT_ID: string;
-    INITIAL_PROMPT: string;
 
     DB_HOST: string;
     DB_PORT: number;

@@ -20,7 +20,7 @@ export class Conversation {
     @Column({ type: `text` })
     initialPrompt: string;
 
-    @Column()
+    @Column({ type: `bigint` })
     createdAt: number;
 
     @OneToMany(() => Comment, comment => comment.assignedConversation)

@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { prompts } from 'apps/ai_conversation/src/constants/prompts';
 
 @Injectable()
 export class AiService {
@@ -20,7 +21,7 @@ export class AiService {
 
         this.settings.app.state.isGeneratingOnAir = true;
         const model: string = `gemma2:9b_injector`;
-        let prompt: string = `${process.env.WORKER_CONTEXT}\n\n`;
+        let prompt: string = `${prompts.injectorPrompt}\n\n`;
         prompt += `"- message1: ${message1.content}"\n\n`;
         prompt += `"- message2: ${message2.prompt}"\n\n`;
         prompt += `"- mode: ${message2.mode}"`;

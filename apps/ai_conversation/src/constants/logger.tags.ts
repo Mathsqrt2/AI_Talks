@@ -1,4 +1,6 @@
 export enum LoggerTags {
-    RESPONSE = "RESPONSE",
+    API_RESPONSE = "RESPONSE",
+    INTERNAL_ACTION = "INTERNAL_ACTION",
+    GENERATING = "GENERATING",
 
 }

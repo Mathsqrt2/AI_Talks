@@ -1,15 +1,16 @@
+import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
 import { InjectContentPayload, MessageEventPayload } from '@libs/types/conversarion';
 import { LogMessage } from './constants/conversation.responses';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { event } from './constants/conversation.constants';
 import { InitEventPayload } from '@libs/types/events';
+import { Inject, Injectable } from '@nestjs/common';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
 import { Message } from '@libs/types/settings';
-import { Inject, Injectable } from '@nestjs/common';
+import { prompts } from './constants/prompts';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
-import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
 import { AiService } from '@libs/ai';
 import { SHA256 } from 'crypto-js';
 import { Repository } from 'typeorm';
@@ -35,7 +36,7 @@ export class ConversationService {
       this.settings.app.conversationName = currentStateHash;
       this.settings.app.conversationId = (await this.conversation.save({
         conversationName: currentStateHash,
-        initialPrompt: process.env.INITIAL_PROMPT,
+        initialPrompt: prompts.initialPrompt,
         createdAt: Date.now(),
       })).id
 
@@ -85,7 +86,7 @@ export class ConversationService {
       generationTime: 0,
     });
 
-    await this.telegram.respondBy(currentBot, process.env.SEPARATOR);
+    await this.telegram.respondBy(currentBot, prompts.separator);
     await this.telegram.respondBy(currentBot, payload.message.content);
     await this.eventEmitter.emitAsync(event.message, payload);
   }

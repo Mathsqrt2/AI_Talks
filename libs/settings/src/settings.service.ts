@@ -7,6 +7,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Bot } from '@libs/types/telegram';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { prompts } from 'apps/ai_conversation/src/constants/prompts';
 
 @Injectable()
 export class SettingsService {
@@ -36,10 +37,10 @@ export class SettingsService {
             currentMessageIndex: 0,
         },
         prompts: {
-            initialPrompt: process.env.INITIAL_PROMPT,
-            contextPrompt: process.env.OLLAMA_PROMPT,
-            contextPrompt1: process.env.OLLAMA_PROMPT1,
-            contextPrompt2: process.env.OLLAMA_PROMPT2,
+            initialPrompt: prompts.initialPrompt,
+            contextPrompt: prompts.ollamaPrompt,
+            contextPrompt1: prompts.ollamaPrompt1,
+            contextPrompt2: prompts.ollamaPrompt2,
         }
     };
 
@@ -50,7 +51,7 @@ export class SettingsService {
             : this.stats.bot_2.messages.push(payload.message);
 
         if (this.app.state.shouldLog) {
-            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex), { save: true });
+            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
         }
     }
 

@@ -23,7 +23,7 @@ export class Comment {
     @Column({ type: "varchar", length: 256 })
     username: string;
 
-    @Column()
+    @Column({ type: `bigint` })
     createdAt: number;
 
 }
