@@ -1,0 +1,17 @@
+FROM ollama/ollama
+
+WORKDIR /build
+
+COPY ./scripts ./scripts
+
+RUN \
+chmod +x ./scripts/pull_ollama.sh && \
+./scripts/pull_ollama.sh
+
+COPY ./modelfiles ./modelfiles
+
+RUN \
+    chmod +x ./modelfiles/build_models.sh && \
+    ./modelfiles/build_models.sh
+
+ENTRYPOINT ["ollama", "serve"]

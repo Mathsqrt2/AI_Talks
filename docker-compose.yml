@@ -1,6 +1,14 @@
-version: '3.8'
-
 services:
+  ai_host:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.ollama
+    container_name: ai_host
+    restart: always
+    tty: true
+    ports:
+      - "11435:11434"
+
   ai_talks_database:
     image: mysql:8.0
     container_name: ai_talks_database
@@ -23,7 +31,7 @@ services:
   ai_talks:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.app
       target: dev
     working_dir: /app
     networks:
@@ -31,6 +39,7 @@ services:
     depends_on:
       - ai_talks_database
       - ai_talks_adminer
+      - ai_host
     volumes:
       - .:/app
     command: [ sh, -c, 'npm run start:conversation:dev' ]
