@@ -6,8 +6,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TelegramModule } from '@libs/telegram';
 import { SettingsModule } from '@libs/settings';
 import { ConfigModule } from '@nestjs/config';
-import { LoggerModule } from '@libs/logger';
-import { Module } from '@nestjs/common';
+import { Logger, LoggerModule } from '@libs/logger';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { AiModule } from '@libs/ai';
 import { DatabaseModule } from '@libs/database';
 
@@ -31,4 +31,13 @@ import { DatabaseModule } from '@libs/database';
   ],
 })
 
-export class AiConversationV3Module { }
+export class AiConversationV3Module implements OnApplicationBootstrap {
+
+  constructor(
+    private readonly logger: Logger
+  ) { }
+
+  public onApplicationBootstrap() {
+    this.logger.log(`Application launched successfully.`, { context: AiConversationV3Module.name, save: true })
+  }
+}

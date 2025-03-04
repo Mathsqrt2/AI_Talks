@@ -25,7 +25,7 @@ export class Logger {
     public log = (message: any, config?: LoggerConfig): void => {
 
         const context = config?.context || null;
-        const save = true;// config?.save || false;
+        const save = config?.save || false;
 
         if (save) {
             this.logs.save({

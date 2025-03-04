@@ -45,7 +45,7 @@ export class State {
     currentMessageIndex: number;
 
     @Column({ type: `bigint` })
-    created_at: number;
+    createdAt: number;
 
 
 }

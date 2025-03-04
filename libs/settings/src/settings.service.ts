@@ -50,7 +50,7 @@ export class SettingsService {
             : this.stats.bot_2.messages.push(payload.message);
 
         if (this.app.state.shouldLog) {
-            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
+            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex), { save: true });
         }
     }
 
@@ -86,7 +86,7 @@ export class SettingsService {
         try {
             await fs.writeFile(outPath, JSON.stringify(data));
         } catch (error) {
-            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error });
+            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error, save: true });
             throw error
         }
 

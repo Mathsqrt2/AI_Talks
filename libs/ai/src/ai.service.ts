@@ -32,7 +32,7 @@ export class AiService {
 
         } catch (error) {
 
-            this.logger.error(`Failed to merge mssages`, { error });
+            this.logger.error(`Failed to merge mssages`, { error, save: true });
             this.settings.app.state.isGeneratingOnAir = false;
             return message1.content;
 
@@ -89,7 +89,7 @@ export class AiService {
 
         } catch (error) {
 
-            this.logger.error(`Failed to summarize.`, { error });
+            this.logger.error(`Failed to summarize.`, { error, save: true });
             this.settings.app.state.isGeneratingOnAir = false;
             throw error;
 

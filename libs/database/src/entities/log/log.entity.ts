@@ -13,12 +13,14 @@ export class Log {
     @Column({ type: `text` })
     content: string;
 
-
     @Column({ type: `text`, nullable: true })
     error?: string;
 
     @Column({ type: `varchar`, nullable: true, length: 256 })
     label?: string;
+
+    @Column({ type: `varchar`, nullable: true, length: 128 })
+    tag?: string;
 
     @Column({ type: `int`, select: false, nullable: true })
     conversationId: number;
@@ -27,6 +29,6 @@ export class Log {
     @JoinColumn({ name: `conversationId` })
     assignedConversation: Conversation;
 
-    @Column()
+    @Column({ type: `bigint` })
     createdAt: number;
 }

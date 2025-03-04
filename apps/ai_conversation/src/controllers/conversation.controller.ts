@@ -47,12 +47,12 @@ export class ConversationController {
   ): Promise<void> {
 
     if (this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning());
+      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning(), { save: true });
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
 
     if (+id !== 1 && +id !== 2) {
-      this.logger.warn(LogMessage.warn.onIdOutOfRange(id));
+      this.logger.warn(LogMessage.warn.onIdOutOfRange(id), { save: true });
       throw new BadRequestException(LogMessage.warn.onIdOutOfRange(id))
     }
 
@@ -62,10 +62,10 @@ export class ConversationController {
         prompt: body?.prompt || process.env.INITIAL_PROMPT,
       };
       await this.eventEmitter.emitAsync(event.startConversation, initEventPayload);
-      this.logger.log(LogMessage.log.onConversationStart());
+      this.logger.log(LogMessage.log.onConversationStart(), { save: true });
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onConversationInitFail());
+      this.logger.error(LogMessage.error.onConversationInitFail(), { save: true });
       throw new InternalServerErrorException(LogMessage.error.onConversationInitFail())
     }
 
@@ -78,13 +78,13 @@ export class ConversationController {
   public async pauseConversation(): Promise<void> {
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onPauseMissingConversation());
+      this.logger.warn(LogMessage.warn.onPauseMissingConversation(), { save: true });
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
 
     this.settings.app.state.shouldContinue = false;
     this.settings.noticeInterrupt(`pause`);
-    this.logger.log(LogMessage.log.onPauseConversation());
+    this.logger.log(LogMessage.log.onPauseConversation(), { save: true });
   }
 
   @Post([`resume`, `continue`])
@@ -95,7 +95,7 @@ export class ConversationController {
   public async resumeConversation(): Promise<void> {
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onResumeMissingConversation());
+      this.logger.warn(LogMessage.warn.onResumeMissingConversation(), { save: true });
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
@@ -107,10 +107,10 @@ export class ConversationController {
     try {
       await this.eventEmitter.emitAsync(event.message, payload);
       this.settings.noticeInterrupt(`resume`);
-      this.logger.log(LogMessage.log.onResumeConversation());
+      this.logger.log(LogMessage.log.onResumeConversation(), { save: true });
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onResumeConversationFail())
+      this.logger.error(LogMessage.error.onResumeConversationFail(), { save: true })
       throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
     }
 
@@ -123,7 +123,7 @@ export class ConversationController {
   public async breakConversation(): Promise<void> {
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onBreakMissingConversation());
+      this.logger.warn(LogMessage.warn.onBreakMissingConversation(), { save: true });
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
@@ -138,7 +138,7 @@ export class ConversationController {
     this.settings.app.isConversationInProgres = false;
     this.settings.app.conversationName = null;
 
-    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName));
+    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { save: true });
   }
 
   @Post([`inject`])
@@ -150,19 +150,19 @@ export class ConversationController {
   ): Promise<void> {
 
     if (!body) {
-      this.logger.warn(LogMessage.warn.onInvalidPayload());
+      this.logger.warn(LogMessage.warn.onInvalidPayload(), { save: true });
       throw new BadRequestException(LogMessage.warn.onInvalidPayload());
     }
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
-      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode));
+      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode), { save: true });
       throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
 
     body.botId === 1
       ? this.settings.app.state.usersMessagesStackForBot1.push(body)
       : this.settings.app.state.usersMessagesStackForBot2.push(body);
-    this.logger.log(LogMessage.log.onInjectMessage());
+    this.logger.log(LogMessage.log.onInjectMessage(), { save: true });
   }
 
   @Get([`summary`])
