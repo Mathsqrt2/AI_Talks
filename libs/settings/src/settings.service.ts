@@ -53,7 +53,11 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public async onApplicationBootstrap() {
 
-        const previousSettings = await this.settings.findOne({ order: { id: `desc` } });
+        const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
+        if (!previousSettings) {
+            await this.archiveSettings();
+            return;
+        }
 
         if (previousSettings?.maxMessagesCount) {
             this.app.maxMessagesCount = previousSettings.maxMessagesCount;
@@ -71,15 +75,14 @@ export class SettingsService implements OnApplicationBootstrap {
             this.app.retryAfterTimeInMiliseconds = previousSettings.retryAfterTimeInMiliseconds;
         }
 
-        await this.archiveSettings();
     }
 
     private prepareComparableSettingsString = (settings: SettingsEntity): string => {
         let output: string = ``;
-        output += settings.retryAfterTimeInMiliseconds ?? `noRetryTime`;
-        output += settings.maxAttempts ?? `noMaxAttempts`;
-        output += settings.maxContextSize ?? `noMaxContext`;
-        output += settings.maxMessagesCount ?? `noMaxMessagesCount`;
+        output += settings?.retryAfterTimeInMiliseconds ?? `noRetryTime`;
+        output += settings?.maxAttempts ?? `noMaxAttempts`;
+        output += settings?.maxContextSize ?? `noMaxContext`;
+        output += settings?.maxMessagesCount ?? `noMaxMessagesCount`;
         return output;
     }
 
@@ -104,7 +107,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public archiveSettings = async (): Promise<void> => {
 
-        const previousSettings = await this.settings.findOne({ order: { id: `desc` } });
+        const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
         const currentSettings = this.findCurrentSettings();
 
         if (this.areSettingsEqual(previousSettings, currentSettings)) {

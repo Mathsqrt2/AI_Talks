@@ -5,6 +5,6 @@ while ! ollama list | grep -q 'NAME'; do
   sleep 1
 done
 
-ollama pull gemma2:9b
+ollama pull gemma3:4b
 
 kill $SERVE_PID

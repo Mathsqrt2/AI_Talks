@@ -138,7 +138,7 @@ export class SettingsController {
 
         this.settings.app.maxContextSize = body.context;
         await this.settings.archiveSettings();
-        this.logger.log(LogMessage.log.contextUpdated(body.context), { save: true });
+        this.logger.log(LogMessage.log.onContextUpdated(body.context), { save: true });
     }
 
     @Post(`prompt/:id`)
