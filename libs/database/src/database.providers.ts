@@ -30,7 +30,7 @@ export const databaseProviders: Provider[] = [
                     entities: [
                         Comment, Conversation, Log, Message, Settings, State
                     ],
-                    synchronize: true,
+                    synchronize: false,
                 });
                 return dataSource.initialize();
 

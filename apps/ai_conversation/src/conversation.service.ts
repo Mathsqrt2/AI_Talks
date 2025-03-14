@@ -137,7 +137,7 @@ export class ConversationService {
         isMessageGenerated = true;
 
       } catch (error) {
-        this.logger.error(LogMessage.error.onGenerateMessageFail(), { save: true });
+        this.logger.error(LogMessage.error.onGenerateMessageFail(), { save: true, error });
         await this.wait(this.settings.app.retryAfterTimeInMiliseconds);
       }
     }

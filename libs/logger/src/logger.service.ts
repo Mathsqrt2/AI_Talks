@@ -96,12 +96,14 @@ export class Logger {
 
         if (error) {
             context
-                ? NestLogger.error(message, error, context)
-                : this.logger.error(message, context);
+                ? NestLogger.error(error, context)
+                : this.logger.error(error);
             return;
         }
 
-        this.logger.error(message)
+        context
+            ? NestLogger.error(message, error)
+            : this.logger.error(message);
     }
 
     public debug = (message: any, config?: LoggerConfig): void => {
