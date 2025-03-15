@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start:conversation": "nest start ai_conversation",
+    "start:dev": "nest start ai_conversation --watch",
     "start:conversation:dev": "nest start ai_conversation --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/rozmawiacz/main",

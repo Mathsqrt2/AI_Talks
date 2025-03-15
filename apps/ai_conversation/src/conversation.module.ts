@@ -39,6 +39,6 @@ export class AiConversationV3Module implements OnApplicationBootstrap {
   ) { }
 
   public onApplicationBootstrap() {
-    this.logger.log(LogMessage.log.onApplicationBootstrap(), { context: AiConversationV3Module.name, save: true })
+    this.logger.log(LogMessage.log.onApplicationBootstrap(), { context: AiConversationV3Module.name })
   }
 }

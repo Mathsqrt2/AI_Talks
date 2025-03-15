@@ -31,6 +31,7 @@ export class SettingsService implements OnApplicationBootstrap {
         maxAttempts: 10,
         retryAfterTimeInMiliseconds: 10000,
         state: {
+            shouldArchiveLog: true,
             shouldContinue: false,
             shouldSendToTelegram: true,
             shouldDisplayResponse: false,
@@ -164,7 +165,7 @@ export class SettingsService implements OnApplicationBootstrap {
         try {
             await fs.writeFile(outPath, JSON.stringify(data));
         } catch (error) {
-            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error, save: true });
+            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error });
             throw error
         }
 

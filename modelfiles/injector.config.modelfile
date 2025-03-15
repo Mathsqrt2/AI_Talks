@@ -1,4 +1,4 @@
-FROM gemma3.4b
+FROM gemma3:27b
 
 PARAMETER temperature 0.75
 PARAMETER num_ctx 512

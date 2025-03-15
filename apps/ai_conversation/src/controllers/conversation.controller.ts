@@ -20,6 +20,7 @@ import {
   Param, Post
 } from '@nestjs/common';
 import { prompts } from '../constants/prompts';
+import { AiService } from '@libs/ai';
 
 @Controller()
 export class ConversationController {
@@ -28,6 +29,7 @@ export class ConversationController {
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
+    private readonly ai: AiService,
   ) { }
 
   private wait = async (timeInMiliseconds: number = 10000): Promise<void> => (
@@ -48,12 +50,12 @@ export class ConversationController {
   ): Promise<void> {
 
     if (this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning(), { save: true });
+      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning());
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
 
     if (+id !== 1 && +id !== 2) {
-      this.logger.warn(LogMessage.warn.onIdOutOfRange(id), { save: true });
+      this.logger.warn(LogMessage.warn.onIdOutOfRange(id));
       throw new BadRequestException(LogMessage.warn.onIdOutOfRange(id))
     }
 
@@ -63,10 +65,10 @@ export class ConversationController {
         prompt: body?.prompt || prompts.initialPrompt,
       };
       await this.eventEmitter.emitAsync(event.startConversation, initEventPayload);
-      this.logger.log(LogMessage.log.onConversationStart(), { save: true });
+      this.logger.log(LogMessage.log.onConversationStart());
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onConversationInitFail(), { save: true });
+      this.logger.error(LogMessage.error.onConversationInitFail());
       throw new InternalServerErrorException(LogMessage.error.onConversationInitFail())
     }
 
@@ -79,13 +81,13 @@ export class ConversationController {
   public async pauseConversation(): Promise<void> {
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onPauseMissingConversation(), { save: true });
+      this.logger.warn(LogMessage.warn.onPauseMissingConversation());
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
 
     this.settings.app.state.shouldContinue = false;
     this.settings.noticeInterrupt(`pause`);
-    this.logger.log(LogMessage.log.onPauseConversation(), { save: true });
+    this.logger.log(LogMessage.log.onPauseConversation());
   }
 
   @Post([`resume`, `continue`])
@@ -96,7 +98,7 @@ export class ConversationController {
   public async resumeConversation(): Promise<void> {
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onResumeMissingConversation(), { save: true });
+      this.logger.warn(LogMessage.warn.onResumeMissingConversation());
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
@@ -108,10 +110,10 @@ export class ConversationController {
     try {
       await this.eventEmitter.emitAsync(event.message, payload);
       this.settings.noticeInterrupt(`resume`);
-      this.logger.log(LogMessage.log.onResumeConversation(), { save: true });
+      this.logger.log(LogMessage.log.onResumeConversation());
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onResumeConversationFail(), { save: true })
+      this.logger.error(LogMessage.error.onResumeConversationFail())
       throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
     }
 
@@ -124,7 +126,7 @@ export class ConversationController {
   public async breakConversation(): Promise<void> {
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onBreakMissingConversation(), { save: true });
+      this.logger.warn(LogMessage.warn.onBreakMissingConversation());
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
@@ -139,7 +141,7 @@ export class ConversationController {
     this.settings.app.conversationName = null;
     this.settings.app.conversationId = null;
 
-    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { save: true });
+    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName));
   }
 
   @Post([`inject`])
@@ -151,40 +153,78 @@ export class ConversationController {
   ): Promise<void> {
 
     if (!body) {
-      this.logger.warn(LogMessage.warn.onInvalidPayload(), { save: true });
+      this.logger.warn(LogMessage.warn.onInvalidPayload());
       throw new BadRequestException(LogMessage.warn.onInvalidPayload());
     }
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
-      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode), { save: true });
+      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode));
       throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
 
     body.botId === 1
       ? this.settings.app.state.usersMessagesStackForBot1.push(body)
       : this.settings.app.state.usersMessagesStackForBot2.push(body);
-    this.logger.log(LogMessage.log.onInjectMessage(), { save: true });
+    this.logger.log(LogMessage.log.onInjectMessage());
   }
 
   @Get([`summary`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
+  @ApiInternalServerErrorResponse({ description: `todo` })
   public async prepareCurrentTalkSummary() {
 
-    let maximumAttemptsNumber: number = 12;
+    let maximumConnectingAttemptsNumber: number = this.settings.app.maxAttempts;
+    let maximumGeneratingAttemptsNumber: number = this.settings.app.maxAttempts;
+    let isSummaryFinished: boolean = false;
+    let summary: string = ``;
+
     if (this.settings.app.state.shouldContinue) {
       this.settings.app.state.shouldContinue = false;
     }
 
-    while (this.settings.app.state.isGeneratingOnAir && maximumAttemptsNumber-- > 0) {
+    while (this.settings.app.state.isGeneratingOnAir && maximumConnectingAttemptsNumber-- > 0) {
       const timeInMiliseconds = 30000;
       await this.wait(timeInMiliseconds)
     }
 
-    if (maximumAttemptsNumber === 0) {
+    if (maximumConnectingAttemptsNumber === 0) {
+      this.logger.error(LogMessage.error.onSummaryGenerationFail())
       throw new InternalServerErrorException(LogMessage.error.onSummaryGenerationFail());
     }
 
+    this.settings.app.state.isGeneratingOnAir = true;
+    while (!isSummaryFinished && maximumGeneratingAttemptsNumber-- > 0) {
+
+      summary = await this.ai.summarize();
+
+      if (summary === `` || summary === null) {
+        continue;
+      }
+
+      isSummaryFinished = true;
+
+    }
+
+    if (!isSummaryFinished) {
+      throw new InternalServerErrorException(`Failed to summarize conversation.`);
+    }
+
+    this.settings.app.state.isGeneratingOnAir = false;
+
     this.settings.app.state.shouldContinue = true;
+    const payload: MessageEventPayload = {
+      message: this.settings.app.state.enqueuedMessage
+    };
+
+    try {
+      await this.eventEmitter.emitAsync(event.message, payload);
+      this.settings.noticeInterrupt(`resume`);
+      this.logger.log(LogMessage.log.onResumeConversation());
+
+    } catch (error) {
+      this.logger.error(LogMessage.error.onResumeConversationFail())
+      throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
+    }
   }
 }

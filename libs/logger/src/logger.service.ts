@@ -24,8 +24,8 @@ export class Logger {
 
     public log = (message: any, config?: LoggerConfig): void => {
 
-        const context = config?.context || null;
-        const save = config?.save || false;
+        const context = config?.context ?? null;
+        const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
 
         if (save) {
             this.logs.save({
@@ -49,8 +49,8 @@ export class Logger {
 
     public warn = (message: any, config?: LoggerConfig): void => {
 
-        const context = config?.context || null;
-        const save = config?.save || false;
+        const context = config?.context ?? null;
+        const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
 
         if (save) {
             this.logs.save({
@@ -74,9 +74,9 @@ export class Logger {
 
     public error = (message: any, config?: ErrorConfig): void => {
 
-        const context = config?.context || null;
-        const save = config?.save || false;
-        const error = config?.error || null;
+        const context = config?.context ?? null;
+        const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
+        const error = config?.error ?? null;
 
         if (save) {
             this.logs.save({
@@ -98,7 +98,6 @@ export class Logger {
             context
                 ? NestLogger.error(error, context)
                 : this.logger.error(error);
-            return;
         }
 
         context
@@ -108,8 +107,8 @@ export class Logger {
 
     public debug = (message: any, config?: LoggerConfig): void => {
 
-        const context = config?.context || null;
-        const save = config?.save || false;
+        const context = config?.context ?? null;
+        const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
 
         if (save) {
             this.logs.save({

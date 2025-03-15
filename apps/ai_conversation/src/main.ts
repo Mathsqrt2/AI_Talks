@@ -7,7 +7,7 @@ import { SwaggerMessages } from './constants/swagger.descriptions';
 async function bootstrap() {
   const app = await NestFactory.create(AiConversationV3Module, {
     logger: new ConsoleLogger({
-      depth: 16,
+      depth: 6,
       colors: true,
       prefix: `AI_Talks`,
       timestamp: true,

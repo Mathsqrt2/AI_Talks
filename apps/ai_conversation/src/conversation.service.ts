@@ -46,7 +46,7 @@ export class ConversationService {
 
       return true;
     } catch (error) {
-      this.logger.error(LogMessage.error.onSaveConversationNameFail(currentStateHash), { error, save: true });
+      this.logger.error(LogMessage.error.onSaveConversationNameFail(currentStateHash), { error });
       return false;
     }
   }
@@ -60,7 +60,7 @@ export class ConversationService {
 
     const isNameGeneratedSuccessfully: boolean = await this.generateConversationName();
     if (!isNameGeneratedSuccessfully) {
-      this.logger.warn(LogMessage.warn.onInitializationFail(), { save: true });
+      this.logger.warn(LogMessage.warn.onInitializationFail());
       return;
     }
 
@@ -137,7 +137,7 @@ export class ConversationService {
         isMessageGenerated = true;
 
       } catch (error) {
-        this.logger.error(LogMessage.error.onGenerateMessageFail(), { save: true, error });
+        this.logger.error(LogMessage.error.onGenerateMessageFail(), { error });
         await this.wait(this.settings.app.retryAfterTimeInMiliseconds);
       }
     }
@@ -145,7 +145,8 @@ export class ConversationService {
     if (!isMessageGenerated && generateAttempts <= 0) {
       await this.settings.archiveCurrentState();
       this.settings.app.state.shouldContinue = false;
-      this.logger.error(LogMessage.error.onGenerateRetryFail(), { save: true });
+      this.settings.app.state.isGeneratingOnAir = false;
+      this.logger.error(LogMessage.error.onGenerateRetryFail());
       return;
     }
 
@@ -160,13 +161,13 @@ export class ConversationService {
     }
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.error(LogMessage.error.onMessageAfterConversationBreak(), { save: true });
+      this.logger.error(LogMessage.error.onMessageAfterConversationBreak());
       return;
     }
 
     if (!this.settings.app.state.shouldContinue) {
       this.settings.app.state.enqueuedMessage = payload.message;
-      this.logger.warn(LogMessage.warn.onConversationInterrupt(), { save: true });
+      this.logger.warn(LogMessage.warn.onConversationInterrupt());
       return;
     }
 
@@ -187,7 +188,7 @@ export class ConversationService {
         })
         this.settings.app.state.lastBotMessages.push(newPayload.message);
         this.settings.app.state.lastResponder = currentBot;
-        this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++), { save: true });
+        this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++));
         isMessageDelivered = true;
 
       } catch (error) {
@@ -218,7 +219,7 @@ export class ConversationService {
 
       await this.settings.archiveCurrentState();
       this.settings.app.state.shouldContinue = false;
-      this.logger.error(LogMessage.error.onRetryFail(), { save: true });
+      this.logger.error(LogMessage.error.onRetryFail());
       return;
     }
   }

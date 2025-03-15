@@ -23,7 +23,7 @@ export class SettingsController {
     @HttpCode(HttpStatus.FOUND)
     @ApiFoundResponse({ description: SwaggerMessages.findCurrentSettings.ApiFoundResponse(), type: ResponseSettingsDto })
     public findCurrentSettings(): ResponseSettingsDto {
-        this.logger.log(LogMessage.log.onUserResponseWithConfig(), { save: true });
+        this.logger.log(LogMessage.log.onUserResponseWithConfig());
         return this.settings.app;
     }
 
@@ -31,7 +31,7 @@ export class SettingsController {
     @HttpCode(HttpStatus.FOUND)
     @ApiFoundResponse({ description: SwaggerMessages.findCurrentContextLength.ApiFoundResponse(), type: Number, example: 4096 })
     public findCurrentContextLength() {
-        this.logger.log(LogMessage.log.onUserResponseWithContext(), { save: true });
+        this.logger.log(LogMessage.log.onUserResponseWithContext());
         return this.settings.app.maxContextSize;
     }
 
@@ -48,22 +48,22 @@ export class SettingsController {
         }
 
         if (id === 0) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`initial`), { save: true });
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`initial`));
             return { prompt: [this.settings.app.prompts.initialPrompt] };
         }
 
         if (id === 1) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt1`), { save: true });
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt1`));
             return { prompt: [this.settings.app.prompts.contextPrompt1] };
         }
 
         if (id === 2) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt2`), { save: true });
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt2`));
             return { prompt: [this.settings.app.prompts.contextPrompt2] };
         }
 
         if (id === 3) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`universalContextPrompt`), { save: true });
+            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`universalContextPrompt`));
             return { prompt: [this.settings.app.prompts.contextPrompt] };
         }
 
@@ -72,7 +72,7 @@ export class SettingsController {
             prompt.push(this.settings.app.prompts[key]);
         }
 
-        this.logger.log(LogMessage.log.onUserResponseWithAllPrompts(), { save: true });
+        this.logger.log(LogMessage.log.onUserResponseWithAllPrompts());
         return { prompt }
     }
 
@@ -95,11 +95,11 @@ export class SettingsController {
     ) {
 
         if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
-            this.logger.error(LogMessage.error.onUndefinedParam(param), { save: true })
+            this.logger.error(LogMessage.error.onUndefinedParam(param))
             throw new BadRequestException(LogMessage.error.onUndefinedParam(param));
         }
 
-        this.logger.log(LogMessage.log.onParamResponse(param), { save: true });
+        this.logger.log(LogMessage.log.onParamResponse(param));
         return this.settings.app.state[param];
 
     }
@@ -138,7 +138,7 @@ export class SettingsController {
 
         this.settings.app.maxContextSize = body.context;
         await this.settings.archiveSettings();
-        this.logger.log(LogMessage.log.onContextUpdated(body.context), { save: true });
+        this.logger.log(LogMessage.log.onContextUpdated(body.context));
     }
 
     @Post(`prompt/:id`)

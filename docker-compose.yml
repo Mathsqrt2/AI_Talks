@@ -7,14 +7,12 @@ services:
     restart: always
     tty: true
     ports:
-      - "10001:11434"
+      - "10000:11434"
     networks:
       - ai_talks_network
   ai_talks_database:
     image: mysql:8.0
     container_name: ai_talks_database
-    ports:
-      - 13306:3306
     environment:
       MYSQL_ROOT_PASSWORD: v3ryD1ff1cultP@55w0Rd
       MYSQL_DATABASE: ai_talks

@@ -10,6 +10,7 @@ export type SettingsFile = {
     maxAttempts: number,
     retryAfterTimeInMiliseconds: number,
     state: {
+        shouldArchiveLog: boolean,
         shouldContinue: boolean,
         shouldSendToTelegram: boolean,
         shouldDisplayResponse: boolean,
