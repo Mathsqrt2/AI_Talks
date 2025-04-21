@@ -37,6 +37,7 @@ export class LogMessage {
         onMergeMessagesFail: (name: string): string => `Failed to merge mssages in ${name}.`,
         onCreateSummaryFail: (name: string): string => `Failed to summarize conversation ${name}.`,
         onDatabaseConnectionFail: (): string => `Failed to initalize database connection.`,
+        onSummarizeFail: (): string => `Failed to summarize conversation.`,
     };
 
     public static log: LogMessageContent = {

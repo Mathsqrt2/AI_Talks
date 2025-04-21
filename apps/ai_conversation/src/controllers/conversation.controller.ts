@@ -11,21 +11,30 @@ import { Logger } from '@libs/logger';
 import {
   ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
   ApiForbiddenResponse, ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
   ApiOkResponse, ApiParam
 } from '@nestjs/swagger';
 import {
   BadRequestException, Body, Controller,
   ForbiddenException, Get, HttpCode, HttpStatus,
   InternalServerErrorException,
+  NotFoundException,
   Param, Post
 } from '@nestjs/common';
 import { prompts } from '../constants/prompts';
 import { AiService } from '@libs/ai';
+import { InitDto } from '../dtos/init-with-bot.dto';
+import { RestoreConversationByIdDto } from '../dtos/restore-conversation-by-id.dto';
+import { RestoreConversationPayloadDto } from '../dtos/restore-conversation-by-payload.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
+import { Repository } from 'typeorm';
 
 @Controller()
 export class ConversationController {
 
   constructor(
+    @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
@@ -46,9 +55,10 @@ export class ConversationController {
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.init.aboutInternalServerError() })
   public async initializeConversation(
     @Body() body: ConversationInitDto,
-    @Param(`id`) id: number,
+    @Param() { id }: InitDto,
   ): Promise<void> {
 
+    const startTime: number = Date.now();
     if (this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onConversationAlreadyRunning());
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
@@ -59,17 +69,21 @@ export class ConversationController {
       throw new BadRequestException(LogMessage.warn.onIdOutOfRange(id))
     }
 
+    const initEventPayload: InitEventPayload = {
+      speaker_id: +id,
+      prompt: body?.prompt || prompts.initialPrompt,
+    };
+
     try {
-      const initEventPayload: InitEventPayload = {
-        speaker_id: +id,
-        prompt: body?.prompt || prompts.initialPrompt,
-      };
+
       await this.eventEmitter.emitAsync(event.startConversation, initEventPayload);
       this.logger.log(LogMessage.log.onConversationStart());
 
     } catch (error) {
+
       this.logger.error(LogMessage.error.onConversationInitFail());
       throw new InternalServerErrorException(LogMessage.error.onConversationInitFail())
+
     }
 
   }
@@ -80,6 +94,7 @@ export class ConversationController {
   @ApiOkResponse({ description: SwaggerMessages.pause.aboutOkResponse() })
   public async pauseConversation(): Promise<void> {
 
+    const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onPauseMissingConversation());
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
@@ -88,6 +103,7 @@ export class ConversationController {
     this.settings.app.state.shouldContinue = false;
     this.settings.noticeInterrupt(`pause`);
     this.logger.log(LogMessage.log.onPauseConversation());
+
   }
 
   @Post([`resume`, `continue`])
@@ -97,6 +113,7 @@ export class ConversationController {
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.resume.aboutInternalServerError() })
   public async resumeConversation(): Promise<void> {
 
+    const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onResumeMissingConversation());
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
@@ -125,6 +142,7 @@ export class ConversationController {
   @ApiOkResponse({ description: SwaggerMessages.break.aboutOkResponse() })
   public async breakConversation(): Promise<void> {
 
+    const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgres) {
       this.logger.warn(LogMessage.warn.onBreakMissingConversation());
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
@@ -152,6 +170,7 @@ export class ConversationController {
     @Body() body: InjectMessageDto,
   ): Promise<void> {
 
+    const startTime: number = Date.now();
     if (!body) {
       this.logger.warn(LogMessage.warn.onInvalidPayload());
       throw new BadRequestException(LogMessage.warn.onInvalidPayload());
@@ -171,9 +190,10 @@ export class ConversationController {
   @Get([`summary`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
-  @ApiInternalServerErrorResponse({ description: `todo` })
-  public async prepareCurrentTalkSummary() {
+  @ApiInternalServerErrorResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
+  public async prepareCurrentTalkSummary(): Promise<void> {
 
+    const startTime: number = Date.now();
     let maximumConnectingAttemptsNumber: number = this.settings.app.maxAttempts;
     let maximumGeneratingAttemptsNumber: number = this.settings.app.maxAttempts;
     let isSummaryFinished: boolean = false;
@@ -183,9 +203,9 @@ export class ConversationController {
       this.settings.app.state.shouldContinue = false;
     }
 
-    while (this.settings.app.state.isGeneratingOnAir && maximumConnectingAttemptsNumber-- > 0) {
+    while (this.settings.app.state.isGeneratingOnAir && maximumConnectingAttemptsNumber-- >= 0) {
       const timeInMiliseconds = 30000;
-      await this.wait(timeInMiliseconds)
+      await this.wait(timeInMiliseconds);
     }
 
     if (maximumConnectingAttemptsNumber === 0) {
@@ -207,7 +227,7 @@ export class ConversationController {
     }
 
     if (!isSummaryFinished) {
-      throw new InternalServerErrorException(`Failed to summarize conversation.`);
+      throw new InternalServerErrorException(LogMessage.error.onSummarizeFail());
     }
 
     this.settings.app.state.isGeneratingOnAir = false;
@@ -227,4 +247,60 @@ export class ConversationController {
       throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
     }
   }
+
+  @Post([`restore`])
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({ description: `` })
+  @ApiInternalServerErrorResponse({ description: `` })
+  @ApiForbiddenResponse({ description: `` })
+  public async restoreConversationFromPayload(
+    @Body() body: RestoreConversationPayloadDto
+  ): Promise<void> {
+
+    const startTime: number = Date.now();
+    const relations: string[] = [`settings`, `states`, `messages`, `comments`];
+    let conversation: Conversation;
+
+    if (!Number.isNaN(+body.id)) {
+      conversation = await this.conversation.findOne({ where: { id: +body.id }, relations });
+    } else {
+      conversation = await this.conversation.findOne({ where: { conversationName: body.id }, relations });
+    }
+
+    if (!conversation) {
+      this.logger.warn(`Specified conversation not found`);
+      throw new NotFoundException(`Specified conversation not found`);
+    }
+
+
+  }
+
+  @Post([`restore/:id`])
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({ description: `` })
+  @ApiInternalServerErrorResponse({ description: `` })
+  @ApiForbiddenResponse({ description: `` })
+  @ApiNotFoundResponse({ description: `` })
+  public async restoreConversationFromDatabase(
+    @Param() { id }: RestoreConversationByIdDto
+  ): Promise<void> {
+
+    const startTime: number = Date.now();
+    let conversation: Conversation;
+
+    if (!Number.isNaN(+id)) {
+      conversation = await this.conversation.findOne({ where: { id: +id } });
+    } else {
+      conversation = await this.conversation.findOne({ where: { conversationName: id } });
+    }
+
+    if (!conversation) {
+      this.logger.warn(`Specified conversation not found`);
+      throw new NotFoundException(`Specified conversation not found`);
+    }
+
+
+
+  }
+
 }

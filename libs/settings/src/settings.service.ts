@@ -33,7 +33,7 @@ export class SettingsService implements OnApplicationBootstrap {
         state: {
             shouldArchiveLog: true,
             shouldContinue: false,
-            shouldSendToTelegram: true,
+            shouldSendToTelegram: false,
             shouldDisplayResponse: false,
             shouldLog: true,
             lastResponder: null,
