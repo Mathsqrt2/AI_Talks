@@ -28,6 +28,8 @@ export type SettingsFile = {
         contextPrompt: string;
         contextPrompt1: string;
         contextPrompt2: string;
+        summarizerPrompt: string;
+        injectorPrompt: string;
     }
 }
 

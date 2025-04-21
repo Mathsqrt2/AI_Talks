@@ -1,3 +1,6 @@
+import { RestoreConversationPayloadDto } from '../dtos/restore-conversation-by-payload.dto';
+import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
+import { RestoreConversationByIdDto } from '../dtos/restore-conversation-by-id.dto';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ConversationInitDto } from '../dtos/conversation-init.dto';
 import { LogMessage } from '../constants/conversation.responses';
@@ -17,24 +20,21 @@ import {
 import {
   BadRequestException, Body, Controller,
   ForbiddenException, Get, HttpCode, HttpStatus,
+  Inject,
   InternalServerErrorException,
   NotFoundException,
   Param, Post
 } from '@nestjs/common';
+import { InitDto } from '../dtos/init-with-bot.dto';
 import { prompts } from '../constants/prompts';
 import { AiService } from '@libs/ai';
-import { InitDto } from '../dtos/init-with-bot.dto';
-import { RestoreConversationByIdDto } from '../dtos/restore-conversation-by-id.dto';
-import { RestoreConversationPayloadDto } from '../dtos/restore-conversation-by-payload.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
 import { Repository } from 'typeorm';
 
 @Controller()
 export class ConversationController {
 
   constructor(
-    @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
+    @Inject(`CONVERSATION`) private readonly conversation: Repository<Conversation>,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
@@ -258,6 +258,11 @@ export class ConversationController {
   ): Promise<void> {
 
     const startTime: number = Date.now();
+
+    if (this.settings.app.isConversationInProgres) {
+      throw new ForbiddenException(`Couldn't load conversation. There is already running one.`)
+    }
+
     const relations: string[] = [`settings`, `states`, `messages`, `comments`];
     let conversation: Conversation;
 
@@ -287,6 +292,10 @@ export class ConversationController {
 
     const startTime: number = Date.now();
     let conversation: Conversation;
+
+    if (this.settings.app.isConversationInProgres) {
+      throw new ForbiddenException(`Couldn't load conversation. There is already running one.`)
+    }
 
     if (!Number.isNaN(+id)) {
       conversation = await this.conversation.findOne({ where: { id: +id } });

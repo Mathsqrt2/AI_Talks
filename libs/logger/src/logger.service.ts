@@ -112,7 +112,7 @@ export class Logger {
 
         if (save) {
             this.logs.save({
-                content: message,
+                content: message || ``,
                 label: `DEBUG`,
                 conversationId: this.settings.app.conversationId || null,
                 createdAt: Date.now(),

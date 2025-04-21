@@ -6,6 +6,7 @@ declare namespace NodeJS {
     TOKEN1: string;
     TOKEN2: string;
 
+    TELEGRAM_INVITATION: string;
     PUBLIC_TELEGRAM_CHAT_ID: string;
     GROUP_CHAT_ID: string;
 

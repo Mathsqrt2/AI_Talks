@@ -47,5 +47,4 @@ export class State {
     @Column({ type: `bigint` })
     createdAt: number;
 
-
 }

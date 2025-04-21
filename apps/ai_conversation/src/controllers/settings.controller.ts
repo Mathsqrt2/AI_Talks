@@ -7,9 +7,14 @@ import { ResponseStateDto } from '../dtos/response-state.dto';
 import {
     BadRequestException, Param, Post, HttpStatus,
     Body, Controller, Get, HttpCode,
+    NotFoundException,
 } from '@nestjs/common';
+import { ModelFileIdDto } from '../dtos/modelfile-id.dto';
+import { PromptIdDto } from '../dtos/prompt-id.dto';
 import { SettingsService } from '@libs/settings';
+import { readFile, readdir } from 'fs/promises';
 import { Logger } from '@libs/logger';
+import { resolve } from 'path';
 
 @Controller(`settings`)
 export class SettingsController {
@@ -40,40 +45,48 @@ export class SettingsController {
     @ApiFoundResponse({ description: SwaggerMessages.findCurrentPrompt.ApiFoundResponse(), type: ResponsePromptsDto })
     @ApiBadRequestResponse({ description: SwaggerMessages.findCurrentPrompt.ApiBadRequestResponse() })
     public findCurrentPrompt(
-        @Param(`id`) id?: number
-    ): { prompt: string[] } {
+        @Param() { id }: PromptIdDto
+    ): { prompt: string | { [key: string]: string } } {
 
-        if (id !== undefined && id !== 0 && id !== 1 && id !== 2 && id !== 3) {
-            throw new BadRequestException(LogMessage.error.onFailedToResponseWithPrompt());
+        let responseType: string = ``;
+        let output: { prompt: string | { [key: string]: string } };
+
+        if (!id) {
+            this.logger.log(LogMessage.log.onUserResponseWithAllPrompts());
+            return { prompt: this.settings.app.prompts }
         }
 
-        if (id === 0) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`initial`));
-            return { prompt: [this.settings.app.prompts.initialPrompt] };
+        switch (+id) {
+            case 0:
+                output = { prompt: this.settings.app.prompts.initialPrompt };
+                responseType = `initial`;
+                break;
+            case 1:
+                output = { prompt: this.settings.app.prompts.contextPrompt1 };
+                responseType = `contextPrompt1`;
+                break;
+            case 2:
+                output = { prompt: this.settings.app.prompts.contextPrompt2 };
+                responseType = `contextPrompt2`;
+                break;
+            case 3:
+                output = { prompt: this.settings.app.prompts.contextPrompt };
+                responseType = `universalContextPrompt`;
+                break;
+            case 4:
+                output = { prompt: this.settings.app.prompts.injectorPrompt };
+                responseType = `injectorPrompt`;
+                break;
+            case 5:
+                output = { prompt: this.settings.app.prompts.summarizerPrompt };
+                responseType = `summarizerPrompt`;
+                break;
+            default:
+                throw new BadRequestException(LogMessage.error.onFailedToResponseWithPrompt())
         }
 
-        if (id === 1) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt1`));
-            return { prompt: [this.settings.app.prompts.contextPrompt1] };
-        }
-
-        if (id === 2) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`contextPrompt2`));
-            return { prompt: [this.settings.app.prompts.contextPrompt2] };
-        }
-
-        if (id === 3) {
-            this.logger.log(LogMessage.log.onUserResponseWithPrompt(`universalContextPrompt`));
-            return { prompt: [this.settings.app.prompts.contextPrompt] };
-        }
-
-        const prompt: string[] = [];
-        for (const key in this.settings.app.prompts) {
-            prompt.push(this.settings.app.prompts[key]);
-        }
-
-        this.logger.log(LogMessage.log.onUserResponseWithAllPrompts());
-        return { prompt }
+        this.logger.log(LogMessage.log.onUserResponseWithPrompt(responseType));
+        return output;
     }
 
     @Get(`state`)
@@ -106,13 +119,52 @@ export class SettingsController {
 
     @Get(`telegram`)
     @HttpCode(HttpStatus.FOUND)
-    public findTelegramInvidation() {
-
+    public findTelegramInvidation(): { invitation: string } {
+        return {
+            invitation: process.env.TELEGRAM_INVITATION
+        }
     }
 
     @Get([`model`, `model/:id`])
     @HttpCode(HttpStatus.FOUND)
-    public findModelfile() {
+    public async findModelfile(
+        @Param() { id }: ModelFileIdDto
+    ): Promise<{ [key: string]: string }> {
+
+        const output: { [key: string]: string } = {};
+        const path: string = resolve(...[__dirname], `..`, `..`, `..`, `modelfiles`);
+        const files = await readdir(path);
+        const modelFiles: string[] = files
+            .filter(modelFile => modelFile.endsWith(`modelfile`))
+            .map(modelFile => resolve(path, modelFile));
+
+        if (!modelFiles) {
+            throw new NotFoundException(`No modelfiles was found.`);
+        }
+
+        if (!id) {
+            for (const modelFile of modelFiles) {
+                const name = modelFile.split(`.`).at(-3).split(/\/|\\/).pop();
+                output[name] = await readFile(modelFile, { encoding: `utf-8` });
+            }
+            return output;
+        }
+
+        let modelFilePath: string = ``
+        switch (+id) {
+            case 0: modelFilePath = modelFiles.find(modelFile => modelFile.includes(`injector`))
+                break;
+            case 1: modelFilePath = modelFiles.find(modelFile => modelFile.includes(`speaker`))
+                break;
+            case 2: modelFilePath = modelFiles.find(modelFile => modelFile.includes(`summarizer`))
+                break;
+            default:
+                throw new NotFoundException(`Specified modelfile doesn't exist.`);
+        }
+
+        const name = modelFilePath.split(`.`).at(-3).split(/\/|\\/).pop();
+        output[name] = await readFile(modelFilePath, { encoding: `utf-8` });
+        return output;
 
     }
 
@@ -144,8 +196,8 @@ export class SettingsController {
     @Post(`prompt/:id`)
     @HttpCode(HttpStatus.ACCEPTED)
     public setPrompt(
+        @Body() body: { prompt: string },
         @Param(`id`) id: number,
-        @Body() body: { prompt: string }
     ): void {
 
         if (!body.prompt) {

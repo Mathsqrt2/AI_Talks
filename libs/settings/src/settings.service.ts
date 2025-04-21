@@ -49,6 +49,9 @@ export class SettingsService implements OnApplicationBootstrap {
             contextPrompt: prompts.ollamaPrompt,
             contextPrompt1: prompts.ollamaPrompt1,
             contextPrompt2: prompts.ollamaPrompt2,
+            summarizerPrompt: prompts.summarizerPrompt,
+            injectorPrompt: prompts.injectorPrompt,
+
         }
     };
 
