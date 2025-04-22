@@ -106,7 +106,7 @@ export class SettingsService implements OnApplicationBootstrap {
             maxContextSize: this.app?.maxContextSize || null,
             maxAttempts: this.app?.maxAttempts || null,
             retryAfterTimeInMiliseconds: this.app?.retryAfterTimeInMiliseconds || null,
-            createdAt: Date.now(),
+            createdAt: new Date(),
         }
     }
 

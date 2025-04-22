@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Conversation } from "./conversation.entity";
 
 @Entity()
@@ -23,7 +23,10 @@ export class Comment {
     @Column({ type: "varchar", length: 256 })
     username: string;
 
-    @Column({ type: `bigint` })
-    createdAt: number;
+    @CreateDateColumn({ type: `datetime`, precision: 0 })
+    createdAt: Date;
+
+    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
+    updatedAt?: Date;
 
 }

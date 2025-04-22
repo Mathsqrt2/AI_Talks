@@ -1,7 +1,8 @@
 import { Conversation } from "./conversation.entity";
 import {
-    Column, Entity, JoinColumn,
-    ManyToOne, PrimaryGeneratedColumn
+    Column, CreateDateColumn, Entity, JoinColumn,
+    ManyToOne, PrimaryGeneratedColumn,
+    UpdateDateColumn
 } from "typeorm";
 
 @Entity()
@@ -29,7 +30,10 @@ export class Settings {
     @Column({ type: `int`, nullable: true })
     retryAfterTimeInMiliseconds: number;
 
-    @Column({ type: `bigint` })
-    createdAt: number;
+    @CreateDateColumn({ type: `datetime`, precision: 0 })
+    createdAt: Date;
+
+    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
+    updatedAt?: Date;
 
 }

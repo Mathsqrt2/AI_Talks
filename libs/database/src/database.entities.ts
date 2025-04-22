@@ -4,6 +4,7 @@ import { Comment } from "./entities/comment.entity";
 import { Message } from "./entities/message.entity";
 import { State } from "./entities/state.entity";
 import { Log } from "./entities/log.entity";
+import { Summary } from "./entities/summary.entity";
 
 export const entities = [
     Comment,
@@ -12,4 +13,5 @@ export const entities = [
     Message,
     Settings,
     State,
+    Summary,
 ]

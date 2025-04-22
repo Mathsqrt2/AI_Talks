@@ -33,7 +33,6 @@ export class Logger {
                 content: message,
                 label: `LOG`,
                 conversationId: this.settings.app.conversationId || null,
-                createdAt: Date.now(),
             }).catch(error => {
                 this.error(LogMessage.error.onSaveLogFail(`log`), { error });
             });
@@ -58,7 +57,6 @@ export class Logger {
                 content: message,
                 label: `WARN`,
                 conversationId: this.settings.app.conversationId || null,
-                createdAt: Date.now(),
             }).catch(error => {
                 this.error(LogMessage.error.onSaveLogFail(`warn`), { error });
             });
@@ -84,7 +82,6 @@ export class Logger {
                 content: message,
                 label: `ERROR`,
                 conversationId: this.settings.app.conversationId || null,
-                createdAt: Date.now(),
                 error: config?.error ? JSON.stringify(config.error) : null,
             }).catch(error => {
                 this.error(LogMessage.error.onSaveLogFail(`error`), { error });
@@ -116,7 +113,6 @@ export class Logger {
                 content: message || ``,
                 label: `DEBUG`,
                 conversationId: this.settings.app.conversationId || null,
-                createdAt: Date.now(),
             }).catch(error => {
                 this.error(LogMessage.error.onSaveLogFail(`debug`), { error });
             });

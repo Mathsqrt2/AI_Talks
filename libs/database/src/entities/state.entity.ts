@@ -2,6 +2,8 @@ import { Conversation } from "./conversation.entity";
 import {
     PrimaryGeneratedColumn, JoinColumn,
     Column, Entity, ManyToOne,
+    UpdateDateColumn,
+    CreateDateColumn,
 } from "typeorm";
 
 @Entity()
@@ -44,7 +46,10 @@ export class State {
     @Column({ type: `int` })
     currentMessageIndex: number;
 
-    @Column({ type: `bigint` })
-    createdAt: number;
+    @CreateDateColumn({ type: `datetime`, precision: 0 })
+    createdAt: Date;
+
+    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
+    updatedAt?: Date;
 
 }

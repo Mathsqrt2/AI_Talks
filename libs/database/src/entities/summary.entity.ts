@@ -22,10 +22,10 @@ export class Summary {
     @Column({ type: `text` })
     content: string;
 
-    @CreateDateColumn({ type: `timestamp` })
+    @CreateDateColumn({ type: `datetime`, precision: 0 })
     createdAt: Date;
 
-    @UpdateDateColumn({ type: `timestamp`, default: null })
-    updatedAt: Date;
+    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
+    updatedAt?: Date;
 
 }
