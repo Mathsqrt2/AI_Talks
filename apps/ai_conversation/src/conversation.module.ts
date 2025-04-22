@@ -1,16 +1,18 @@
 import { ConversationController } from './controllers/conversation.controller';
 import { SettingsController } from './controllers/settings.controller';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { LogMessage } from './constants/conversation.responses';
 import { ConversationService } from './conversation.service';
+import { entities } from '@libs/database/database.entities';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { Logger, LoggerModule } from '@libs/logger';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TelegramModule } from '@libs/telegram';
 import { SettingsModule } from '@libs/settings';
-import { ConfigModule } from '@nestjs/config';
-import { Logger, LoggerModule } from '@libs/logger';
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
-import { AiModule } from '@libs/ai';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from '@libs/database';
-import { LogMessage } from './constants/conversation.responses';
+import { ConfigModule } from '@nestjs/config';
+import { AiModule } from '@libs/ai';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { LogMessage } from './constants/conversation.responses';
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot({ global: true }),
+    TypeOrmModule.forFeature(entities),
     SettingsModule,
     TelegramModule,
     LoggerModule,

@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
-import { Logger } from './logger.service';
 import { SettingsModule } from '@libs/settings';
-import { DatabaseModule } from '@libs/database';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Logger } from './logger.service';
+import { entities } from '@libs/database';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    DatabaseModule,
+    TypeOrmModule.forFeature(entities),
     SettingsModule,
   ],
   providers: [

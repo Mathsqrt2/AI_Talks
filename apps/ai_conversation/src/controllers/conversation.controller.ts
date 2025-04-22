@@ -1,5 +1,5 @@
 import { RestoreConversationPayloadDto } from '../dtos/restore-conversation-by-payload.dto';
-import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
+import { Conversation } from '@libs/database/entities/conversation.entity';
 import { RestoreConversationByIdDto } from '../dtos/restore-conversation-by-id.dto';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ConversationInitDto } from '../dtos/conversation-init.dto';
@@ -29,12 +29,13 @@ import { InitDto } from '../dtos/init-with-bot.dto';
 import { prompts } from '../constants/prompts';
 import { AiService } from '@libs/ai';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller()
 export class ConversationController {
 
   constructor(
-    @Inject(`CONVERSATION`) private readonly conversation: Repository<Conversation>,
+    @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,

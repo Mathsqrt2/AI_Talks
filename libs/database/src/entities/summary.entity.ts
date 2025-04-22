@@ -1,4 +1,4 @@
-import { Conversation } from "../conversation/conversation.entity";
+import { Conversation } from "./conversation.entity";
 import {
     PrimaryGeneratedColumn, JoinColumn,
     Column, Entity, ManyToOne,

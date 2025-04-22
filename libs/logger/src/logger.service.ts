@@ -1,7 +1,8 @@
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
-import { Inject, Injectable, Logger as NestLogger } from '@nestjs/common';
+import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
-import { Log } from '@libs/database/entities/log/log.entity';
+import { Log } from '@libs/database/entities/log.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
 import { Repository } from 'typeorm';
 
@@ -12,7 +13,7 @@ export class Logger {
     private logger: NestLogger;
 
     constructor(
-        @Inject(`LOG`) private readonly logs: Repository<Log>,
+        @InjectRepository(Log) private readonly logs: Repository<Log>,
         private readonly settings: SettingsService,
     ) {
         this.logger = new NestLogger(this.appName);

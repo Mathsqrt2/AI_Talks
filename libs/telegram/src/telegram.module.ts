@@ -1,12 +1,13 @@
 import { TelegramGateway } from './telegram.service';
-import { DatabaseModule } from '@libs/database';
 import { SettingsModule } from '@libs/settings';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from '@libs/logger';
+import { entities } from '@libs/database';
 import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    DatabaseModule,
+    TypeOrmModule.forFeature(entities),
     SettingsModule,
     LoggerModule,
   ],

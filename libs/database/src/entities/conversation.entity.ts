@@ -1,8 +1,8 @@
-import { Settings } from "../settings/settings.entity";
-import { Comment } from "../comment/comment.entity";
-import { Message } from "../message/message.entity";
-import { State } from "../state/state.entity";
-import { Log } from "../log/log.entity";
+import { Settings } from "./settings.entity";
+import { Comment } from "./comment.entity";
+import { Message } from "./message.entity";
+import { State } from "./state.entity";
+import { Log } from "./log.entity";
 import {
     Column, Entity, JoinColumn,
     OneToMany, PrimaryGeneratedColumn

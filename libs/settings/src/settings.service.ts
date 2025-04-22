@@ -1,25 +1,26 @@
-import { Settings as SettingsEntity } from '@libs/database/entities/settings/settings.entity';
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Settings as SettingsEntity } from '@libs/database/entities/settings.entity';
 import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { prompts } from 'apps/ai_conversation/src/constants/prompts';
-import { State } from '@libs/database/entities/state/state.entity';
 import { MessageEventPayload } from '@libs/types/conversarion';
+import { State } from '@libs/database/entities/state.entity';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Bot } from '@libs/types/telegram';
 import { Repository } from 'typeorm';
 import { SHA256 } from 'crypto-js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class SettingsService implements OnApplicationBootstrap {
 
     private readonly logger: Logger = new Logger(SettingsService.name);
     constructor(
-        @Inject(`SETTINGS`) private readonly settings: Repository<SettingsEntity>,
-        @Inject(`STATE`) private readonly state: Repository<State>,
+        @InjectRepository(SettingsEntity) private readonly settings: Repository<SettingsEntity>,
+        @InjectRepository(State) private readonly state: Repository<State>,
     ) { }
 
     public app: SettingsFile = {

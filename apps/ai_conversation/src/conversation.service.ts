@@ -1,7 +1,7 @@
-import { Message as MessageEntity } from '@libs/database/entities/message/message.entity';
-import { Conversation } from '@libs/database/entities/conversation/conversation.entity';
+import { Message as MessageEntity } from '@libs/database/entities/message.entity';
+import { Conversation } from '@libs/database/entities/conversation.entity';
 import { InjectContentPayload, MessageEventPayload } from '@libs/types/conversarion';
-import { State } from '@libs/database/entities/state/state.entity';
+import { State } from '@libs/database/entities/state.entity';
 import { LogMessage } from './constants/conversation.responses';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { event } from './constants/conversation.constants';
@@ -16,14 +16,15 @@ import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
 import { SHA256 } from 'crypto-js';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ConversationService {
 
   constructor(
-    @Inject(`CONVERSATION`) private readonly conversation: Repository<Conversation>,
-    @Inject(`MESSAGE`) private readonly message: Repository<MessageEntity>,
-    @Inject(`STATE`) private readonly state: Repository<State>,
+    @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
+    @InjectRepository(MessageEntity) private readonly message: Repository<MessageEntity>,
+    @InjectRepository(State) private readonly state: Repository<State>,
     private readonly eventEmitter: EventEmitter2,
     private readonly telegram: TelegramGateway,
     private readonly settings: SettingsService,

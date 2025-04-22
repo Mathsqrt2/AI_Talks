@@ -1,10 +1,11 @@
 import { SettingsService } from './settings.service';
-import { DatabaseModule } from '@libs/database';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { entities } from '@libs/database';
 import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    DatabaseModule,
+    TypeOrmModule.forFeature(entities)
   ],
   providers: [
     SettingsService
