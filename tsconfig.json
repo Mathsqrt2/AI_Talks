@@ -18,17 +18,11 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@libs/telegram": [
-        "libs/telegram/src"
+      "@libs/ai": [
+        "libs/ai/src"
       ],
-      "@libs/telegram/*": [
-        "libs/telegram/src/*"
-      ],
-      "@libs/types": [
-        "libs/types/src"
-      ],
-      "@libs/types/*": [
-        "libs/types/src/*"
+      "@libs/ai/*": [
+        "libs/ai/src/*"
       ],
       "@libs/database": [
         "libs/database/src"
@@ -36,11 +30,11 @@
       "@libs/database/*": [
         "libs/database/src/*"
       ],
-      "@libs/ai": [
-        "libs/ai/src"
+      "@libs/enums": [
+        "libs/enums/src"
       ],
-      "@libs/ai/*": [
-        "libs/ai/src/*"
+      "@libs/enums/*": [
+        "libs/enums/src/*"
       ],
       "@libs/logger": [
         "libs/logger/src"
@@ -53,6 +47,18 @@
       ],
       "@libs/settings/*": [
         "libs/settings/src/*"
+      ],
+      "@libs/telegram": [
+        "libs/telegram/src"
+      ],
+      "@libs/telegram/*": [
+        "libs/telegram/src/*"
+      ],
+      "@libs/types": [
+        "libs/types/src"
+      ],
+      "@libs/types/*": [
+        "libs/types/src/*"
       ]
     },
     "types": [

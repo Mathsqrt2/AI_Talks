@@ -1,4 +1,5 @@
-import { ApiBadRequestResponse, ApiFoundResponse } from '@nestjs/swagger';
+import { ApiAcceptedResponse, ApiBadRequestResponse, ApiFoundResponse, ApiNotFoundResponse } from '@nestjs/swagger';
+import { ResponseStateParamDto } from '../dtos/response-state-param.dto';
 import { ResponseSettingsDto } from '../dtos/response-settings.dto';
 import { SwaggerMessages } from '../constants/swagger.descriptions';
 import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
@@ -15,6 +16,8 @@ import { SettingsService } from '@libs/settings';
 import { readFile, readdir } from 'fs/promises';
 import { Logger } from '@libs/logger';
 import { resolve } from 'path';
+import { ResponseInvitationDto } from '../dtos/response-invitation.dto';
+import { UpdateSettingsDto } from '../dtos/update-settings.dto';
 
 @Controller(`settings`)
 export class SettingsController {
@@ -91,7 +94,7 @@ export class SettingsController {
 
     @Get(`state`)
     @HttpCode(HttpStatus.FOUND)
-    @ApiFoundResponse({ description: `` })
+    @ApiFoundResponse({ description: SwaggerMessages.findCurrentState.ApiFoundResponse() })
     public findCurrentState(): ResponseStateDto {
         return {
             ...this.settings.app.state,
@@ -101,10 +104,10 @@ export class SettingsController {
 
     @Get(`state/:param`)
     @HttpCode(HttpStatus.FOUND)
-    @ApiBadRequestResponse({ description: `` })
-    @ApiFoundResponse({ description: `` })
+    @ApiBadRequestResponse({ description: SwaggerMessages.findSpecifiedParamState.ApiBadRequestResponse() })
+    @ApiFoundResponse({ description: SwaggerMessages.findSpecifiedParamState.ApiFoundResponse() })
     public findCurrentStateForParam(
-        @Param(`param`) param: string,
+        @Param() { param }: ResponseStateParamDto,
     ) {
 
         if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
@@ -119,7 +122,8 @@ export class SettingsController {
 
     @Get(`telegram`)
     @HttpCode(HttpStatus.FOUND)
-    public findTelegramInvidation(): { invitation: string } {
+    @ApiFoundResponse({ description: SwaggerMessages.findTelegramInvitation.ApiFoundResponse() })
+    public findTelegramInvitation(): ResponseInvitationDto {
         return {
             invitation: process.env.TELEGRAM_INVITATION
         }
@@ -127,6 +131,8 @@ export class SettingsController {
 
     @Get([`model`, `model/:id`])
     @HttpCode(HttpStatus.FOUND)
+    @ApiFoundResponse({ description: SwaggerMessages.findModelFile.ApiFoundResponse() })
+    @ApiNotFoundResponse({ description: SwaggerMessages.findModelFile.ApiNotFoundResponse() })
     public async findModelfile(
         @Param() { id }: ModelFileIdDto
     ): Promise<{ [key: string]: string }> {
@@ -170,12 +176,18 @@ export class SettingsController {
 
     @Post()
     @HttpCode(HttpStatus.ACCEPTED)
-    public updateSettingsFile() {
+    @ApiAcceptedResponse({ description: `` })
+    @ApiBadRequestResponse({ description: `` })
+    public updateSettingsFile(
+        @Body() body: UpdateSettingsDto
+    ) {
 
     }
 
     @Post(`context`)
     @HttpCode(HttpStatus.ACCEPTED)
+    @ApiAcceptedResponse({ description: SwaggerMessages.setContextLength.ApiAcceptedResponse() })
+    @ApiBadRequestResponse({ description: SwaggerMessages.setContextLength.ApiBadRequestResponse() })
     public async setContextLength(
         @Body() body: { context: number },
     ): Promise<void> {
@@ -195,6 +207,8 @@ export class SettingsController {
 
     @Post(`prompt/:id`)
     @HttpCode(HttpStatus.ACCEPTED)
+    @ApiAcceptedResponse({ description: `` })
+    @ApiBadRequestResponse({ description: `` })
     public setPrompt(
         @Body() body: { prompt: string },
         @Param(`id`) id: number,

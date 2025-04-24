@@ -10,6 +10,15 @@
   "monorepo": true,
   "root": "apps/",
   "projects": {
+    "ai": {
+      "type": "library",
+      "root": "libs/ai",
+      "entryFile": "index",
+      "sourceRoot": "libs/ai/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/ai/tsconfig.lib.json"
+      }
+    },
     "ai_conversation": {
       "type": "application",
       "root": "apps/ai_conversation",
@@ -17,24 +26,6 @@
       "sourceRoot": "apps/ai_conversation/src",
       "compilerOptions": {
         "tsConfigPath": "apps/ai_conversation/tsconfig.app.json"
-      }
-    },
-    "telegram": {
-      "type": "library",
-      "root": "libs/telegram",
-      "entryFile": "index",
-      "sourceRoot": "libs/telegram/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/telegram/tsconfig.lib.json"
-      }
-    },
-    "types": {
-      "type": "library",
-      "root": "libs/types",
-      "entryFile": "index",
-      "sourceRoot": "libs/types/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/types/tsconfig.lib.json"
       }
     },
     "database": {
@@ -46,13 +37,13 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
-    "ai": {
+    "enums": {
       "type": "library",
-      "root": "libs/ai",
+      "root": "libs/enums",
       "entryFile": "index",
-      "sourceRoot": "libs/ai/src",
+      "sourceRoot": "libs/enums/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/ai/tsconfig.lib.json"
+        "tsConfigPath": "libs/enums/tsconfig.lib.json"
       }
     },
     "logger": {
@@ -71,6 +62,24 @@
       "sourceRoot": "libs/settings/src",
       "compilerOptions": {
         "tsConfigPath": "libs/settings/tsconfig.lib.json"
+      }
+    },
+    "telegram": {
+      "type": "library",
+      "root": "libs/telegram",
+      "entryFile": "index",
+      "sourceRoot": "libs/telegram/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/telegram/tsconfig.lib.json"
+      }
+    },
+    "types": {
+      "type": "library",
+      "root": "libs/types",
+      "entryFile": "index",
+      "sourceRoot": "libs/types/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/types/tsconfig.lib.json"
       }
     }
   }

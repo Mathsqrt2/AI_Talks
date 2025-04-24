@@ -1,5 +1,5 @@
 import { LogMessageContent } from "@libs/types/logs"
-import { ApiAcceptedResponse, ApiInternalServerErrorResponse } from "@nestjs/swagger"
+import { ApiAcceptedResponse, ApiBadRequestResponse, ApiFoundResponse, ApiNotFoundResponse } from "@nestjs/swagger"
 
 export class SwaggerMessages {
 
@@ -119,4 +119,31 @@ export class SwaggerMessages {
         ApiBadRequestResponse: (): string => `Invalid 'id' parameter. Acceptable values: 0 (initialPrompt), 1 (contextPrompt1), 2 (contextPrompt2), or 3 (contextPrompt).`,
     }
 
+    public static findCurrentState: LogMessageContent = {
+        ApiFoundResponse: (): string => `Returns detailed conversation state including runtime flags, message queues, and progress indicators`,
+    }
+
+    public static findSpecifiedParamState: LogMessageContent = {
+        ApiBadRequestResponse: (): string => `Invalid state parameter requested - parameter not found in application state`,
+        ApiFoundResponse: (): string => `Returns specific state parameter value from current conversation state`,
+    }
+
+    public static findTelegramInvitation: LogMessageContent = {
+        ApiFoundResponse: (): string => `Returns a Telegram group invitation link for joining the conversation chat`,
+    }
+
+    public static findModelFile: LogMessageContent = {
+        ApiFoundResponse: (): string => `Returns the content of AI model configuration files - all files if no ID specified, or specific file for given ID (0: injector, 1: speaker, 2: summarizer)`,
+        ApiNotFoundResponse: (): string => `No modelfiles found in directory or specified modelfile ID doesn't exist`,
+    }
+
+    public static setContextLength: LogMessageContent = {
+        ApiAcceptedResponse: (): string => `Successfully updated conversation context length to the specified value`,
+        ApiBadRequestResponse: (): string => `Invalid context value - must be a valid number greater than 0`,
+    }
+
+    public static setPrompt: LogMessageContent = {
+        ApiAcceptedResponse: (): string => ``,
+        ApiBadRequestResponse: (): string => ``,
+    }
 }

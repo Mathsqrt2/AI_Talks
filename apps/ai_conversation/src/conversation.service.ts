@@ -42,7 +42,6 @@ export class ConversationService {
       this.settings.app.conversationId = (await this.conversation.save({
         conversationName: currentStateHash,
         initialPrompt: prompts.initialPrompt,
-        createdAt: Date.now(),
       })).id
 
       return true;
@@ -185,7 +184,6 @@ export class ConversationService {
           generatingStartTime: newPayload.message.generatingStartTime.getTime(),
           generatingEndTime: newPayload.message.generatingEndTime.getTime(),
           author: newPayload.message.author.name,
-          createdAt: Date.now(),
         })
         this.settings.app.state.lastBotMessages.push(newPayload.message);
         this.settings.app.state.lastResponder = currentBot;
@@ -209,7 +207,6 @@ export class ConversationService {
       lastResponderName: lastResponder?.name || null,
       enqueuedMessageContent: enqueuedMessage?.content || null,
       enqueuedMessageAuthor: enqueuedMessage?.author.name || null,
-      createdAt: Date.now(),
     };
 
     await this.state.save(currentStateArchive).catch(error => {

@@ -1,9 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { ResponseInjectContentPayloadDto } from "./response-inject-content-payload.dto";
-import { ResponseMessageDto } from "./response-message.dto";
 import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
+import { ResponseInjectContentPayloadDto } from "./response-inject-content-payload.dto";
 import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { ResponseMessageDto } from "./response-message.dto";
+import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 
 export class ResponseStateDto {
 
