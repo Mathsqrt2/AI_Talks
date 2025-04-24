@@ -16,11 +16,11 @@ import { AiModule } from '@libs/ai';
 
 @Module({
   imports: [
-    DatabaseModule,
-    ScheduleModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
     EventEmitterModule.forRoot({ global: true }),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forFeature(entities),
+    ScheduleModule.forRoot(),
+    DatabaseModule,
     SettingsModule,
     TelegramModule,
     LoggerModule,

@@ -47,6 +47,18 @@ export class SwaggerMessages {
         usernameDescription: (): string => `The username of the person triggering the injection.`,
     }
 
+    public static modelfileDto: LogMessageContent = {
+        aboutId: (): string => `Model file identifier (0: injector, 1: speaker, 2: summarizer)`,
+    }
+
+    public static promptIdDto: LogMessageContent = {
+        aboutId: (): string => `Prompt identifier (0: initial, 1-2: context, 3: conversation, 4-5: custom)`
+    }
+
+    public static InvitationDto: LogMessageContent = {
+        responseInvitation: (): string => `Telegram group invitation link for accessing the conversation chat.`
+    }
+
     public static conversationInitDto: LogMessageContent | any = {
         examples: {
             example1: {
@@ -99,6 +111,17 @@ export class SwaggerMessages {
         currentMessageIndexDescription: (): string => `Tracks the index of the current message in the ongoing conversation.`,
         lastBotMessagesDescription: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
         lastBotMessagesExample: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
+        aboutParam: (): string => `State parameter to retrieve from conversation state.`,
+        aboutConversationInProgress: (): string => `Flag indicating whether a conversation is currently active.`,
+    }
+
+    public static updateContextDto: LogMessageContent = {
+        aboutContext: (): string => `Maximum context size for conversation memory (in tokens)`,
+    }
+
+    public static restoreConversationDto: LogMessageContent = {
+        aboutPayloadId: (): string => `Conversation identifier from the provided conversation data payload`,
+        aboutId: (): string => `Unique identifier of the conversation to restore`,
     }
 
     public static summaryGeneration: LogMessageContent = {
@@ -137,6 +160,11 @@ export class SwaggerMessages {
         ApiNotFoundResponse: (): string => `No modelfiles found in directory or specified modelfile ID doesn't exist`,
     }
 
+    public static updateSettingsFile: LogMessageContent = {
+        ApiAcceptedResponse: (): string => ``,
+        ApiBadRequestResponse: (): string => ``,
+    }
+
     public static setContextLength: LogMessageContent = {
         ApiAcceptedResponse: (): string => `Successfully updated conversation context length to the specified value`,
         ApiBadRequestResponse: (): string => `Invalid context value - must be a valid number greater than 0`,
@@ -146,4 +174,15 @@ export class SwaggerMessages {
         ApiAcceptedResponse: (): string => ``,
         ApiBadRequestResponse: (): string => ``,
     }
+
+    public static setState: LogMessageContent = {
+        ApiAcceptedResponse: (): string => ``,
+        ApiBadRequestResponse: (): string => ``,
+    }
+
+    public static setStateForParam: LogMessageContent = {
+        ApiAcceptedResponse: (): string => ``,
+        ApiBadRequestResponse: (): string => ``,
+    }
+
 }

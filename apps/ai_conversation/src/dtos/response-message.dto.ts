@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsNumber, IsString } from "class-validator";
 import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { IsDate, IsNumber, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 import { Bot } from "@libs/types/telegram";
 
 export class ResponseMessageDto {

@@ -1,6 +1,6 @@
 import { SwaggerMessages } from "../constants/swagger.descriptions";
-import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class ConversationInitDto {
 

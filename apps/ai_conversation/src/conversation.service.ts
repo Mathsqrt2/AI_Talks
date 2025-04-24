@@ -6,17 +6,17 @@ import { LogMessage } from './constants/conversation.responses';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { event } from './constants/conversation.constants';
 import { InitEventPayload } from '@libs/types/events';
-import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
 import { Message } from '@libs/types/settings';
 import { prompts } from './constants/prompts';
+import { Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
 import { SHA256 } from 'crypto-js';
 import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ConversationService {

@@ -49,7 +49,7 @@ export class ResponseStateDto {
     @Type(() => ResponseMessageDto)
     lastBotMessages: ResponseMessageDto[];
 
-    @ApiProperty({ description: `` })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.aboutConversationInProgress(), example: true, required: false })
     @IsBoolean()
     @IsOptional()
     isConversationInProgress?: boolean;

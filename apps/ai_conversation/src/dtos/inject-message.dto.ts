@@ -1,7 +1,8 @@
+import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { IsIn, IsNumber, IsString } from "class-validator";
 import { InjectionMode } from "@libs/types/conversarion";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsIn, IsNumber, IsString } from "class-validator";
-import { SwaggerMessages } from "../constants/swagger.descriptions";
+
 export class InjectMessageDto {
 
     @ApiProperty({ description: SwaggerMessages.injectMessageDto.promptDescription(), example: `Let's change topic to astronomy!` })

@@ -1,6 +1,6 @@
+import { SwaggerMessages } from "../constants/swagger.descriptions";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString } from "class-validator";
-import { SwaggerMessages } from "../constants/swagger.descriptions";
 
 export class ResponseInjectContentPayloadDto {
 

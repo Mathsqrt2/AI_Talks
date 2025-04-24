@@ -176,8 +176,8 @@ export class SettingsController {
 
     @Post()
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiAcceptedResponse({ description: `` })
-    @ApiBadRequestResponse({ description: `` })
+    @ApiAcceptedResponse({ description: SwaggerMessages.updateSettingsFile.ApiAcceptedResponse() })
+    @ApiBadRequestResponse({ description: SwaggerMessages.updateSettingsFile.ApiBadRequestResponse() })
     public updateSettingsFile(
         @Body() body: UpdateSettingsDto
     ) {
@@ -207,8 +207,8 @@ export class SettingsController {
 
     @Post(`prompt/:id`)
     @HttpCode(HttpStatus.ACCEPTED)
-    @ApiAcceptedResponse({ description: `` })
-    @ApiBadRequestResponse({ description: `` })
+    @ApiAcceptedResponse({ description: SwaggerMessages.setPrompt.ApiAcceptedResponse() })
+    @ApiBadRequestResponse({ description: SwaggerMessages.setPrompt.ApiBadRequestResponse() })
     public setPrompt(
         @Body() body: { prompt: string },
         @Param(`id`) id: number,
@@ -223,15 +223,28 @@ export class SettingsController {
 
     @Post(`state`)
     @HttpCode(HttpStatus.ACCEPTED)
-    public setState() {
+    @ApiAcceptedResponse({ description: SwaggerMessages.setState.ApiAcceptedResponse() })
+    @ApiBadRequestResponse({ description: SwaggerMessages.setState.ApiBadRequestResponse() })
+    public setState(
+        @Body() body: {}
+    ) {
 
     }
 
     @Post(`state/:param`)
     @HttpCode(HttpStatus.ACCEPTED)
-    public setStateForParam() {
+    @ApiAcceptedResponse({ description: SwaggerMessages.setStateForParam.ApiAcceptedResponse() })
+    @ApiBadRequestResponse({ description: SwaggerMessages.setStateForParam.ApiBadRequestResponse() })
+    public setStateForParam(
+        @Param() { param }: ResponseStateParamDto,
+        @Body() body: { value: string | boolean },
+    ) {
 
+        if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
+            this.logger.error(LogMessage.error.onUndefinedParam(param))
+            throw new BadRequestException(LogMessage.error.onUndefinedParam(param));
+        }
+
+        this.logger.log(LogMessage.log.onParamResponse(param));
     }
-
-
 }
