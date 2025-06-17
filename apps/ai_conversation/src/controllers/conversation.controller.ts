@@ -20,7 +20,6 @@ import {
 import {
   BadRequestException, Body, Controller,
   ForbiddenException, Get, HttpCode, HttpStatus,
-  Inject,
   InternalServerErrorException,
   NotFoundException,
   Param, Post
@@ -308,7 +307,6 @@ export class ConversationController {
       this.logger.warn(`Specified conversation not found`);
       throw new NotFoundException(`Specified conversation not found`);
     }
-
 
 
   }

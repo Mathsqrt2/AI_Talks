@@ -1,5 +1,5 @@
 import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
-import { Injectable, Logger as NestLogger } from '@nestjs/common';
+import { Injectable, Logger as NestLogger, NestMiddleware } from '@nestjs/common';
 import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
 import { Log } from '@libs/database/entities/log.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,7 +7,7 @@ import { SettingsService } from '@libs/settings';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class Logger {
+export class Logger implements NestMiddleware {
 
     private appName: string = __dirname.split("\\").pop();
     private logger: NestLogger;
@@ -17,6 +17,10 @@ export class Logger {
         private readonly settings: SettingsService,
     ) {
         this.logger = new NestLogger(this.appName);
+    }
+
+    use(req: any, res: any, next: (error?: any) => void) {
+        NestLogger.warn(`dziala`);
     }
 
     private shouldLog = (): boolean => {

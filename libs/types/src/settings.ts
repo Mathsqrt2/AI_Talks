@@ -9,28 +9,32 @@ export type SettingsFile = {
     maxContextSize: number,
     maxAttempts: number,
     retryAfterTimeInMiliseconds: number,
-    state: {
-        shouldArchiveLog: boolean,
-        shouldContinue: boolean,
-        shouldSendToTelegram: boolean,
-        shouldDisplayResponse: boolean,
-        shouldLog: boolean,
-        isGeneratingOnAir: boolean,
-        lastResponder: Bot,
-        enqueuedMessage: Message,
-        usersMessagesStackForBot1: InjectContentPayload[],
-        usersMessagesStackForBot2: InjectContentPayload[],
-        lastBotMessages: Message[]
-        currentMessageIndex: number,
-    }
-    prompts: {
-        initialPrompt: string;
-        contextPrompt: string;
-        contextPrompt1: string;
-        contextPrompt2: string;
-        summarizerPrompt: string;
-        injectorPrompt: string;
-    }
+    state: State,
+    prompts: Prompts,
+}
+
+export type Prompts = {
+    initialPrompt: string,
+    contextPrompt: string,
+    contextPrompt1: string,
+    contextPrompt2: string,
+    summarizerPrompt: string,
+    injectorPrompt: string,
+}
+
+export type State = {
+    shouldArchiveLog: boolean,
+    shouldContinue: boolean,
+    shouldSendToTelegram: boolean,
+    shouldDisplayResponse: boolean,
+    shouldLog: boolean,
+    isGeneratingOnAir: boolean,
+    lastResponder: Bot,
+    enqueuedMessage: Message,
+    usersMessagesStackForBot1: InjectContentPayload[],
+    usersMessagesStackForBot2: InjectContentPayload[],
+    lastBotMessages: Message[]
+    currentMessageIndex: number,
 }
 
 export type AppState = {
