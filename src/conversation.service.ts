@@ -1,18 +1,18 @@
-import { Conversation, Message as MessageEntity } from '@libs/database';
 import { InjectContentPayload, InitEventPayload, MessageEventPayload } from '@libs/types';
-import { State } from '@libs/database/entities/state.entity';
-import { prompts, event, LogMessage } from '@libs/constants';
+import { Conversation, Message as MessageEntity } from '@libs/database';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { State } from '@libs/database/entities/state.entity';
+import { prompts, LogMessage } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
-import { Message } from '@libs/types/settings';
 import { Injectable } from '@nestjs/common';
-import { Bot } from '@libs/types/telegram';
+import { Message, Bot } from '@libs/types';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
-import { SHA256 } from 'crypto-js';
 import { Repository } from 'typeorm';
+import { SHA256 } from 'crypto-js';
+import { EventsEnum } from '@libs/enums';
 
 @Injectable()
 export class ConversationService {
@@ -51,7 +51,7 @@ export class ConversationService {
     new Promise(resolve => setTimeout(() => resolve(), timeInMiliseconds))
   );
 
-  @OnEvent(event.startConversation, { async: true })
+  @OnEvent(EventsEnum.startConversation, { async: true })
   private async startConversation(initPayload: InitEventPayload): Promise<void> {
 
     const isNameGeneratedSuccessfully: boolean = await this.generateConversationName();
@@ -88,10 +88,10 @@ export class ConversationService {
 
     await this.telegram.respondBy(currentBot, prompts.separator);
     await this.telegram.respondBy(currentBot, payload.message.content);
-    await this.eventEmitter.emitAsync(event.message, payload);
+    await this.eventEmitter.emitAsync(EventsEnum.message, payload);
   }
 
-  @OnEvent(event.message, { async: true })
+  @OnEvent(EventsEnum.message, { async: true })
   private async sendMessage(payload: MessageEventPayload): Promise<void> {
 
     const generatingStartTime: Date = new Date();
@@ -172,7 +172,7 @@ export class ConversationService {
       try {
 
         await this.telegram.respondBy(currentBot, newPayload.message.content);
-        await this.eventEmitter.emitAsync(event.message, newPayload);
+        await this.eventEmitter.emitAsync(EventsEnum.message, newPayload);
         await this.message.save({
           conversationId: this.settings.app.conversationId,
           content: newPayload.message.content,

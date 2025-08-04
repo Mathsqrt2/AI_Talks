@@ -4,13 +4,14 @@ import {
     Archive, Message, SettingsFile, Stats,
     StatsProperties, MessageEventPayload, Bot
 } from '@libs/types';
-import { LogMessage, event, prompts } from '@libs/constants';
+import { LogMessage, prompts } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
 import { SHA256 } from 'crypto-js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { EventsEnum } from '@libs/enums';
 
 @Injectable()
 export class SettingsService implements OnApplicationBootstrap {
@@ -124,7 +125,7 @@ export class SettingsService implements OnApplicationBootstrap {
         }
     }
 
-    @OnEvent(event.message)
+    @OnEvent(EventsEnum.message)
     private insertMessageIntoStats(payload: MessageEventPayload) {
         payload.message.author.name === `bot_1`
             ? this.stats.bot_1.messages.push(payload.message)
@@ -135,7 +136,7 @@ export class SettingsService implements OnApplicationBootstrap {
         }
     }
 
-    @OnEvent(event.startConversation)
+    @OnEvent(EventsEnum.startConversation)
     private onStartConversation() {
         this.stats.startTime = new Date();
     }

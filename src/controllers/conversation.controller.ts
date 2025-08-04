@@ -1,4 +1,4 @@
-import { SwaggerMessages, LogMessage, event, prompts } from '@libs/constants';
+import { SwaggerMessages, LogMessage, prompts } from '@libs/constants';
 import { MessageEventPayload, InitEventPayload } from '@libs/types';
 import {
   RestoreConversationPayloadDto, RestoreConversationByIdDto,
@@ -21,6 +21,7 @@ import {
   ForbiddenException, Get, HttpCode, HttpStatus,
   InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
+import { EventsEnum } from '@libs/enums';
 
 @Controller()
 export class ConversationController {
@@ -68,7 +69,7 @@ export class ConversationController {
 
     try {
 
-      await this.eventEmitter.emitAsync(event.startConversation, initEventPayload);
+      await this.eventEmitter.emitAsync(EventsEnum.startConversation, initEventPayload);
       this.logger.log(LogMessage.log.onConversationStart());
 
     } catch (error) {
@@ -117,7 +118,7 @@ export class ConversationController {
     };
 
     try {
-      await this.eventEmitter.emitAsync(event.message, payload);
+      await this.eventEmitter.emitAsync(EventsEnum.message, payload);
       this.settings.noticeInterrupt(`resume`);
       this.logger.log(LogMessage.log.onResumeConversation());
 
@@ -230,7 +231,7 @@ export class ConversationController {
     };
 
     try {
-      await this.eventEmitter.emitAsync(event.message, payload);
+      await this.eventEmitter.emitAsync(EventsEnum.message, payload);
       this.settings.noticeInterrupt(`resume`);
       this.logger.log(LogMessage.log.onResumeConversation());
 

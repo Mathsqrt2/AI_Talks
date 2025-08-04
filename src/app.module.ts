@@ -11,6 +11,7 @@ import { DatabaseModule } from '@libs/database';
 import { ConfigModule } from '@nestjs/config';
 import { LogMessage } from '@libs/constants';
 import { AiModule } from '@libs/ai';
+import { ConversationWebSocket } from './conversation.websocket';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AiModule } from '@libs/ai';
   ],
   providers: [
     ConversationService,
+    ConversationWebSocket,
   ],
 })
 
