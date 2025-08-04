@@ -1,13 +1,13 @@
-import { IsIn, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsOptional } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
+import { ModelfilesEnum } from "@libs/enums";
 
 export class ModelFileIdDto {
 
-    @ApiProperty({ description: SwaggerMessages.modelfileDto.aboutId(), enum: ['0', '1', '2'], example: '1', required: false })
+    @ApiProperty({ description: SwaggerMessages.modelfileDto.aboutId(), enum: ModelfilesEnum, example: ModelfilesEnum.SPEAKER, required: false })
     @IsOptional()
-    @IsString()
-    @IsIn([`0`, `1`, `2`])
-    id: string;
+    @IsEnum(ModelfilesEnum)
+    modelfile: ModelfilesEnum;
 
 }

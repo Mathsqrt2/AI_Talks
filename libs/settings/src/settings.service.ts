@@ -1,17 +1,21 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import {
+    Injectable, InternalServerErrorException, Logger,
+    NotFoundException, OnApplicationBootstrap
+} from '@nestjs/common';
 import { State, Settings as SettingsEntity } from '@libs/database';
 import {
-    Archive, Message, SettingsFile, Stats,
-    StatsProperties, MessageEventPayload, Bot
+    Archive, Message, SettingsFile, Stats, ModelfilesOutput,
+    StatsProperties, MessageEventPayload, Bot,
 } from '@libs/types';
+import { readdir, readFile, writeFile } from 'fs/promises';
+import { EventsEnum, ModelfilesEnum } from '@libs/enums';
 import { LogMessage, prompts } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
 import { SHA256 } from 'crypto-js';
-import * as fs from 'fs/promises';
+import { resolve } from 'path';
 import * as path from 'path';
-import { EventsEnum } from '@libs/enums';
 
 @Injectable()
 export class SettingsService implements OnApplicationBootstrap {
@@ -21,6 +25,8 @@ export class SettingsService implements OnApplicationBootstrap {
         @InjectRepository(SettingsEntity) private readonly settings: Repository<SettingsEntity>,
         @InjectRepository(State) private readonly state: Repository<State>,
     ) { }
+
+    private modelFiles: string[] = [];
 
     public app: SettingsFile = {
         conversationName: null,
@@ -56,6 +62,13 @@ export class SettingsService implements OnApplicationBootstrap {
     };
 
     public async onApplicationBootstrap() {
+
+        const path: string = resolve(...[__dirname], `..`, `..`, `..`, `..`, `modelfiles`);
+        const files = await readdir(path);
+        this.modelFiles = files
+            .filter(modelFile => modelFile
+                .endsWith(`modelfile`))
+            .map(modelFile => resolve(path, modelFile));
 
         const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
         if (!previousSettings) {
@@ -166,7 +179,7 @@ export class SettingsService implements OnApplicationBootstrap {
         }
 
         try {
-            await fs.writeFile(outPath, JSON.stringify(data));
+            await writeFile(outPath, JSON.stringify(data));
         } catch (error) {
             this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error });
             throw error
@@ -217,4 +230,34 @@ export class SettingsService implements OnApplicationBootstrap {
         this.stats.bot_2.messages = [];
     }
 
+    public async findModelfile(modelfile?: ModelfilesEnum): Promise<ModelfilesOutput> {
+
+        let output: ModelfilesOutput;
+        if (this.modelFiles.length === 0) {
+            throw new NotFoundException(`No modelfiles was found.`);
+        }
+
+        if (!modelfile) {
+            try {
+                output = {}
+                for (const modelFile of this.modelFiles) {
+                    const name = modelFile.split(`.`).at(-3).split(/\/|\\/).pop();
+                    output[name] = await readFile(modelFile, { encoding: `utf-8` });
+                }
+                return output
+            } catch (error) {
+                this.logger.error(`Failed to read modelfiles.`, { error });
+                throw new InternalServerErrorException(`Failed to access modelfiles`)
+            }
+        }
+
+        switch (modelfile) {
+            case ModelfilesEnum.INJECTOR: return this.modelFiles.find(modelFile => modelFile.includes(`injector`));
+            case ModelfilesEnum.SPEAKER: return this.modelFiles.find(modelFile => modelFile.includes(`speaker`));
+            case ModelfilesEnum.SUMMARIZER: return this.modelFiles.find(modelFile => modelFile.includes(`summarizer`));
+            default:
+                throw new NotFoundException(`Specified modelfile doesn't exist.`);
+        }
+
+    }
 }

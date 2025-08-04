@@ -71,3 +71,5 @@ export type Message = {
     content: string,
     author: Bot,
 }
+
+export type ModelfilesOutput = string | { [key: string]: string };

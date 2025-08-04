@@ -1,13 +1,14 @@
-import { IsIn, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsOptional, IsString } from "class-validator";
+import { PromptTypes } from "@libs/enums/propt-types.enum";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class PromptIdDto {
 
-    @ApiProperty({ description: SwaggerMessages.promptIdDto.aboutId(), enum: ['0', '1', '2', '3', '4', '5'], example: '0', required: false })
+    @ApiProperty({ description: SwaggerMessages.promptIdDto.aboutId(), enum: PromptTypes, example: PromptTypes.INITIAL, required: false })
     @IsOptional()
     @IsString()
-    @IsIn([`0`, `1`, `2`, `3`, `4`, `5`])
-    id: string;
+    @IsEnum(PromptTypes)
+    type: PromptTypes;
 
 }
