@@ -1,6 +1,6 @@
+import { SwaggerMessages } from "@libs/constants";
 import { IsDefined, IsIn } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { SwaggerMessages } from "../constants/swagger.descriptions";
 
 export class InitDto {
 

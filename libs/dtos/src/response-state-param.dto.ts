@@ -1,7 +1,7 @@
 import { StateParam } from "@libs/enums/state-param.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDefined, IsEnum } from "class-validator";
-import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { SwaggerMessages } from "@libs/constants";
 
 export class ResponseStateParamDto {
 

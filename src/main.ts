@@ -1,8 +1,8 @@
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AiConversationV3Module } from './conversation.module';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
+import { AiConversationV3Module } from './app.module';
+import { SwaggerMessages } from '@libs/constants';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerMessages } from './constants/swagger.descriptions';
 
 async function bootstrap() {
   const app = await NestFactory.create(AiConversationV3Module, {

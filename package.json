@@ -89,7 +89,9 @@
     ],
     "moduleNameMapper": {
       "^@libs/ai(|/.*)$": "<rootDir>/libs/ai/src/$1",
+      "^@libs/constants(|/.*)$": "<rootDir>/libs/constants/src/$1",
       "^@libs/database(|/.*)$": "<rootDir>/libs/database/src/$1",
+      "^@libs/dtos(|/.*)$": "<rootDir>/libs/dtos/src/$1",
       "^@libs/enums(|/.*)$": "<rootDir>/libs/enums/src/$1",
       "^@libs/logger(|/.*)$": "<rootDir>/libs/logger/src/$1",
       "^@libs/settings(|/.*)$": "<rootDir>/libs/settings/src/$1",

@@ -24,11 +24,23 @@
       "@libs/ai/*": [
         "libs/ai/src/*"
       ],
+      "@libs/constants": [
+        "libs/constants/src"
+      ],
+      "@libs/constants/*": [
+        "libs/constants/src/*"
+      ],
       "@libs/database": [
         "libs/database/src"
       ],
       "@libs/database/*": [
         "libs/database/src/*"
+      ],
+      "@libs/dtos": [
+        "libs/dtos/src"
+      ],
+      "@libs/dtos/*": [
+        "libs/dtos/src/*"
       ],
       "@libs/enums": [
         "libs/enums/src"

@@ -1,11 +1,9 @@
-import { LogMessage } from 'src/constants/conversation.responses';
-import { InjectContentPayload } from '@libs/types/conversarion';
+import { InjectContentPayload, Bot, Message } from '@libs/types';
 import { Ollama, Message as OllamaMessage } from 'ollama';
+import { prompts } from '@libs/constants/prompts';
 import { SettingsService } from '@libs/settings';
-import { prompts } from 'src/constants/prompts';
-import { Message } from '@libs/types/settings';
+import { LogMessage } from '@libs/constants';
 import { Injectable } from '@nestjs/common';
-import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
 
 @Injectable()

@@ -1,9 +1,9 @@
-import { LogMessage } from 'src/constants/conversation.responses';
 import { Injectable, Logger as NestLogger, NestMiddleware } from '@nestjs/common';
-import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
 import { Log } from '@libs/database/entities/log.entity';
+import { ErrorConfig, LoggerConfig } from '@libs/types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
+import { LogMessage } from '@libs/constants';
 import { Repository } from 'typeorm';
 
 @Injectable()

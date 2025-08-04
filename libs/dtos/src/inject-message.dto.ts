@@ -1,6 +1,6 @@
-import { SwaggerMessages } from "../constants/swagger.descriptions";
 import { IsIn, IsNumber, IsString } from "class-validator";
 import { InjectionMode } from "@libs/types/conversarion";
+import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class InjectMessageDto {

@@ -1,23 +1,18 @@
 import { ApiAcceptedResponse, ApiBadRequestResponse, ApiFoundResponse, ApiNotFoundResponse } from '@nestjs/swagger';
-import { ResponseStateParamDto } from '../dtos/response-state-param.dto';
-import { ResponseSettingsDto } from '../dtos/response-settings.dto';
-import { SwaggerMessages } from '../constants/swagger.descriptions';
-import { ResponsePromptsDto } from '../dtos/response-prompts.dto';
-import { LogMessage } from '../constants/conversation.responses';
-import { ResponseStateDto } from '../dtos/response-state.dto';
 import {
-    BadRequestException, Param, Post, HttpStatus,
-    Body, Controller, Get, HttpCode,
-    NotFoundException,
+    ResponseStateParamDto, ResponseSettingsDto, ResponsePromptsDto, ResponseStateDto,
+    ModelFileIdDto, PromptIdDto, ResponseInvitationDto, UpdateSettingsDto
+} from '@libs/dtos';
+import { SwaggerMessages, LogMessage } from '@libs/constants';
+import {
+    BadRequestException, Param, Post, Get, HttpStatus,
+    Body, Controller, HttpCode, NotFoundException,
+
 } from '@nestjs/common';
-import { ModelFileIdDto } from '../dtos/modelfile-id.dto';
-import { PromptIdDto } from '../dtos/prompt-id.dto';
 import { SettingsService } from '@libs/settings';
 import { readFile, readdir } from 'fs/promises';
 import { Logger } from '@libs/logger';
 import { resolve } from 'path';
-import { ResponseInvitationDto } from '../dtos/response-invitation.dto';
-import { UpdateSettingsDto } from '../dtos/update-settings.dto';
 
 @Controller(`settings`)
 export class SettingsController {

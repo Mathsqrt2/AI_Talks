@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
 import { IsDefined, IsNumber, IsPositive, Max, Min } from "class-validator";
-import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { SwaggerMessages } from "@libs/constants";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class UpdateContextDto {
 

@@ -1,7 +1,7 @@
 import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 import { ResponseInjectContentPayloadDto } from "./response-inject-content-payload.dto";
-import { SwaggerMessages } from "../constants/swagger.descriptions";
 import { ResponseMessageDto } from "./response-message.dto";
+import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 

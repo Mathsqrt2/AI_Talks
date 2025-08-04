@@ -1,4 +1,4 @@
-import { SwaggerMessages } from "../constants/swagger.descriptions";
+import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString } from "class-validator";
 

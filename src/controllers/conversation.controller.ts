@@ -1,34 +1,26 @@
-import { RestoreConversationPayloadDto } from '../dtos/restore-conversation-by-payload.dto';
-import { Conversation } from '@libs/database/entities/conversation.entity';
-import { RestoreConversationByIdDto } from '../dtos/restore-conversation-by-id.dto';
-import { SwaggerMessages } from '../constants/swagger.descriptions';
-import { ConversationInitDto } from '../dtos/conversation-init.dto';
-import { LogMessage } from '../constants/conversation.responses';
-import { MessageEventPayload } from '@libs/types/conversarion';
-import { InjectMessageDto } from '../dtos/inject-message.dto';
-import { event } from '../constants/conversation.constants';
+import { SwaggerMessages, LogMessage, event, prompts } from '@libs/constants';
+import { MessageEventPayload, InitEventPayload } from '@libs/types';
+import {
+  RestoreConversationPayloadDto, RestoreConversationByIdDto,
+  InitDto, ConversationInitDto, InjectMessageDto
+} from '@libs/dtos';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InitEventPayload } from '@libs/types/events';
+import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
+import { Conversation } from '@libs/database';
 import { Logger } from '@libs/logger';
+import { AiService } from '@libs/ai';
+import { Repository } from 'typeorm';
 import {
   ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
   ApiForbiddenResponse, ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse, ApiParam
+  ApiNotFoundResponse, ApiOkResponse, ApiParam
 } from '@nestjs/swagger';
 import {
-  BadRequestException, Body, Controller,
+  BadRequestException, Body, Controller, Param, Post,
   ForbiddenException, Get, HttpCode, HttpStatus,
-  InternalServerErrorException,
-  NotFoundException,
-  Param, Post
+  InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
-import { InitDto } from '../dtos/init-with-bot.dto';
-import { prompts } from '../constants/prompts';
-import { AiService } from '@libs/ai';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller()
 export class ConversationController {
