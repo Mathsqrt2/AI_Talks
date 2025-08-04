@@ -1,4 +1,4 @@
-import { Injectable, Logger as NestLogger, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import { Log } from '@libs/database/entities/log.entity';
 import { ErrorConfig, LoggerConfig } from '@libs/types';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,9 +7,9 @@ import { LogMessage } from '@libs/constants';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class Logger implements NestMiddleware {
+export class Logger {
 
-    private appName: string = __dirname.split("\\").pop();
+    private appName: string = `ai_talks`;
     private logger: NestLogger;
 
     constructor(
@@ -17,10 +17,6 @@ export class Logger implements NestMiddleware {
         private readonly settings: SettingsService,
     ) {
         this.logger = new NestLogger(this.appName);
-    }
-
-    use(req: any, res: any, next: (error?: any) => void) {
-        NestLogger.warn(`dziala`);
     }
 
     private shouldLog = (): boolean => {

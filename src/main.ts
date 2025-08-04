@@ -1,11 +1,11 @@
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
-import { AiConversationV3Module } from './app.module';
 import { SwaggerMessages } from '@libs/constants';
 import { NestFactory } from '@nestjs/core';
+import { AiTalks } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AiConversationV3Module, {
+  const app = await NestFactory.create(AiTalks, {
     logger: new ConsoleLogger({
       depth: 6,
       colors: true,

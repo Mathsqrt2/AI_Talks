@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap, RequestMethod } from '@nestjs/common';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { ConversationController } from './controllers/conversation.controller';
 import { SettingsController } from './controllers/settings.controller';
 import { ConversationService } from './conversation.service';
@@ -32,20 +32,14 @@ import { AiModule } from '@libs/ai';
   ],
 })
 
-export class AiConversationV3Module implements OnApplicationBootstrap, NestModule {
+export class AiTalks implements OnApplicationBootstrap {
 
   constructor(
     private readonly logger: Logger
   ) { }
 
   public onApplicationBootstrap() {
-    this.logger.log(LogMessage.log.onApplicationBootstrap(), { context: AiConversationV3Module.name })
+    this.logger.log(LogMessage.log.onApplicationBootstrap(), { context: AiTalks.name })
   }
 
-  public configure(consumer: MiddlewareConsumer) {
-    consumer.apply(Logger).forRoutes({
-      path: `*`,
-      method: RequestMethod.ALL
-    });
-  }
 }
