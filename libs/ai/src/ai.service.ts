@@ -1,12 +1,12 @@
+import { LogMessage } from 'src/constants/conversation.responses';
 import { InjectContentPayload } from '@libs/types/conversarion';
 import { Ollama, Message as OllamaMessage } from 'ollama';
 import { SettingsService } from '@libs/settings';
+import { prompts } from 'src/constants/prompts';
 import { Message } from '@libs/types/settings';
 import { Injectable } from '@nestjs/common';
 import { Bot } from '@libs/types/telegram';
 import { Logger } from '@libs/logger';
-import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
-import { prompts } from 'apps/ai_conversation/src/constants/prompts';
 
 @Injectable()
 export class AiService {

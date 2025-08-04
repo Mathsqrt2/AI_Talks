@@ -1,5 +1,5 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { entities } from './database.entities';
+import * as Entities from './entities';
 import { Module } from '@nestjs/common';
 
 @Module({
@@ -12,11 +12,14 @@ import { Module } from '@nestjs/common';
         username: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
-        entities,
+        entities: Object.values(Entities),
         synchronize: true,
       })
     }),
-    TypeOrmModule.forFeature(entities)
+    TypeOrmModule.forFeature(Object.values(Entities))
+  ],
+  exports: [
+    TypeOrmModule.forFeature(Object.values(Entities))
   ]
 })
 

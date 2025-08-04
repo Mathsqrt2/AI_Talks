@@ -1,4 +1,4 @@
-import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { LogMessage } from 'src/constants/conversation.responses';
 import { Injectable, Logger as NestLogger, NestMiddleware } from '@nestjs/common';
 import { ErrorConfig, LoggerConfig } from '@libs/types/logs';
 import { Log } from '@libs/database/entities/log.entity';

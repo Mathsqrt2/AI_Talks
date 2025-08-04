@@ -1,12 +1,12 @@
 import { SettingsModule } from '@libs/settings';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Entities from '@libs/database';
 import { Logger } from './logger.service';
-import { entities } from '@libs/database';
 import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature(entities),
+    TypeOrmModule.forFeature(Object.values(Entities)),
     SettingsModule,
   ],
   providers: [

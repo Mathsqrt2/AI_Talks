@@ -1,4 +1,4 @@
-import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { LogMessage } from 'src/constants/conversation.responses';
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { SettingsService } from '@libs/settings';

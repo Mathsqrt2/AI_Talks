@@ -1,9 +1,9 @@
 import { Archive, Message, SettingsFile, Stats, StatsProperties } from '@libs/types/settings';
-import { LogMessage } from 'apps/ai_conversation/src/constants/conversation.responses';
+import { LogMessage } from 'src/constants/conversation.responses';
 import { Settings as SettingsEntity } from '@libs/database/entities/settings.entity';
-import { event } from 'apps/ai_conversation/src/constants/conversation.constants';
+import { event } from 'src/constants/conversation.constants';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { prompts } from 'apps/ai_conversation/src/constants/prompts';
+import { prompts } from 'src/constants/prompts';
 import { MessageEventPayload } from '@libs/types/conversarion';
 import { State } from '@libs/database/entities/state.entity';
 import { OnEvent } from '@nestjs/event-emitter';

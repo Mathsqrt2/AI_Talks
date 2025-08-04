@@ -1,9 +1,11 @@
+import {
+  MiddlewareConsumer, Module, NestModule,
+  OnApplicationBootstrap, RequestMethod
+} from '@nestjs/common';
 import { ConversationController } from './controllers/conversation.controller';
 import { SettingsController } from './controllers/settings.controller';
-import { MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap, RequestMethod } from '@nestjs/common';
 import { LogMessage } from './constants/conversation.responses';
 import { ConversationService } from './conversation.service';
-import { entities } from '@libs/database/database.entities';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { Logger, LoggerModule } from '@libs/logger';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -12,13 +14,14 @@ import { SettingsModule } from '@libs/settings';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DatabaseModule } from '@libs/database';
 import { ConfigModule } from '@nestjs/config';
+import * as Entities from '@libs/database';
 import { AiModule } from '@libs/ai';
 
 @Module({
   imports: [
     EventEmitterModule.forRoot({ global: true }),
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forFeature(entities),
+    TypeOrmModule.forFeature(Object.values(Entities)),
     ScheduleModule.forRoot(),
     DatabaseModule,
     SettingsModule,
