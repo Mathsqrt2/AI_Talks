@@ -8,6 +8,6 @@ export class ModelFileIdDto {
     @ApiProperty({ description: SwaggerMessages.modelfileDto.aboutId(), enum: ModelfilesEnum, example: ModelfilesEnum.SPEAKER, required: false })
     @IsOptional()
     @IsEnum(ModelfilesEnum)
-    modelfile: ModelfilesEnum;
+    public modelfile: ModelfilesEnum;
 
 }

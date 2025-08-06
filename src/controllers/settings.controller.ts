@@ -6,15 +6,13 @@ import {
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
   BadRequestException, Param, Post, Get, HttpStatus,
-  Body, Controller, HttpCode, NotFoundException,
-  InternalServerErrorException,
+  Body, Controller, HttpCode, InternalServerErrorException,
 } from '@nestjs/common';
 import { SettingsService } from '@libs/settings';
-import { readFile } from 'fs/promises';
-import { ModelfilesEnum, PromptTypes } from '@libs/enums';
-import { Logger } from '@libs/logger';
-import { resolve } from 'path';
 import { ModelfilesOutput } from '@libs/types';
+import { PromptTypes } from '@libs/enums';
+import { readFile } from 'fs/promises';
+import { Logger } from '@libs/logger';
 
 @Controller(`settings`)
 export class SettingsController {
@@ -28,7 +26,8 @@ export class SettingsController {
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: SwaggerMessages.findCurrentSettings.ApiFoundResponse(), type: ResponseSettingsDto })
   public findCurrentSettings(): ResponseSettingsDto {
-    this.logger.log(LogMessage.log.onUserResponseWithConfig());
+    const startTime: number = Date.now();
+    this.logger.log(LogMessage.log.onUserResponseWithConfig(), { startTime });
     return this.settings.app;
   }
 
@@ -36,7 +35,8 @@ export class SettingsController {
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: SwaggerMessages.findCurrentContextLength.ApiFoundResponse(), type: Number, example: 4096 })
   public findCurrentContextLength() {
-    this.logger.log(LogMessage.log.onUserResponseWithContext());
+    const startTime: number = Date.now();
+    this.logger.log(LogMessage.log.onUserResponseWithContext(), { startTime });
     return this.settings.app.maxContextSize;
   }
 
@@ -48,13 +48,14 @@ export class SettingsController {
     @Param() { type }: PromptIdDto
   ): { prompt: string | { [key: string]: string } } {
 
+    const startTime: number = Date.now();
     const prompts = this.settings.app.prompts;
     if (!type) {
-      this.logger.log(LogMessage.log.onUserResponseWithAllPrompts());
+      this.logger.log(LogMessage.log.onUserResponseWithAllPrompts(), { startTime });
       return { prompt: prompts }
     }
 
-    this.logger.log(LogMessage.log.onUserResponseWithPrompt(type));
+    this.logger.log(LogMessage.log.onUserResponseWithPrompt(type), { startTime });
     switch (type) {
       case PromptTypes.INITIAL: return { prompt: prompts.initialPrompt };
       case PromptTypes.CONTEXT_PROMPT_1: return { prompt: prompts.contextPrompt1 };
@@ -85,12 +86,13 @@ export class SettingsController {
     @Param() { param }: ResponseStateParamDto,
   ) {
 
+    const startTime: number = Date.now();
     if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
-      this.logger.error(LogMessage.error.onUndefinedParam(param))
+      this.logger.error(LogMessage.error.onUndefinedParam(param), { startTime })
       throw new BadRequestException(LogMessage.error.onUndefinedParam(param));
     }
 
-    this.logger.log(LogMessage.log.onParamResponse(param));
+    this.logger.log(LogMessage.log.onParamResponse(param), { startTime });
     return this.settings.app.state[param];
 
   }
@@ -110,6 +112,7 @@ export class SettingsController {
     @Param() { modelfile }: ModelFileIdDto
   ): Promise<ModelfilesOutput> {
 
+    const startTime: number = Date.now();
     const modelfileSource = await this.settings.findModelfile(modelfile);
     if (typeof modelfileSource === `object`) {
       return modelfileSource;
@@ -120,7 +123,7 @@ export class SettingsController {
       return { [name]: await readFile(modelfileSource, { encoding: `utf-8` }) };
 
     } catch (error) {
-      this.logger.error(`Failed to access modelfile`, { error });
+      this.logger.error(`Failed to access modelfile`, { error, startTime });
       throw new InternalServerErrorException(`Failed to access modelfile ${modelfile}`);
     }
 
@@ -134,6 +137,8 @@ export class SettingsController {
     @Body() body: UpdateSettingsDto
   ) {
 
+    const startTime: number = Date.now();
+
   }
 
   @Post(`context`)
@@ -144,6 +149,7 @@ export class SettingsController {
     @Body() body: { context: number },
   ): Promise<void> {
 
+    const startTime: number = Date.now();
     if (!body.context) {
       throw new BadRequestException(LogMessage.error.onIncorrectValue(`context`));
     }
@@ -154,7 +160,7 @@ export class SettingsController {
 
     this.settings.app.maxContextSize = body.context;
     await this.settings.archiveSettings();
-    this.logger.log(LogMessage.log.onContextUpdated(body.context));
+    this.logger.log(LogMessage.log.onContextUpdated(body.context), { startTime });
   }
 
   @Post(`prompt/:id`)
@@ -192,11 +198,12 @@ export class SettingsController {
     @Body() body: { value: string | boolean },
   ) {
 
+    const startTime: number = Date.now();
     if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
-      this.logger.error(LogMessage.error.onUndefinedParam(param))
+      this.logger.error(LogMessage.error.onUndefinedParam(param), { startTime })
       throw new BadRequestException(LogMessage.error.onUndefinedParam(param));
     }
 
-    this.logger.log(LogMessage.log.onParamResponse(param));
+    this.logger.log(LogMessage.log.onParamResponse(param), { startTime });
   }
 }

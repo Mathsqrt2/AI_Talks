@@ -7,6 +7,6 @@ export class RestoreConversationByIdDto {
     @ApiProperty({ description: SwaggerMessages.restoreConversationDto.aboutId(), example: '123abc456def', required: true })
     @IsDefined()
     @IsString()
-    id: string;
+    public id: string;
 
 }

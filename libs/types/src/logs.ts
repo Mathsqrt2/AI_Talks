@@ -12,6 +12,7 @@ type LogMessageFunction =
 export type LoggerConfig = {
     context?: unknown,
     save?: boolean,
+    startTime?: number,
 }
 
 export type ErrorConfig = LoggerConfig & {

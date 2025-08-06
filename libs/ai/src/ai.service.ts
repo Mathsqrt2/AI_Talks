@@ -17,6 +17,7 @@ export class AiService {
 
     public merge = async (message2: InjectContentPayload, message1: Message): Promise<string> => {
 
+        const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
         const model: string = `gemma3:27b_injector`;
         let prompt: string = `${prompts.injectorPrompt}\n\n`;
@@ -32,7 +33,7 @@ export class AiService {
 
         } catch (error) {
 
-            this.logger.error(LogMessage.error.onMergeMessagesFail(this.settings.app.conversationName), { error });
+            this.logger.error(LogMessage.error.onMergeMessagesFail(this.settings.app.conversationName), { error, startTime });
             this.settings.app.state.isGeneratingOnAir = false;
             return message1.content;
 
@@ -74,6 +75,7 @@ export class AiService {
 
     public summarize = async (): Promise<string> => {
 
+        const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
         const model: string = `gemma3:27b_summarizer`;
 
@@ -89,7 +91,7 @@ export class AiService {
 
         } catch (error) {
 
-            this.logger.error(LogMessage.error.onCreateSummaryFail(this.settings.app.conversationName), { error });
+            this.logger.error(LogMessage.error.onCreateSummaryFail(this.settings.app.conversationName), { error, startTime });
             this.settings.app.state.isGeneratingOnAir = false;
             throw error;
 

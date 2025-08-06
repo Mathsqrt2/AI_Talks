@@ -20,4 +20,7 @@ export class Log extends ConversationSubproperty {
     @Column({ type: `varchar`, nullable: true, length: 128 })
     public tag?: string;
 
+    @Column({ type: `int`, default: null, nullable: true })
+    public duration: number;
+
 }

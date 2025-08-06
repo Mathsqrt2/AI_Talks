@@ -1,23 +1,28 @@
+import { IsDefined, IsEnum, IsString } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
+import { InjectionModeEnum } from "@libs/enums";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString } from "class-validator";
 
 export class ResponseInjectContentPayloadDto {
 
     @ApiProperty({ description: SwaggerMessages.responseInjectDto.promptDescription(), example: "Let's talk about AI." })
+    @IsDefined()
     @IsString()
-    prompt: string;
+    public prompt: string;
 
-    @ApiProperty({ description: SwaggerMessages.responseInjectDto.modeDescription(), example: `MERGE` })
-    @IsString()
-    mode: string;
-
+    @ApiProperty({ description: SwaggerMessages.responseInjectDto.modeDescription(), example: InjectionModeEnum.MERGE })
+    @IsDefined()
+    @IsEnum(InjectionModeEnum)
+    public mode: InjectionModeEnum;
+    
     @ApiProperty({ description: SwaggerMessages.responseInjectDto.botIdDescription(), example: 1 })
+    @IsDefined()
     @IsString()
-    botId: number;
-
+    public botId: number;
+    
     @ApiProperty({ description: SwaggerMessages.responseInjectDto.usernameDescription(), example: `Miguel` })
+    @IsDefined()
     @IsString()
-    username: string;
+    public username: string;
 
 }

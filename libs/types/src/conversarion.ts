@@ -1,3 +1,4 @@
+import { InjectionModeEnum } from "@libs/enums";
 import { Message } from "./settings";
 
 export type BodyInitPayload = {
@@ -6,12 +7,10 @@ export type BodyInitPayload = {
 
 export type InjectContentPayload = {
     prompt: string,
-    mode: InjectionMode
+    mode: InjectionModeEnum
     botId: number,
     username: string,
 }
-
-export type InjectionMode = `REPLACE` | `MERGE`;
 
 export type MessageEventPayload = {
     message: Message,

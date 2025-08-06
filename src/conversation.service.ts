@@ -29,6 +29,8 @@ export class ConversationService {
   ) { }
 
   private generateConversationName = async (): Promise<boolean> => {
+
+    const startTime: number = Date.now();
     const seed = `${JSON.stringify(this.settings.app)}${Date.now()}`;
     const currentStateHash: string = SHA256(seed).toString();
 
@@ -42,7 +44,7 @@ export class ConversationService {
 
       return true;
     } catch (error) {
-      this.logger.error(LogMessage.error.onSaveConversationNameFail(currentStateHash), { error });
+      this.logger.error(LogMessage.error.onSaveConversationNameFail(currentStateHash), { error, startTime });
       return false;
     }
   }
@@ -54,9 +56,10 @@ export class ConversationService {
   @OnEvent(EventsEnum.startConversation, { async: true })
   private async startConversation(initPayload: InitEventPayload): Promise<void> {
 
+    const startTime: number = Date.now();
     const isNameGeneratedSuccessfully: boolean = await this.generateConversationName();
     if (!isNameGeneratedSuccessfully) {
-      this.logger.warn(LogMessage.warn.onInitializationFail());
+      this.logger.warn(LogMessage.warn.onInitializationFail(), { startTime });
       return;
     }
 
@@ -94,6 +97,7 @@ export class ConversationService {
   @OnEvent(EventsEnum.message, { async: true })
   private async sendMessage(payload: MessageEventPayload): Promise<void> {
 
+    const startTime: number = Date.now();
     const generatingStartTime: Date = new Date();
     const currentBot: Bot = { name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1` };
     let message: Message = payload.message;
@@ -133,7 +137,7 @@ export class ConversationService {
         isMessageGenerated = true;
 
       } catch (error) {
-        this.logger.error(LogMessage.error.onGenerateMessageFail(), { error });
+        this.logger.error(LogMessage.error.onGenerateMessageFail(), { error, startTime });
         await this.wait(this.settings.app.retryAfterTimeInMiliseconds);
       }
     }
@@ -142,7 +146,7 @@ export class ConversationService {
       await this.settings.archiveCurrentState();
       this.settings.app.state.shouldContinue = false;
       this.settings.app.state.isGeneratingOnAir = false;
-      this.logger.error(LogMessage.error.onGenerateRetryFail());
+      this.logger.error(LogMessage.error.onGenerateRetryFail(), { startTime });
       return;
     }
 
@@ -157,13 +161,13 @@ export class ConversationService {
     }
 
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.error(LogMessage.error.onMessageAfterConversationBreak());
+      this.logger.error(LogMessage.error.onMessageAfterConversationBreak(), { startTime });
       return;
     }
 
     if (!this.settings.app.state.shouldContinue) {
       this.settings.app.state.enqueuedMessage = payload.message;
-      this.logger.warn(LogMessage.warn.onConversationInterrupt());
+      this.logger.warn(LogMessage.warn.onConversationInterrupt(), { startTime });
       return;
     }
 
@@ -183,11 +187,11 @@ export class ConversationService {
         })
         this.settings.app.state.lastBotMessages.push(newPayload.message);
         this.settings.app.state.lastResponder = currentBot;
-        this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++));
+        this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++), { startTime });
         isMessageDelivered = true;
 
       } catch (error) {
-        this.logger.error(LogMessage.error.onDeliveryFail(), { error });
+        this.logger.error(LogMessage.error.onDeliveryFail(), { error, startTime });
         await this.wait(this.settings.app.retryAfterTimeInMiliseconds);
       }
 
@@ -206,14 +210,14 @@ export class ConversationService {
     };
 
     await this.state.save(currentStateArchive).catch(error => {
-      this.logger.error(error, { error });
+      this.logger.error(error, { error, startTime });
     });
 
     if (!isMessageDelivered && deliveryAttempts <= 0) {
 
       await this.settings.archiveCurrentState();
       this.settings.app.state.shouldContinue = false;
-      this.logger.error(LogMessage.error.onRetryFail());
+      this.logger.error(LogMessage.error.onRetryFail(), { startTime });
       return;
     }
   }

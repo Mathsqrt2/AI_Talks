@@ -53,12 +53,12 @@ export class ConversationController {
 
     const startTime: number = Date.now();
     if (this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning());
+      this.logger.warn(LogMessage.warn.onConversationAlreadyRunning(), { startTime });
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
 
     if (+id !== 1 && +id !== 2) {
-      this.logger.warn(LogMessage.warn.onIdOutOfRange(id));
+      this.logger.warn(LogMessage.warn.onIdOutOfRange(id), { startTime });
       throw new BadRequestException(LogMessage.warn.onIdOutOfRange(id))
     }
 
@@ -70,11 +70,11 @@ export class ConversationController {
     try {
 
       await this.eventEmitter.emitAsync(EventsEnum.startConversation, initEventPayload);
-      this.logger.log(LogMessage.log.onConversationStart());
+      this.logger.log(LogMessage.log.onConversationStart(), { startTime });
 
     } catch (error) {
 
-      this.logger.error(LogMessage.error.onConversationInitFail());
+      this.logger.error(LogMessage.error.onConversationInitFail(), { startTime });
       throw new InternalServerErrorException(LogMessage.error.onConversationInitFail())
 
     }
@@ -89,13 +89,13 @@ export class ConversationController {
 
     const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onPauseMissingConversation());
+      this.logger.warn(LogMessage.warn.onPauseMissingConversation(), { startTime });
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
 
     this.settings.app.state.shouldContinue = false;
     this.settings.noticeInterrupt(`pause`);
-    this.logger.log(LogMessage.log.onPauseConversation());
+    this.logger.log(LogMessage.log.onPauseConversation(), { startTime });
 
   }
 
@@ -108,7 +108,7 @@ export class ConversationController {
 
     const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onResumeMissingConversation());
+      this.logger.warn(LogMessage.warn.onResumeMissingConversation(), { startTime });
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
 
@@ -120,10 +120,10 @@ export class ConversationController {
     try {
       await this.eventEmitter.emitAsync(EventsEnum.message, payload);
       this.settings.noticeInterrupt(`resume`);
-      this.logger.log(LogMessage.log.onResumeConversation());
+      this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onResumeConversationFail())
+      this.logger.error(LogMessage.error.onResumeConversationFail(), { startTime })
       throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
     }
 
@@ -137,7 +137,7 @@ export class ConversationController {
 
     const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgres) {
-      this.logger.warn(LogMessage.warn.onBreakMissingConversation());
+      this.logger.warn(LogMessage.warn.onBreakMissingConversation(), { startTime });
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
@@ -152,7 +152,7 @@ export class ConversationController {
     this.settings.app.conversationName = null;
     this.settings.app.conversationId = null;
 
-    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName));
+    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { startTime });
   }
 
   @Post([`inject`])
@@ -165,19 +165,19 @@ export class ConversationController {
 
     const startTime: number = Date.now();
     if (!body) {
-      this.logger.warn(LogMessage.warn.onInvalidPayload());
+      this.logger.warn(LogMessage.warn.onInvalidPayload(), { startTime });
       throw new BadRequestException(LogMessage.warn.onInvalidPayload());
     }
 
     if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
-      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode));
+      this.logger.warn(LogMessage.warn.onInvalidMode(body.mode), { startTime });
       throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
 
     body.botId === 1
       ? this.settings.app.state.usersMessagesStackForBot1.push(body)
       : this.settings.app.state.usersMessagesStackForBot2.push(body);
-    this.logger.log(LogMessage.log.onInjectMessage());
+    this.logger.log(LogMessage.log.onInjectMessage(), { startTime });
   }
 
   @Get([`summary`])
@@ -202,7 +202,7 @@ export class ConversationController {
     }
 
     if (maximumConnectingAttemptsNumber === 0) {
-      this.logger.error(LogMessage.error.onSummaryGenerationFail())
+      this.logger.error(LogMessage.error.onSummaryGenerationFail(), { startTime })
       throw new InternalServerErrorException(LogMessage.error.onSummaryGenerationFail());
     }
 
@@ -233,10 +233,10 @@ export class ConversationController {
     try {
       await this.eventEmitter.emitAsync(EventsEnum.message, payload);
       this.settings.noticeInterrupt(`resume`);
-      this.logger.log(LogMessage.log.onResumeConversation());
+      this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onResumeConversationFail())
+      this.logger.error(LogMessage.error.onResumeConversationFail(), { startTime })
       throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
     }
   }
@@ -266,7 +266,7 @@ export class ConversationController {
     }
 
     if (!conversation) {
-      this.logger.warn(`Specified conversation not found`);
+      this.logger.warn(`Specified conversation not found`, { startTime });
       throw new NotFoundException(`Specified conversation not found`);
     }
 
@@ -297,7 +297,7 @@ export class ConversationController {
     }
 
     if (!conversation) {
-      this.logger.warn(`Specified conversation not found`);
+      this.logger.warn(`Specified conversation not found`, { startTime });
       throw new NotFoundException(`Specified conversation not found`);
     }
 

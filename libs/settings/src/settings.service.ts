@@ -125,6 +125,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public archiveSettings = async (): Promise<void> => {
 
+        const startTime: number = Date.now();
         const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
         const currentSettings = this.findCurrentSettings();
 
@@ -135,18 +136,20 @@ export class SettingsService implements OnApplicationBootstrap {
         try {
             await this.settings.save(currentSettings);
         } catch (error) {
-            this.logger.error(`Failed to save current settings.`);
+            this.logger.error(`Failed to save current settings.`, { startTime });
         }
     }
 
     @OnEvent(EventsEnum.message)
     private insertMessageIntoStats(payload: MessageEventPayload) {
+
+        const startTime: number = Date.now();
         payload.message.author.name === `bot_1`
             ? this.statistics.bot_1.messages.push(payload.message)
             : this.statistics.bot_2.messages.push(payload.message);
 
         if (this.app.state.shouldLog) {
-            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
+            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex), { startTime });
         }
     }
 
@@ -173,6 +176,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public archiveCurrentState = async (): Promise<void> => {
 
+        const startTime: number = Date.now();
         const outPath = path.join(__dirname, `${this.app.conversationName}.${Date.now()}.json`);
         const data = {
             statistics: this.getStatistics(),
@@ -182,7 +186,7 @@ export class SettingsService implements OnApplicationBootstrap {
         try {
             await writeFile(outPath, JSON.stringify(data));
         } catch (error) {
-            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error });
+            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error, startTime });
             throw error
         }
 
@@ -233,6 +237,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public async findModelfile(modelfile?: ModelfilesEnum): Promise<ModelfilesOutput> {
 
+        const startTime: number = Date.now();
         let output: ModelfilesOutput;
         if (this.modelFiles.length === 0) {
             throw new NotFoundException(`No modelfiles was found.`);
@@ -247,7 +252,7 @@ export class SettingsService implements OnApplicationBootstrap {
                 }
                 return output
             } catch (error) {
-                this.logger.error(`Failed to read modelfiles.`, { error });
+                this.logger.error(`Failed to read modelfiles.`, { error, startTime });
                 throw new InternalServerErrorException(`Failed to access modelfiles`)
             }
         }

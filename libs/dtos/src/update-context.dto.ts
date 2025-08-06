@@ -10,5 +10,5 @@ export class UpdateContextDto {
     @IsPositive()
     @Max(4096)
     @Min(0)
-    context: number;
+    public context: number;
 }

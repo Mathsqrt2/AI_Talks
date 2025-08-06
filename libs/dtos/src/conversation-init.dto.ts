@@ -5,8 +5,8 @@ import { ApiProperty } from "@nestjs/swagger";
 export class ConversationInitDto {
 
     @ApiProperty({ description: SwaggerMessages.conversationInitDto.promptDescription(), example: SwaggerMessages.conversationInitDto.promptExample() })
-    @IsString()
     @IsOptional()
-    prompt?: string;
+    @IsString()
+    public prompt?: string;
 
 }

@@ -7,8 +7,7 @@ export class PromptIdDto {
 
     @ApiProperty({ description: SwaggerMessages.promptIdDto.aboutId(), enum: PromptTypes, example: PromptTypes.INITIAL, required: false })
     @IsOptional()
-    @IsString()
     @IsEnum(PromptTypes)
-    type: PromptTypes;
+    public type: PromptTypes;
 
 }

@@ -8,6 +8,6 @@ export class ResponseStateParamDto {
     @ApiProperty({ description: SwaggerMessages.responseStateDto.aboutParam(), enum: StateParam, example: 'shouldContinue', required: true })
     @IsDefined()
     @IsEnum(StateParam)
-    param: StateParam
+    public param: StateParam
 
 }

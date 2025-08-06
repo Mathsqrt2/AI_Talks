@@ -3,6 +3,7 @@ import { ErrorConfig, LoggerConfig } from '@libs/types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
+import { LogsLabelsEnum } from '@libs/enums';
 import { Log } from '@libs/database';
 import { Repository } from 'typeorm';
 
@@ -23,19 +24,41 @@ export class Logger {
         return this.settings.app.state.shouldLog;
     }
 
+    private async saveLog(message: any, label: LogsLabelsEnum, config?: ErrorConfig): Promise<void> {
+
+        if (typeof message === `object`) {
+            message = JSON.stringify(message);
+        }
+
+        if (typeof message === `number`) {
+            message = message.toString();
+        }
+
+        const log = this.logs.create({
+            content: message,
+            label,
+            conversationId: this.settings.app.conversationId || null,
+            error: config?.error ? JSON.stringify(config.error) : null,
+            duration: config?.startTime
+                ? Date.now() - config.startTime
+                : null
+        });
+
+        try {
+            await this.logs.save(log);
+        } catch (error) {
+            this.error(LogMessage.error.onSaveLogFail(label?.toLowerCase()), { error });
+        }
+
+    }
+
     public log = (message: any, config?: LoggerConfig): string => {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
 
         if (save) {
-            this.logs.save({
-                content: message,
-                label: `LOG`,
-                conversationId: this.settings.app.conversationId || null,
-            }).catch(error => {
-                this.error(LogMessage.error.onSaveLogFail(`log`), { error });
-            });
+            this.saveLog(message, LogsLabelsEnum.LOG, config);
         }
 
         if (!this.shouldLog()) {
@@ -55,13 +78,7 @@ export class Logger {
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
 
         if (save) {
-            this.logs.save({
-                content: message,
-                label: `WARN`,
-                conversationId: this.settings.app.conversationId || null,
-            }).catch(error => {
-                this.error(LogMessage.error.onSaveLogFail(`warn`), { error });
-            });
+            this.saveLog(message, LogsLabelsEnum.WARN, config);
         }
 
         if (!this.shouldLog()) {
@@ -71,7 +88,7 @@ export class Logger {
         context
             ? NestLogger.warn(message, context)
             : this.logger.warn(message);
-        
+
         return message;
     }
 
@@ -82,14 +99,7 @@ export class Logger {
         const error = config?.error ?? null;
 
         if (save) {
-            this.logs.save({
-                content: message,
-                label: `ERROR`,
-                conversationId: this.settings.app.conversationId || null,
-                error: config?.error ? JSON.stringify(config.error) : null,
-            }).catch(error => {
-                this.error(LogMessage.error.onSaveLogFail(`error`), { error });
-            });
+            this.saveLog(message, LogsLabelsEnum.ERROR, config);
         }
 
         if (!this.shouldLog()) {
@@ -115,13 +125,7 @@ export class Logger {
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
 
         if (save) {
-            this.logs.save({
-                content: message || ``,
-                label: `DEBUG`,
-                conversationId: this.settings.app.conversationId || null,
-            }).catch(error => {
-                this.error(LogMessage.error.onSaveLogFail(`debug`), { error });
-            });
+            this.saveLog(message, LogsLabelsEnum.DEBUG, config);
         }
 
         if (!this.shouldLog()) {

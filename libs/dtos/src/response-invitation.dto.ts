@@ -7,6 +7,6 @@ export class ResponseInvitationDto {
     @ApiProperty({ description: SwaggerMessages.InvitationDto.responseInvitation() })
     @IsDefined()
     @IsString()
-    invitation: string;
+    public invitation: string;
 
 }

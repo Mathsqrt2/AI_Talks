@@ -6,51 +6,60 @@ import { Type } from "class-transformer";
 
 export class ResponseStateDto {
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: true })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: true, required: false })
+    @IsOptional()
     @IsBoolean()
-    shouldContinue: boolean;
+    public shouldContinue: boolean;
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: false })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: false, required: false })
+    @IsOptional()
     @IsBoolean()
-    shouldSendToTelegram: boolean;
+    public shouldSendToTelegram: boolean;
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: false })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: false, required: false })
+    @IsOptional()
     @IsBoolean()
-    shouldDisplayResponse: boolean;
+    public shouldDisplayResponse: boolean;
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: true })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: true, required: false })
+    @IsOptional()
     @IsBoolean()
-    shouldLog: boolean;
+    public shouldLog: boolean;
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: "Switch the topic to AI innovations!" })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: "Switch the topic to AI innovations!", required: false })
+    @IsOptional()
     @IsString()
-    enqueuedMessage: ResponseMessageDto;
+    public enqueuedMessage: ResponseMessageDto;
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ prompt: "Discuss the latest tech trends", mode: "MERGE", botId: 1, username: "alice" }] })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ prompt: "Discuss the latest tech trends", mode: "MERGE", botId: 1, username: "alice" }], required: false })
+    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ResponseInjectContentPayloadDto)
-    usersMessagesStackForBot1: ResponseInjectContentPayloadDto[];
+    public usersMessagesStackForBot1: ResponseInjectContentPayloadDto[];
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ prompt: "Discuss the latest tech trends", mode: "MERGE", botId: 1, username: "alice" }] })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ prompt: "Discuss the latest tech trends", mode: "MERGE", botId: 1, username: "alice" }], required: false })
+    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ResponseInjectContentPayloadDto)
-    usersMessagesStackForBot2: ResponseInjectContentPayloadDto[];
+    public usersMessagesStackForBot2: ResponseInjectContentPayloadDto[];
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: 100 })
+    @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: 100, required: false })
+    @IsOptional()
     @IsNumber()
-    currentMessageIndex: number;
+    public currentMessageIndex: number;
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.shouldContinueDescription(), example: [{ generationTime: 150, generatingStartTime: new Date().toISOString(), generatingEndTime: new Date().toISOString(), content: "Sure, let's go on!", author: "Bot" }] })
+    @IsOptional()
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => ResponseMessageDto)
-    lastBotMessages: ResponseMessageDto[];
+    public lastBotMessages: ResponseMessageDto[];
 
     @ApiProperty({ description: SwaggerMessages.responseStateDto.aboutConversationInProgress(), example: true, required: false })
-    @IsBoolean()
     @IsOptional()
-    isConversationInProgress?: boolean;
+    @IsBoolean()
+    public isConversationInProgress?: boolean;
 
 }

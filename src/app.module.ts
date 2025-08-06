@@ -36,12 +36,14 @@ import { ConversationWebSocket } from './conversation.websocket';
 
 export class AiTalks implements OnApplicationBootstrap {
 
+  private startTime: number = Date.now();
   constructor(
     private readonly logger: Logger
   ) { }
 
   public onApplicationBootstrap() {
-    this.logger.log(LogMessage.log.onApplicationBootstrap(), { context: AiTalks.name })
+    this.logger.log(LogMessage.log.onApplicationBootstrap(),
+      { context: AiTalks.name, startTime: this.startTime })
   }
 
 }
