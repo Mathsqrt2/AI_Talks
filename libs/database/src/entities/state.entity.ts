@@ -1,55 +1,44 @@
-import { Conversation } from "./conversation.entity";
-import {
-    PrimaryGeneratedColumn, JoinColumn,
-    Column, Entity, ManyToOne,
-    UpdateDateColumn,
-    CreateDateColumn,
-} from "typeorm";
+import { BaiscPropertiesEntity, Conversation } from "./entities";
+import { JoinColumn, Column, Entity, ManyToOne } from "typeorm";
 
-@Entity()
-export class State {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity(`states`)
+export class State extends BaiscPropertiesEntity {
 
     @Column({ type: `int`, select: false })
-    conversationId: number;
+    public conversationId: number;
 
     @ManyToOne(() => Conversation, conversation => conversation.comments)
     @JoinColumn({ name: `conversationId` })
-    assignedConversation: Conversation;
+    public assignedConversation: Conversation;
 
     @Column({ type: `boolean`, nullable: true })
-    shouldContinue: boolean;
+    public shouldContinue: boolean;
 
     @Column({ type: `boolean`, nullable: true })
-    shouldSendToTelegram: boolean;
+    public shouldSendToTelegram: boolean;
 
     @Column({ type: `boolean`, nullable: true })
-    shouldDisplayResponse: boolean;
+    public shouldDisplayResponse: boolean;
 
     @Column({ type: `boolean`, nullable: true })
-    shouldLog: boolean;
+    public shouldBroadcastOnWebSocket: boolean;
 
     @Column({ type: `boolean`, nullable: true })
-    isGeneratingOnAir: boolean;
+    public shouldLog: boolean;
+
+    @Column({ type: `boolean`, nullable: true })
+    public isGeneratingOnAir: boolean;
 
     @Column({ type: `varchar`, nullable: true, length: 256 })
-    lastResponderName: string;
+    public lastResponderName: string;
 
     @Column({ type: `text`, nullable: true })
-    enqueuedMessageContent: string;
+    public enqueuedMessageContent: string;
 
     @Column({ type: `varchar`, nullable: true, length: 256 })
-    enqueuedMessageAuthor: string;
+    public enqueuedMessageAuthor: string;
 
     @Column({ type: `int` })
-    currentMessageIndex: number;
-
-    @CreateDateColumn({ type: `datetime`, precision: 0 })
-    createdAt: Date;
-
-    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
-    updatedAt?: Date;
+    public currentMessageIndex: number;
 
 }

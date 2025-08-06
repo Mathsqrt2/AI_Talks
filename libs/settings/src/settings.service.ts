@@ -4,7 +4,7 @@ import {
 } from '@nestjs/common';
 import { State, Settings as SettingsEntity } from '@libs/database';
 import {
-    Archive, Message, SettingsFile, Stats, ModelfilesOutput,
+    Archive, Message, SettingsFile, Statistics, ModelfilesOutput,
     StatsProperties, MessageEventPayload, Bot,
 } from '@libs/types';
 import { readdir, readFile, writeFile } from 'fs/promises';
@@ -41,6 +41,7 @@ export class SettingsService implements OnApplicationBootstrap {
             shouldContinue: false,
             shouldSendToTelegram: false,
             shouldDisplayResponse: false,
+            shouldBroadcastOnWebSocket: true,
             shouldLog: true,
             lastResponder: null,
             enqueuedMessage: null,
@@ -110,7 +111,7 @@ export class SettingsService implements OnApplicationBootstrap {
     }
 
     private findCurrentSettings = (): SettingsEntity => {
-        return {
+        return this.settings.create({
             id: null,
             conversationId: this.app?.conversationId || null,
             assignedConversation: null,
@@ -119,7 +120,7 @@ export class SettingsService implements OnApplicationBootstrap {
             maxAttempts: this.app?.maxAttempts || null,
             retryAfterTimeInMiliseconds: this.app?.retryAfterTimeInMiliseconds || null,
             createdAt: new Date(),
-        }
+        })
     }
 
     public archiveSettings = async (): Promise<void> => {
@@ -141,8 +142,8 @@ export class SettingsService implements OnApplicationBootstrap {
     @OnEvent(EventsEnum.message)
     private insertMessageIntoStats(payload: MessageEventPayload) {
         payload.message.author.name === `bot_1`
-            ? this.stats.bot_1.messages.push(payload.message)
-            : this.stats.bot_2.messages.push(payload.message);
+            ? this.statistics.bot_1.messages.push(payload.message)
+            : this.statistics.bot_2.messages.push(payload.message);
 
         if (this.app.state.shouldLog) {
             this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
@@ -151,10 +152,10 @@ export class SettingsService implements OnApplicationBootstrap {
 
     @OnEvent(EventsEnum.startConversation)
     private onStartConversation() {
-        this.stats.startTime = new Date();
+        this.statistics.startTime = new Date();
     }
 
-    private stats: Archive = {
+    private statistics: Archive = {
         startTime: null,
         pause: [],
         resume: [],
@@ -167,14 +168,14 @@ export class SettingsService implements OnApplicationBootstrap {
     }
 
     public noticeInterrupt = (type: `pause` | `resume`): void => {
-        this.stats[type].push(new Date())
+        this.statistics[type].push(new Date())
     }
 
     public archiveCurrentState = async (): Promise<void> => {
 
         const outPath = path.join(__dirname, `${this.app.conversationName}.${Date.now()}.json`);
         const data = {
-            stats: this.getStats(),
+            statistics: this.getStatistics(),
             settings: this.app,
         }
 
@@ -197,12 +198,12 @@ export class SettingsService implements OnApplicationBootstrap {
         return messages.reduce((total, entry) => total + entry.generationTime, 0);
     }
 
-    public getStats = (who?: Bot): Stats | StatsProperties => {
+    public getStatistics = (who?: Bot): Statistics | StatsProperties => {
 
-        const bot1Messages = this.stats.bot_1.messages;
-        const bot2Messages = this.stats.bot_2.messages;
+        const bot1Messages = this.statistics.bot_1.messages;
+        const bot2Messages = this.statistics.bot_2.messages;
 
-        const stats: Stats = {
+        const statistics: Statistics = {
             bot_1: {
                 messagesCount: bot1Messages.length,
                 totalGenerationTime: this.findTotalTime(bot1Messages),
@@ -219,15 +220,15 @@ export class SettingsService implements OnApplicationBootstrap {
             },
         }
 
-        if (who && who.name === `bot_1`) return stats.bot_1;
-        if (who && who.name === `bot_2`) return stats.bot_2;
-        return stats;
+        if (who && who.name === `bot_1`) return statistics.bot_1;
+        if (who && who.name === `bot_2`) return statistics.bot_2;
+        return statistics;
     }
 
-    public clearStats = async (): Promise<void> => {
+    public clearStatistics = async (): Promise<void> => {
         await this.archiveCurrentState()
-        this.stats.bot_1.messages = [];
-        this.stats.bot_2.messages = [];
+        this.statistics.bot_1.messages = [];
+        this.statistics.bot_2.messages = [];
     }
 
     public async findModelfile(modelfile?: ModelfilesEnum): Promise<ModelfilesOutput> {

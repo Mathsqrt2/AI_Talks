@@ -1,39 +1,26 @@
-import { Conversation } from "./conversation.entity";
-import {
-    Column, CreateDateColumn, Entity, JoinColumn,
-    ManyToOne, PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from "typeorm";
+import { BaiscPropertiesEntity, Conversation } from "./entities";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
-@Entity()
-export class Settings {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity(`settings`)
+export class Settings extends BaiscPropertiesEntity {
 
     @Column({ type: `int`, nullable: true, select: false })
-    conversationId: number;
+    public conversationId: number;
 
     @ManyToOne(() => Conversation, conversation => conversation.comments)
     @JoinColumn({ name: `conversationId` })
-    assignedConversation: Conversation;
+    public assignedConversation: Conversation;
 
     @Column({ type: `int`, nullable: true })
-    maxMessagesCount: number;
+    public maxMessagesCount: number;
 
     @Column({ type: `int`, nullable: true })
-    maxContextSize: number;
+    public maxContextSize: number;
 
     @Column({ type: `int`, nullable: true })
-    maxAttempts: number;
+    public maxAttempts: number;
 
     @Column({ type: `int`, nullable: true })
-    retryAfterTimeInMiliseconds: number;
-
-    @CreateDateColumn({ type: `datetime`, precision: 0 })
-    createdAt: Date;
-
-    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
-    updatedAt?: Date;
+    public retryAfterTimeInMiliseconds: number;
 
 }

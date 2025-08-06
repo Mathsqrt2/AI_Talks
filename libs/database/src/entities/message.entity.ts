@@ -1,15 +1,8 @@
-import { Conversation } from "./conversation.entity";
-import {
-    Column, CreateDateColumn, Entity, JoinColumn,
-    ManyToOne, PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from "typeorm";
+import { BaiscPropertiesEntity, Conversation } from "./entities";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
-@Entity()
-export class Message {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity(`messages`)
+export class Message extends BaiscPropertiesEntity {
 
     @Column({ type: `int`, select: false })
     conversationId: number;
@@ -32,11 +25,5 @@ export class Message {
 
     @Column({ type: `bigint` })
     generatingEndTime: number;
-
-    @CreateDateColumn({ type: `datetime`, precision: 0 })
-    createdAt: Date;
-
-    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
-    updatedAt?: Date;
 
 }

@@ -141,7 +141,7 @@ export class ConversationController {
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
-    await this.settings.clearStats();
+    await this.settings.clearStatistics();
     this.settings.app.state.shouldContinue = false;
     this.settings.app.state.enqueuedMessage = null;
     this.settings.app.state.usersMessagesStackForBot1 = [];

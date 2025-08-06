@@ -1,15 +1,8 @@
-import { Conversation } from "./conversation.entity";
-import {
-    Column, CreateDateColumn, Entity, JoinColumn,
-    ManyToOne, PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from "typeorm";
+import { BaiscPropertiesEntity, Conversation } from "./entities";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
-@Entity({ name: 'logs' })
-export class Log {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity(`logs`)
+export class Log extends BaiscPropertiesEntity {
 
     @Column({ type: `text` })
     content: string;
@@ -29,11 +22,5 @@ export class Log {
     @ManyToOne(() => Conversation, conversation => conversation.comments, { onDelete: `CASCADE` })
     @JoinColumn({ name: `conversationId` })
     assignedConversation: Conversation;
-
-    @CreateDateColumn({ type: `datetime`, precision: 0 })
-    createdAt: Date;
-
-    @UpdateDateColumn({ type: `datetime`, precision: 0 })
-    updatedAt?: Date;
 
 }

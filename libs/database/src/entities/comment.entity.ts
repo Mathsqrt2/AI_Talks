@@ -1,11 +1,8 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Conversation } from "./conversation.entity";
+import { Conversation, BaiscPropertiesEntity } from "./entities";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
-@Entity()
-export class Comment {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity(`comments`)
+export class Comment extends BaiscPropertiesEntity {
 
     @Column({ type: `int`, select: false })
     conversationId: number;
@@ -22,11 +19,5 @@ export class Comment {
 
     @Column({ type: "varchar", length: 256 })
     username: string;
-
-    @CreateDateColumn({ type: `datetime`, precision: 0 })
-    createdAt: Date;
-
-    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
-    updatedAt?: Date;
 
 }

@@ -27,6 +27,7 @@ export type State = {
     shouldContinue: boolean,
     shouldSendToTelegram: boolean,
     shouldDisplayResponse: boolean,
+    shouldBroadcastOnWebSocket: boolean,
     shouldLog: boolean,
     isGeneratingOnAir: boolean,
     lastResponder: Bot,
@@ -51,7 +52,7 @@ export type Archive = {
     bot_2: { messages: Message[] },
 }
 
-export type Stats = {
+export type Statistics = {
     bot_1: StatsProperties,
     bot_2: StatsProperties
 };

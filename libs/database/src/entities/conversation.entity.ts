@@ -1,31 +1,14 @@
-import { Settings } from "./settings.entity";
-import { Comment } from "./comment.entity";
-import { Message } from "./message.entity";
-import { State } from "./state.entity";
-import { Log } from "./log.entity";
-import {
-    Column, CreateDateColumn, Entity, JoinColumn,
-    OneToMany, PrimaryGeneratedColumn,
-    UpdateDateColumn
-} from "typeorm";
+import { BaiscPropertiesEntity, Settings, Comment, Message, State, Log } from "./entities";
+import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
 
-@Entity()
-export class Conversation {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+@Entity(`conversations`)
+export class Conversation extends BaiscPropertiesEntity {
 
     @Column({ type: `varchar`, length: 512 })
     conversationName: string;
 
     @Column({ type: `text` })
     initialPrompt: string;
-
-    @CreateDateColumn({ type: `datetime`, precision: 0 })
-    createdAt: Date;
-
-    @UpdateDateColumn({ type: `datetime`, precision: 0, default: null })
-    updatedAt?: Date;
 
     @OneToMany(() => Comment, comment => comment.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
