@@ -1,11 +1,12 @@
-import { Conversation, ConversationSubproperty } from "./entities";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { ConversationSubproperty } from "./partials";
+import { Conversation } from "./conversation.entity";
 
 @Entity(`comments`)
 export class Comment extends ConversationSubproperty {
 
     @ManyToOne(() => Conversation, conversation => conversation.comments)
-    @JoinColumn({ name: `conversationId` })
+    @JoinColumn({ name: `conversationId`, referencedColumnName: `id` })
     assignedConversation: Conversation;
 
     @Column({ type: `varchar`, length: 128 })

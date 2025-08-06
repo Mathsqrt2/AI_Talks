@@ -5,10 +5,10 @@ import {
 import { State, Settings as SettingsEntity } from '@libs/database';
 import {
     Archive, Message, SettingsFile, Statistics, ModelfilesOutput,
-    StatsProperties, MessageEventPayload, Bot,
+    StatsProperties, MessageEventPayload
 } from '@libs/types';
 import { readdir, readFile, writeFile } from 'fs/promises';
-import { EventsEnum, ModelfilesEnum } from '@libs/enums';
+import { BotsEnum, EventsEnum, ModelfilesEnum } from '@libs/enums';
 import { LogMessage, prompts } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -64,7 +64,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public async onApplicationBootstrap() {
 
-        const path: string = resolve(...[__dirname], `..`, `..`, `..`, `..`, `modelfiles`);
+        const path: string = resolve(__dirname, `..`, `modelfiles`);
         const files = await readdir(path);
         this.modelFiles = files
             .filter(modelFile => modelFile
@@ -144,7 +144,7 @@ export class SettingsService implements OnApplicationBootstrap {
     private insertMessageIntoStats(payload: MessageEventPayload) {
 
         const startTime: number = Date.now();
-        payload.message.author.name === `bot_1`
+        payload.message.author === BotsEnum.BOT_1
             ? this.statistics.bot_1.messages.push(payload.message)
             : this.statistics.bot_2.messages.push(payload.message);
 
@@ -202,7 +202,7 @@ export class SettingsService implements OnApplicationBootstrap {
         return messages.reduce((total, entry) => total + entry.generationTime, 0);
     }
 
-    public getStatistics = (who?: Bot): Statistics | StatsProperties => {
+    public getStatistics = (who?: BotsEnum): Statistics | StatsProperties => {
 
         const bot1Messages = this.statistics.bot_1.messages;
         const bot2Messages = this.statistics.bot_2.messages;
@@ -224,8 +224,8 @@ export class SettingsService implements OnApplicationBootstrap {
             },
         }
 
-        if (who && who.name === `bot_1`) return statistics.bot_1;
-        if (who && who.name === `bot_2`) return statistics.bot_2;
+        if (who && who === BotsEnum.BOT_1) return statistics.bot_1;
+        if (who && who === BotsEnum.BOT_2) return statistics.bot_2;
         return statistics;
     }
 

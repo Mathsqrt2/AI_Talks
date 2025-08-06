@@ -15,5 +15,7 @@ declare namespace NodeJS {
     DB_USER: string;
     DB_PASS: string;
     DB_NAME: string;
+
+    MODEL: 'gemma3:1b' | 'gemma3:4b' | 'gemma3:12b' | 'gemma3:27b';
   }
 }

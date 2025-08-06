@@ -1,5 +1,6 @@
 import { InjectContentPayload } from "./conversarion";
-import { Bot } from "./telegram";
+import { BotsEnum } from "@libs/enums";
+
 
 export type SettingsFile = {
     conversationName: string,
@@ -30,7 +31,7 @@ export type State = {
     shouldBroadcastOnWebSocket: boolean,
     shouldLog: boolean,
     isGeneratingOnAir: boolean,
-    lastResponder: Bot,
+    lastResponder: BotsEnum,
     enqueuedMessage: Message,
     usersMessagesStackForBot1: InjectContentPayload[],
     usersMessagesStackForBot2: InjectContentPayload[],
@@ -70,7 +71,7 @@ export type Message = {
     generatingStartTime: Date,
     generatingEndTime: Date,
     content: string,
-    author: Bot,
+    author: BotsEnum,
 }
 
 export type ModelfilesOutput = string | { [key: string]: string };

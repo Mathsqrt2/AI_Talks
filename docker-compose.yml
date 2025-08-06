@@ -38,6 +38,7 @@ services:
       DB_USER: root
       DB_PASS: v3ryD1ff1cultP@55w0Rd
       DB_NAME: ai_talks
+      MODEL: gemma3:4b
     build:
       context: .
       dockerfile: ./Dockerfile.app

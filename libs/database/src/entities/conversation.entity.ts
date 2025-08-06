@@ -1,5 +1,11 @@
-import { BaiscPropertiesEntity, Settings, Comment, Message, State, Log, Summary } from "./entities";
+import { BaiscPropertiesEntity } from "./partials/basic-properties.entity";
 import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
+import { Settings } from "./settings.entity";
+import { Comment } from "./comment.entity";
+import { Message } from "./message.entity";
+import { Summary } from "./summary.entity";
+import { State } from "./state.entity";
+import { Log } from "./log.entity";
 
 @Entity(`conversations`)
 export class Conversation extends BaiscPropertiesEntity {

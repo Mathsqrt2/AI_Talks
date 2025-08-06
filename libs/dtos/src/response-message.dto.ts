@@ -1,7 +1,7 @@
-import { IsDate, IsDefined, IsNumber, IsString } from "class-validator";
+import { IsDate, IsDefined, IsEnum, IsNumber, IsString } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
-import { Bot } from "@libs/types";
+import { BotsEnum } from "@libs/enums";
 
 export class ResponseMessageDto {
 
@@ -25,8 +25,8 @@ export class ResponseMessageDto {
     @IsString()
     public content: string;
     
-    @ApiProperty({ description: SwaggerMessages.responseMessageDto.authorDescription(), example: "bot_1" })
+    @ApiProperty({ description: SwaggerMessages.responseMessageDto.authorDescription(), example: BotsEnum.BOT_1 })
     @IsDefined()
-    @IsString()
-    public author: Bot;
+    @IsEnum(BotsEnum)
+    public author: BotsEnum;
 }

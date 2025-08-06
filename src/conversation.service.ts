@@ -1,18 +1,17 @@
-import { InjectContentPayload, InitEventPayload, MessageEventPayload } from '@libs/types';
+import { Message, InjectContentPayload, InitEventPayload, MessageEventPayload } from '@libs/types';
 import { Conversation, Message as MessageEntity } from '@libs/database';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import { State } from '@libs/database/entities/state.entity';
 import { prompts, LogMessage } from '@libs/constants';
+import { BotsEnum, EventsEnum } from '@libs/enums';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
 import { Injectable } from '@nestjs/common';
-import { Message, Bot } from '@libs/types';
+import { State } from '@libs/database';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
 import { Repository } from 'typeorm';
 import { SHA256 } from 'crypto-js';
-import { EventsEnum } from '@libs/enums';
 
 @Injectable()
 export class ConversationService {
@@ -63,9 +62,9 @@ export class ConversationService {
       return;
     }
 
-    const currentBot: Bot = initPayload.speaker_id === 1
-      ? { name: 'bot_1' }
-      : { name: `bot_2` };
+    const currentBot: BotsEnum = initPayload.speaker_id === 1
+      ? BotsEnum.BOT_1
+      : BotsEnum.BOT_2;
 
     this.settings.app.isConversationInProgres = true;
     this.settings.app.state.shouldContinue = true;
@@ -82,7 +81,7 @@ export class ConversationService {
     };
 
     this.settings.app.state.lastBotMessages.push({
-      author: { name: `system` },
+      author: BotsEnum.SYSTEM,
       content: process.env.OLLAMA_PROMPT,
       generatingStartTime: new Date(),
       generatingEndTime: new Date(),
@@ -99,7 +98,9 @@ export class ConversationService {
 
     const startTime: number = Date.now();
     const generatingStartTime: Date = new Date();
-    const currentBot: Bot = { name: payload.message.author.name === `bot_1` ? `bot_2` : `bot_1` };
+    const currentBot: BotsEnum = payload.message.author === BotsEnum.BOT_1
+      ? BotsEnum.BOT_2
+      : BotsEnum.BOT_1;
     let message: Message = payload.message;
     let isMessageDelivered: boolean = false;
     let isMessageGenerated: boolean = false;
@@ -107,10 +108,10 @@ export class ConversationService {
     let generateAttempts: number = this.settings.app.maxAttempts;
     let content: string;
 
-    if (currentBot.name === `bot_1` && this.settings.app.state.usersMessagesStackForBot1?.length > 0) {
+    if (currentBot === BotsEnum.BOT_1 && this.settings.app.state.usersMessagesStackForBot1?.length > 0) {
       const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot1.shift();
       message.content = await this.ai.merge(messageFromOutside, message);
-    } else if (currentBot.name === `bot_2` && this.settings.app.state.usersMessagesStackForBot2?.length > 0) {
+    } else if (currentBot === BotsEnum.BOT_2 && this.settings.app.state.usersMessagesStackForBot2?.length > 0) {
       const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot1.shift();
       message.content = await this.ai.merge(messageFromOutside, message);
     }
@@ -183,7 +184,7 @@ export class ConversationService {
           generationTime: newPayload.message.generationTime,
           generatingStartTime: newPayload.message.generatingStartTime.getTime(),
           generatingEndTime: newPayload.message.generatingEndTime.getTime(),
-          author: newPayload.message.author.name,
+          author: newPayload.message.author,
         })
         this.settings.app.state.lastBotMessages.push(newPayload.message);
         this.settings.app.state.lastResponder = currentBot;
@@ -204,9 +205,9 @@ export class ConversationService {
       ...currentStateArchive,
       ...state,
       conversationId: this.settings.app.conversationId,
-      lastResponderName: lastResponder?.name || null,
+      lastResponderName: lastResponder || null,
       enqueuedMessageContent: enqueuedMessage?.content || null,
-      enqueuedMessageAuthor: enqueuedMessage?.author.name || null,
+      enqueuedMessageAuthor: enqueuedMessage?.author || null,
     };
 
     await this.state.save(currentStateArchive).catch(error => {

@@ -1,10 +1,11 @@
-import { InjectContentPayload, Bot, Message } from '@libs/types';
+import { InjectContentPayload, Message } from '@libs/types';
 import { Ollama, Message as OllamaMessage } from 'ollama';
 import { prompts } from '@libs/constants/prompts';
 import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
 import { Injectable } from '@nestjs/common';
 import { Logger } from '@libs/logger';
+import { BotsEnum } from '@libs/enums';
 
 @Injectable()
 export class AiService {
@@ -40,7 +41,7 @@ export class AiService {
         }
     }
 
-    public chatAs = async (bot: Bot): Promise<string> => {
+    public chatAs = async (bot: BotsEnum): Promise<string> => {
 
         this.settings.app.state.isGeneratingOnAir = true;
         const lastMessages = [...this.settings.app.state.lastBotMessages];
@@ -48,12 +49,12 @@ export class AiService {
 
         const messages: OllamaMessage[] = lastMessages
             .map(message => ({
-                role: message.author.name === bot.name ? `assistant` : `user`,
+                role: message.author === bot ? `assistant` : `user`,
                 content: message.content,
             }));
         messages.unshift({ role: initialMessage.content, content: initialMessage.content });
 
-        const model = bot.name === `bot_1`
+        const model = bot === BotsEnum.BOT_1
             ? `gemma3:27b_speaker1`
             : `gemma3:27b_speaker2`;
 
@@ -62,10 +63,10 @@ export class AiService {
         return modelResponse.message.content;
     }
 
-    public respondTo = async (message: Message, bot: Bot): Promise<string> => {
+    public respondTo = async (message: Message, bot: BotsEnum): Promise<string> => {
 
         const context: number[] = [];
-        const model = bot.name === `bot_1`
+        const model = bot === BotsEnum.BOT_1
             ? `gemma3:27b_speaker1`
             : `gemma3:27b_speaker2`;
 
@@ -81,7 +82,7 @@ export class AiService {
 
         let prompt: string = `${process.env.SUMMARIZER_CONTEXT}\n`
         prompt += this.settings.app.state.lastBotMessages
-            .map((message, index) => (`${index}) ${message.author.name}: "${message.content}"`)).join(`\n`);
+            .map((message, index) => (`${index}) ${message.author}: "${message.content}"`)).join(`\n`);
 
         try {
 

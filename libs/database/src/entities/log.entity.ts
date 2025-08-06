@@ -1,5 +1,6 @@
-import { Conversation, ConversationSubproperty } from "./entities";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { ConversationSubproperty } from "./partials";
+import { Conversation } from "./conversation.entity";
 
 @Entity(`logs`)
 export class Log extends ConversationSubproperty {

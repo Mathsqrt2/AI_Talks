@@ -1,4 +1,4 @@
-import { BaiscPropertiesEntity } from "../entities";
+import { BaiscPropertiesEntity } from "./basic-properties.entity";
 import { Column } from "typeorm";
 
 export class ConversationSubproperty extends BaiscPropertiesEntity {
