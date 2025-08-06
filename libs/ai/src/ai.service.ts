@@ -20,7 +20,7 @@ export class AiService {
 
         const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
-        const model: string = `gemma3:27b_injector`;
+        const model: string = `${process.env.MODEL}_injector`;
         let prompt: string = `${prompts.injectorPrompt}\n\n`;
         prompt += `"- message1: ${message1.content}"\n\n`;
         prompt += `"- message2: ${message2.prompt}"\n\n`;
@@ -55,8 +55,8 @@ export class AiService {
         messages.unshift({ role: initialMessage.content, content: initialMessage.content });
 
         const model = bot === BotsEnum.BOT_1
-            ? `gemma3:27b_speaker1`
-            : `gemma3:27b_speaker2`;
+            ? `${process.env.MODEL}_speaker1`
+            : `${process.env.MODEL}_speaker2`;
 
         const modelResponse = await this.ollama.chat({ model, messages });
         this.settings.app.state.isGeneratingOnAir = false;
@@ -67,8 +67,8 @@ export class AiService {
 
         const context: number[] = [];
         const model = bot === BotsEnum.BOT_1
-            ? `gemma3:27b_speaker1`
-            : `gemma3:27b_speaker2`;
+            ? `${process.env.MODEL}_speaker1`
+            : `${process.env.MODEL}_speaker2`;
 
         const modelResponse = await this.ollama.generate({ model, prompt: ``, context });
         return modelResponse.response;
@@ -78,7 +78,7 @@ export class AiService {
 
         const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
-        const model: string = `gemma3:27b_summarizer`;
+        const model: string = `${process.env.MODEL}_summarizer`;
 
         let prompt: string = `${process.env.SUMMARIZER_CONTEXT}\n`
         prompt += this.settings.app.state.lastBotMessages
