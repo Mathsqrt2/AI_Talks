@@ -1,6 +1,5 @@
 import { IsBoolean, IsNumber, IsObject, IsString, ValidateNested } from "class-validator";
-import { ResponsePromptsDto } from "./response-prompts.dto";
-import { ResponseStateDto } from "./response-state.dto";
+import { ResponseStateDto, ResponsePromptsDto } from "./dtos";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";

@@ -1,4 +1,8 @@
-import { BeforeUpdate, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    PrimaryGeneratedColumn, UpdateDateColumn, CreateDateColumn,
+    BeforeInsert, BeforeUpdate, Column
+} from "typeorm";
+import { SHA512 } from "crypto-js";
 
 export class BaiscPropertiesEntity {
 
@@ -11,9 +15,41 @@ export class BaiscPropertiesEntity {
     @UpdateDateColumn({ type: `datetime`, default: null })
     public updatedAt?: Date;
 
+    @Column({ type: `varchar`, length: 128, nullable: false })
+    public initializationHash: string;
+
+    @Column({ type: `varchar`, length: 128, nullable: false })
+    public currentHash: string;
+
     @BeforeUpdate()
-    private refreshUpdatedAtProperty() {
+    private refreshProperties() {
         this.updatedAt = new Date();
+        this.currentHash = this.currentEntityHash();
+    }
+
+    @BeforeInsert()
+    private createInitialValues() {
+        this.initializationHash = this.currentEntityHash();
+        this.currentHash = this.currentEntityHash();
+    }
+
+    private currentEntityHash(): string {
+
+        const currentEntity = { ...structuredClone(this) };
+        delete currentEntity.createdAt;
+        delete currentEntity.updatedAt;
+        delete currentEntity.initializationHash;
+        delete currentEntity.currentHash;
+
+        for (const key in currentEntity) {
+            const value = currentEntity[key];
+            if (typeof value === `object` && value !== null && !(value instanceof Date)) {
+                delete currentEntity[key];
+            }
+        }
+
+        const hash = SHA512(JSON.stringify(currentEntity)).toString();
+        return hash;
     }
 
 }

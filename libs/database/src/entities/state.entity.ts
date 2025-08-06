@@ -1,13 +1,10 @@
-import { BaiscPropertiesEntity, Conversation } from "./entities";
+import { ConversationSubproperty, Conversation } from "./entities";
 import { JoinColumn, Column, Entity, ManyToOne } from "typeorm";
 
 @Entity(`states`)
-export class State extends BaiscPropertiesEntity {
+export class State extends ConversationSubproperty {
 
-    @Column({ type: `int`, select: false })
-    public conversationId: number;
-
-    @ManyToOne(() => Conversation, conversation => conversation.comments)
+    @ManyToOne(() => Conversation, conversation => conversation.states)
     @JoinColumn({ name: `conversationId` })
     public assignedConversation: Conversation;
 

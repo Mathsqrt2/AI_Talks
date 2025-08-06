@@ -6,3 +6,4 @@ export * from "./settings.entity";
 export * from "./state.entity";
 export * from "./summary.entity";
 export * from "./partials/basic-properties.entity";
+export * from "./partials/conversation-subproperty.entity";

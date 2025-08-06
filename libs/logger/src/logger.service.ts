@@ -1,9 +1,9 @@
 import { Injectable, Logger as NestLogger } from '@nestjs/common';
-import { Log } from '@libs/database/entities/log.entity';
 import { ErrorConfig, LoggerConfig } from '@libs/types';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
+import { Log } from '@libs/database';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class Logger {
         return this.settings.app.state.shouldLog;
     }
 
-    public log = (message: any, config?: LoggerConfig): void => {
+    public log = (message: any, config?: LoggerConfig): string => {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
@@ -39,15 +39,17 @@ export class Logger {
         }
 
         if (!this.shouldLog()) {
-            return;
+            return message;
         }
 
         context
             ? NestLogger.log(message, context)
-            : this.logger.log(message)
+            : this.logger.log(message);
+
+        return message;
     }
 
-    public warn = (message: any, config?: LoggerConfig): void => {
+    public warn = (message: any, config?: LoggerConfig): string => {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
@@ -63,12 +65,14 @@ export class Logger {
         }
 
         if (!this.shouldLog()) {
-            return;
+            return message;
         }
 
         context
             ? NestLogger.warn(message, context)
-            : this.logger.warn(message)
+            : this.logger.warn(message);
+        
+        return message;
     }
 
     public error = (message: any, config?: ErrorConfig): void => {
@@ -89,7 +93,7 @@ export class Logger {
         }
 
         if (!this.shouldLog()) {
-            return;
+            return message;
         }
 
         if (error) {
@@ -101,6 +105,8 @@ export class Logger {
         context
             ? NestLogger.error(message, error)
             : this.logger.error(message);
+
+        return message;
     }
 
     public debug = (message: any, config?: LoggerConfig): void => {
@@ -119,11 +125,13 @@ export class Logger {
         }
 
         if (!this.shouldLog()) {
-            return;
+            return message;
         }
 
         context
             ? NestLogger.debug(message, context)
             : this.logger.debug(message);
+
+        return message;
     }
 }

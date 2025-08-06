@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString } from "class-validator";
-import { PromptTypes } from "@libs/enums/propt-types.enum";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
+import { PromptTypes } from "@libs/enums";
 
 export class PromptIdDto {
 

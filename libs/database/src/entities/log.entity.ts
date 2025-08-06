@@ -1,26 +1,23 @@
-import { BaiscPropertiesEntity, Conversation } from "./entities";
+import { Conversation, ConversationSubproperty } from "./entities";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
 @Entity(`logs`)
-export class Log extends BaiscPropertiesEntity {
+export class Log extends ConversationSubproperty {
+
+    @ManyToOne(() => Conversation, conversation => conversation.logs, { onDelete: `CASCADE` })
+    @JoinColumn({ name: `conversationId` })
+    public assignedConversation: Conversation;
 
     @Column({ type: `text` })
-    content: string;
+    public content: string;
 
     @Column({ type: `text`, nullable: true })
-    error?: string;
+    public error?: string;
 
     @Column({ type: `varchar`, nullable: true, length: 256 })
-    label?: string;
+    public label?: string;
 
     @Column({ type: `varchar`, nullable: true, length: 128 })
-    tag?: string;
-
-    @Column({ type: `int`, select: false, nullable: true })
-    conversationId: number;
-
-    @ManyToOne(() => Conversation, conversation => conversation.comments, { onDelete: `CASCADE` })
-    @JoinColumn({ name: `conversationId` })
-    assignedConversation: Conversation;
+    public tag?: string;
 
 }
