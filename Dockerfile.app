@@ -1,6 +1,6 @@
 ARG IMAGE=node:22
 
-FROM $IMAGE as builder
+FROM $IMAGE AS builder
 
 WORKDIR /app
 
@@ -8,17 +8,17 @@ COPY . .
 
 RUN npm install
 
-FROM builder as dev
+FROM builder AS dev
 
 CMD [""]
 
-FROM builder as prod-build
+FROM builder AS prod-build
 
 RUN npm run build
 
 RUN npm prune --production
 
-FROM $IMAGE as prod
+FROM $IMAGE AS prod
 
 COPY --chown=node:node --from=prod-build /app/dist /app/dist
 COPY --chown=node:node --from=prod-build /app/node_modules /app/node_modules

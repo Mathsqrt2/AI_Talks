@@ -14,7 +14,7 @@ import { PromptTypes } from '@libs/enums';
 import { readFile } from 'fs/promises';
 import { Logger } from '@libs/logger';
 
-@Controller(`settings`)
+@Controller(`api/v1/settings`)
 export class SettingsController {
 
   constructor(

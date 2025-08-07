@@ -1,16 +1,28 @@
+x-application-base: &application-base
+  restart: always
+  tty: true
+  networks:
+    - ai_talks_network
+
+x-environmental-base: &environmental-base
+  <<: *application-base
+  environment:
+    MODEL: "gemma3:1b"
+
 services:
   ai_host:
+    <<: *environmental-base
     build:
       context: .
       dockerfile: ./Dockerfile.ollama
+      args:
+        - MODEL=${MODEL}
     container_name: ai_host
-    restart: always
-    tty: true
     ports:
       - "10000:11434"
-    networks:
-      - ai_talks_network
+
   ai_talks_database:
+    <<: *application-base
     image: mysql:8.0
     container_name: ai_talks_database
     environment:
@@ -18,18 +30,19 @@ services:
       MYSQL_DATABASE: ai_talks
     volumes:
       - ./mysql-init:/docker-entrypoint-initdb.d/
-    networks:
-      - ai_talks_network
+
   ai_talks_adminer:
+    <<: *application-base
     image: adminer
-    restart: always
+    container_name: ai_talks_adminer
     depends_on:
       - ai_talks_database
     ports:
       - 18080:8080
-    networks:
-      - ai_talks_network
+
   ai_talks:
+    <<: *environmental-base
+    container_name: ai_talks_api
     environment:
       API_PORT: 13000
       OLLAMA_HOST: ai_host:11434
@@ -38,14 +51,11 @@ services:
       DB_USER: root
       DB_PASS: v3ryD1ff1cultP@55w0Rd
       DB_NAME: ai_talks
-      MODEL: gemma3:4b
     build:
       context: .
       dockerfile: ./Dockerfile.app
       target: dev
     working_dir: /app
-    networks:
-      - ai_talks_network
     depends_on:
       - ai_talks_database
       - ai_talks_adminer
@@ -54,6 +64,8 @@ services:
       - .:/app
     ports:
       - 13000:13000
+    expose:
+      - 13000
     command: [ sh, -c, 'npm run start:conversation:dev' ]
 
 networks:

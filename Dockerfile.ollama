@@ -2,16 +2,18 @@ FROM ollama/ollama:latest
 
 WORKDIR /build
 
+ARG MODEL
+
 COPY ./scripts ./scripts
 
 RUN \
     chmod +x ./scripts/pull_ollama.sh && \
-    ./scripts/pull_ollama.sh
+    ./scripts/pull_ollama.sh "$MODEL"
 
 COPY ./modelfiles ./modelfiles
 
 RUN \
     chmod +x ./modelfiles/build_models.sh && \
-    ./modelfiles/build_models.sh
+    ./modelfiles/build_models.sh "$MODEL"
 
 ENTRYPOINT ["ollama", "serve"]

@@ -71,7 +71,7 @@ GET http://localhost:13000/api
 ### 📄 Features
 
 1. **Managing Four Services**  
-   The application runs four essential services in Docker containers: **a MySQL database**, **an Ollama server** (for handling language models), **Adminer** (for viewing and managing the database), and **a NestJS application**, which serves as the core backend system.
+   The application runs four essential services in Docker containers: **a MySQL database**, **an Ollama server** (for handling language [models](https://ollama.com/library/gemma3:4b)), **Adminer** (for viewing and managing the database), and **a NestJS application**, which serves as the core backend system.
 
 2. **Remote Conversation Control**  
    The application exposes a REST API controller that allows remote management of conversations. Users can start, pause, resume, or terminate conversations at any time by sending appropriate HTTP requests.

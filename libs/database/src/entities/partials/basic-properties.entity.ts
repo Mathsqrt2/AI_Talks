@@ -9,16 +9,16 @@ export class BaiscPropertiesEntity {
     @PrimaryGeneratedColumn({ type: `int` })
     public id: number;
 
-    @CreateDateColumn({ type: `datetime`, })
+    @CreateDateColumn({ type: `datetime`, nullable: false })
     public createdAt: Date;
 
     @UpdateDateColumn({ type: `datetime`, default: null })
     public updatedAt?: Date;
 
-    @Column({ type: `varchar`, length: 128, nullable: false })
+    @Column({ type: `varchar`, length: 128, nullable: true, default: null })
     public initializationHash: string;
 
-    @Column({ type: `varchar`, length: 128, nullable: false })
+    @Column({ type: `varchar`, length: 128, nullable: true, default: null })
     public currentHash: string;
 
     @BeforeUpdate()

@@ -23,7 +23,7 @@ import {
 } from '@nestjs/common';
 import { EventsEnum } from '@libs/enums';
 
-@Controller()
+@Controller(`api/v1/conversation`)
 export class ConversationController {
 
   constructor(
