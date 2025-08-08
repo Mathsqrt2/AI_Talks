@@ -89,7 +89,7 @@ export class ConversationService {
     });
 
     await this.telegram.respondBy(currentBot, prompts.separator);
-    await this.telegram.respondBy(currentBot, payload.message.content);
+    await this.telegram.respondBy(currentBot, payload.message?.content);
     await this.eventEmitter.emitAsync(EventsEnum.message, payload);
   }
 
@@ -176,14 +176,14 @@ export class ConversationService {
 
       try {
 
-        await this.telegram.respondBy(currentBot, newPayload.message.content);
+        await this.telegram.respondBy(currentBot, newPayload.message?.content);
         await this.eventEmitter.emitAsync(EventsEnum.message, newPayload);
         await this.message.save({
           conversationId: this.settings.app.conversationId,
-          content: newPayload.message.content,
+          content: newPayload.message?.content,
           generationTime: newPayload.message.generationTime,
-          generatingStartTime: newPayload.message.generatingStartTime.getTime(),
-          generatingEndTime: newPayload.message.generatingEndTime.getTime(),
+          generatingStartTime: newPayload.message.generatingStartTime,
+          generatingEndTime: newPayload.message.generatingEndTime,
           author: newPayload.message.author,
         })
         this.settings.app.state.lastBotMessages.push(newPayload.message);

@@ -13,3 +13,4 @@ echo ${MODEL} >> model.diag.txt
 ollama pull ${MODEL}
 
 kill $SERVE_PID
+wait $SERVE_PID

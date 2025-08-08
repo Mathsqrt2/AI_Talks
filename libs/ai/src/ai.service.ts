@@ -22,9 +22,9 @@ export class AiService {
         this.settings.app.state.isGeneratingOnAir = true;
         const model: string = `${process.env.MODEL}_injector`;
         let prompt: string = `${prompts.injectorPrompt}\n\n`;
-        prompt += `"- message1: ${message1.content}"\n\n`;
-        prompt += `"- message2: ${message2.prompt}"\n\n`;
-        prompt += `"- mode: ${message2.mode}"`;
+        prompt += `"- message1: ${message1?.content}"\n\n`;
+        prompt += `"- message2: ${message2?.prompt}"\n\n`;
+        prompt += `"- mode: ${message2?.mode}"`;
 
         try {
 
@@ -36,7 +36,7 @@ export class AiService {
 
             this.logger.error(LogMessage.error.onMergeMessagesFail(this.settings.app.conversationName), { error, startTime });
             this.settings.app.state.isGeneratingOnAir = false;
-            return message1.content;
+            return message1?.content;
 
         }
     }
@@ -55,20 +55,20 @@ export class AiService {
         messages.unshift({ role: initialMessage.content, content: initialMessage.content });
 
         const model = bot === BotsEnum.BOT_1
-            ? `${process.env.MODEL}_speaker1`
-            : `${process.env.MODEL}_speaker2`;
+            ? `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker1`
+            : `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker2`;
 
         const modelResponse = await this.ollama.chat({ model, messages });
         this.settings.app.state.isGeneratingOnAir = false;
-        return modelResponse.message.content;
+        return modelResponse.message?.content;
     }
 
     public respondTo = async (message: Message, bot: BotsEnum): Promise<string> => {
 
         const context: number[] = [];
         const model = bot === BotsEnum.BOT_1
-            ? `${process.env.MODEL}_speaker1`
-            : `${process.env.MODEL}_speaker2`;
+            ? `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker1`
+            : `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker2`;
 
         const modelResponse = await this.ollama.generate({ model, prompt: ``, context });
         return modelResponse.response;
@@ -78,11 +78,11 @@ export class AiService {
 
         const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
-        const model: string = `${process.env.MODEL}_summarizer`;
+        const model: string = `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_summarizer`;
 
         let prompt: string = `${process.env.SUMMARIZER_CONTEXT}\n`
         prompt += this.settings.app.state.lastBotMessages
-            .map((message, index) => (`${index}) ${message.author}: "${message.content}"`)).join(`\n`);
+            .map((message, index) => (`${index}) ${message.author}: "${message?.content}"`)).join(`\n`);
 
         try {
 

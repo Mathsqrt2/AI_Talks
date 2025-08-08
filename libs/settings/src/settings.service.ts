@@ -40,7 +40,7 @@ export class SettingsService implements OnApplicationBootstrap {
             shouldArchiveLog: true,
             shouldContinue: false,
             shouldSendToTelegram: false,
-            shouldDisplayResponse: false,
+            shouldDisplayResponse: true,
             shouldBroadcastOnWebSocket: true,
             shouldLog: true,
             lastResponder: null,

@@ -1,25 +1,22 @@
+x-model: &model gemma3:4b
+
 x-application-base: &application-base
   restart: always
   tty: true
   networks:
     - ai_talks_network
 
-x-environmental-base: &environmental-base
-  <<: *application-base
-  environment:
-    MODEL: "gemma3:1b"
-
 services:
   ai_host:
-    <<: *environmental-base
+    <<: *application-base
     build:
       context: .
       dockerfile: ./Dockerfile.ollama
       args:
-        - MODEL=${MODEL}
+        MODEL: *model
+    environment:
+      MODEL: *model
     container_name: ai_host
-    ports:
-      - "10000:11434"
 
   ai_talks_database:
     <<: *application-base
@@ -41,9 +38,11 @@ services:
       - 18080:8080
 
   ai_talks:
-    <<: *environmental-base
+    <<: *application-base
     container_name: ai_talks_api
     environment:
+      MODEL: *model
+      LANGUAGE: PL
       API_PORT: 13000
       OLLAMA_HOST: ai_host:11434
       DB_HOST: ai_talks_database
