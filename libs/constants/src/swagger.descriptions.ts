@@ -115,7 +115,7 @@ export class SwaggerMessages {
         aboutConversationInProgress: (): string => `Flag indicating whether a conversation is currently active.`,
     }
 
-    public static updateContextDto: LogMessageContent = {
+    public static setContextDto: LogMessageContent = {
         aboutContext: (): string => `Maximum context size for conversation memory (in tokens)`,
     }
 
@@ -160,7 +160,7 @@ export class SwaggerMessages {
         ApiNotFoundResponse: (): string => `No modelfiles found in directory or specified modelfile ID doesn't exist`,
     }
 
-    public static updateSettingsFile: LogMessageContent = {
+    public static setSettingsFile: LogMessageContent = {
         ApiAcceptedResponse: (): string => ``,
         ApiBadRequestResponse: (): string => ``,
     }

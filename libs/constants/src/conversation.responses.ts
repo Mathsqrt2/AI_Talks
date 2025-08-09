@@ -43,7 +43,7 @@ export class LogMessage {
     public static log: LogMessageContent = {
         onContextUpdated: (contextLength?: number): string => `Context updated successfully.${contextLength ? ` New valuie: ${contextLength}` : ``}`,
         onConversationStart: (): string => `Conversation initialized.`,
-        onBreakConversation: (name?: string): string => `Successfully broken the current conversation.${name ? ` ID: ${name}` : ``}`,
+        onBreakConversation: (name?: string): string => `Successfully stopped the current conversation.${name ? ` ID: ${name}` : ``}`,
         onPauseConversation: (): string => `Successfully paused current conversation.`,
         onResumeConversation: (): string => `Successfully resumed current conversation.`,
         onInjectMessage: (): string => `Successfully pushed external message into user messages stack.`,

@@ -12,5 +12,5 @@ export * from "./response-state-param.dto";
 export * from "./response-state.dto";
 export * from "./restore-conversation-by-id.dto";
 export * from "./restore-conversation-by-payload.dto";
-export * from "./update-context.dto";
-export * from "./update-settings.dto";
+export * from "./set-context.dto";
+export * from "./set-settings.dto";

@@ -4,6 +4,7 @@ export enum StateParam {
     SHOULD_SEND_TO_TELEGRAM = "shouldSendToTelegram",
     SHOULD_DISPLAY_RESPONSE = "shouldDisplayResponse",
     SHOULD_LOG = "shouldLog",
+    SHOULD_BROADCAST_ON_WEBSOCKET = "shouldBroadcastOnWebSocket",
     IS_GENERATING_ON_AIR = "isGeneratingOnAir",
     LAST_RESPONDER = "lastResponder",
     ENQUEUED_MESSAGE = "enqueuedMessage",

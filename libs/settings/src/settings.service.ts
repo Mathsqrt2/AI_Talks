@@ -257,10 +257,11 @@ export class SettingsService implements OnApplicationBootstrap {
             }
         }
 
+        const language = process.env?.LANGUAGE?.toLowerCase();
         switch (modelfile) {
-            case ModelfilesEnum.INJECTOR: return this.modelFiles.find(modelFile => modelFile.includes(`injector`));
-            case ModelfilesEnum.SPEAKER: return this.modelFiles.find(modelFile => modelFile.includes(`speaker`));
-            case ModelfilesEnum.SUMMARIZER: return this.modelFiles.find(modelFile => modelFile.includes(`summarizer`));
+            case ModelfilesEnum.INJECTOR: return this.modelFiles.find(modelFile => modelFile.includes(`injector`) && modelFile.includes(language));
+            case ModelfilesEnum.SPEAKER: return this.modelFiles.find(modelFile => modelFile.includes(`speaker`) && modelFile.includes(language));
+            case ModelfilesEnum.SUMMARIZER: return this.modelFiles.find(modelFile => modelFile.includes(`summarizer`) && modelFile.includes(language));
             default:
                 throw new NotFoundException(`Specified modelfile doesn't exist.`);
         }

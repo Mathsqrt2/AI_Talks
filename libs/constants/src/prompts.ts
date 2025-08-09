@@ -1,3 +1,5 @@
+import { readFile } from "fs";
+
 export const prompts: { [key: string]: string } = {
     separator: `------PROMPT-RESET------`,
     initialPrompt: `Cześć jestem Michał, chciałbym porozmawiać z Tobą o podróżach z prędkością światła, oglądałem niedawno ciekawy program naukowy i sądzę że nie są one aż tak niemożliwe jak się nam wszystkim wydaje.`,

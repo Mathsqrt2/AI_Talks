@@ -1,12 +1,15 @@
 import { ApiAcceptedResponse, ApiBadRequestResponse, ApiFoundResponse, ApiNotFoundResponse } from '@nestjs/swagger';
 import {
   ResponseStateParamDto, ResponseSettingsDto, ResponsePromptsDto, ResponseStateDto,
-  ModelFileIdDto, PromptIdDto, ResponseInvitationDto, UpdateSettingsDto
+  ModelFileIdDto, PromptIdDto, ResponseInvitationDto, SetSettingsDto
 } from '@libs/dtos';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
   BadRequestException, Param, Post, Get, HttpStatus,
   Body, Controller, HttpCode, InternalServerErrorException,
+  NotFoundException,
+  Patch,
+  Put,
 } from '@nestjs/common';
 import { SettingsService } from '@libs/settings';
 import { ModelfilesOutput } from '@libs/types';
@@ -101,6 +104,11 @@ export class SettingsController {
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: SwaggerMessages.findTelegramInvitation.ApiFoundResponse() })
   public findTelegramInvitation(): ResponseInvitationDto {
+
+    if (!process.env.TELEGRAM_INVITATION || process.env.TELEGRAM_INVITATION === ``) {
+      throw new NotFoundException(`There is not defined telegram invitation.`);
+    }
+
     return { invitation: process.env.TELEGRAM_INVITATION }
   }
 
@@ -131,21 +139,21 @@ export class SettingsController {
 
   @Post()
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse({ description: SwaggerMessages.updateSettingsFile.ApiAcceptedResponse() })
-  @ApiBadRequestResponse({ description: SwaggerMessages.updateSettingsFile.ApiBadRequestResponse() })
-  public updateSettingsFile(
-    @Body() body: UpdateSettingsDto
+  @ApiAcceptedResponse({ description: SwaggerMessages.setSettingsFile.ApiAcceptedResponse() })
+  @ApiBadRequestResponse({ description: SwaggerMessages.setSettingsFile.ApiBadRequestResponse() })
+  public setSettings(
+    @Body() body: SetSettingsDto
   ) {
 
     const startTime: number = Date.now();
 
   }
 
-  @Post(`context`)
+  @Post(`:property`)
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({ description: SwaggerMessages.setContextLength.ApiAcceptedResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setContextLength.ApiBadRequestResponse() })
-  public async setContextLength(
+  public async setProperty(
     @Body() body: { context: number },
   ): Promise<void> {
 
@@ -176,7 +184,7 @@ export class SettingsController {
       throw new BadRequestException(LogMessage.error.onInvalidBody());
     }
 
-    this.settings.app.prompts.contextPrompt = body.prompt;
+    this.settings.app.prompts.contextPrompt1 = body.prompt;
   }
 
   @Post(`state`)
@@ -206,4 +214,12 @@ export class SettingsController {
 
     this.logger.log(LogMessage.log.onParamResponse(param), { startTime });
   }
+
+  @Patch(``)
+  public updateSettings() {
+
+  }
+
+  @Put(``)
+  public replace() { }
 }
