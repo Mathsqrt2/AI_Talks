@@ -1,3 +1,4 @@
+import { PromptsEnum } from "@libs/enums/prompts.enum";
 import { InjectContentPayload } from "./conversarion";
 import { BotsEnum } from "@libs/enums";
 
@@ -14,12 +15,12 @@ export type SettingsFile = {
 }
 
 export type Prompts = {
-    initialPrompt: string,
-    contextPrompt: string,
-    contextPrompt1: string,
-    contextPrompt2: string,
-    summarizerPrompt: string,
-    injectorPrompt: string,
+    [PromptsEnum.CONTEXT_PROMPT]: string,
+    [PromptsEnum.CONTEXT_PROMPT_1]: string,
+    [PromptsEnum.CONTEXT_PROMPT_2]: string,
+    [PromptsEnum.INITIAL_PROMPT]: string,
+    [PromptsEnum.INJECTOR_PROMPT]: string,
+    [PromptsEnum.SUMMARIZER_PROMPT]: string,
 }
 
 export type State = {
@@ -30,8 +31,8 @@ export type State = {
     shouldBroadcastOnWebSocket: boolean,
     shouldLog: boolean,
     isGeneratingOnAir: boolean,
-    lastResponder: BotsEnum,
-    enqueuedMessage: Message,
+    lastResponder?: BotsEnum,
+    enqueuedMessage?: Message,
     usersMessagesStackForBot1: InjectContentPayload[],
     usersMessagesStackForBot2: InjectContentPayload[],
     lastBotMessages: Message[]

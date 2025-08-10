@@ -238,14 +238,13 @@ export class SettingsService implements OnApplicationBootstrap {
     public async findModelfile(modelfile?: ModelfilesEnum): Promise<ModelfilesOutput> {
 
         const startTime: number = Date.now();
-        let output: ModelfilesOutput;
         if (this.modelFiles.length === 0) {
             throw new NotFoundException(`No modelfiles was found.`);
         }
 
         if (!modelfile) {
             try {
-                output = {}
+                let output: ModelfilesOutput = {}
                 for (const modelFile of this.modelFiles) {
                     const name = modelFile.split(`.`).at(-3).split(/\/|\\/).pop();
                     output[name] = await readFile(modelFile, { encoding: `utf-8` });

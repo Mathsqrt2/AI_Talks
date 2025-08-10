@@ -13,3 +13,5 @@ export * from "./state.dto";
 export * from "./restore-conversation-by-id.dto";
 export * from "./restore-conversation-by-payload.dto";
 export * from "./set-context.dto";
+export * from "./set-prompt.dto";
+export * from "./settings-property.dto";

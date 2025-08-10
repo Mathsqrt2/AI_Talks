@@ -123,6 +123,10 @@ export class SwaggerMessages {
         aboutConversationInProgress: (): string => `Flag indicating whether a conversation is currently active.`,
     }
 
+    public static setPromptDto: LogMessageContent = {
+        aboutPrompt: (): string => `Prompt to set for the conversation`,
+    }
+
     public static setContextDto: LogMessageContent = {
         aboutContext: (): string => `Maximum context size for conversation memory (in tokens)`,
     }
@@ -138,59 +142,64 @@ export class SwaggerMessages {
     }
 
     public static findCurrentSettings: LogMessageContent = {
-        ApiFoundResponse: (): string => `Returns the current conversation settings if found.`,
+        ApiOkResponse: (): string => `Returns the current conversation settings if found.`,
     }
 
     public static findCurrentContextLength: LogMessageContent = {
-        ApiFoundResponse: (): string => `Returns the current maximum context size for the conversation.`,
+        ApiOkResponse: (): string => `Returns the current maximum context size for the conversation.`,
     }
 
     public static findCurrentPrompt: LogMessageContent = {
-        ApiFoundResponse: (): string => `Returns the current prompt(s) based on the provided 'id'. If 'id' is 0, 1, 2, or 3, a specific prompt is returned; if omitted, all prompts are returned.`,
+        ApiOkResponse: (): string => `Returns the current prompt(s) based on the provided 'id'. If 'id' is 0, 1, 2, or 3, a specific prompt is returned; if omitted, all prompts are returned.`,
         ApiBadRequestResponse: (): string => `Invalid 'id' parameter. Acceptable values: 0 (initialPrompt), 1 (contextPrompt1), 2 (contextPrompt2), or 3 (contextPrompt).`,
     }
 
     public static findCurrentState: LogMessageContent = {
-        ApiFoundResponse: (): string => `Returns detailed conversation state including runtime flags, message queues, and progress indicators`,
+        ApiOkResponse: (): string => `Returns detailed conversation state including runtime flags, message queues, and progress indicators`,
+    }
+
+    public static findSpecifiedPropertyState: LogMessageContent = {
+        ApiOkResponse: (): string => `Returns the value of a specific state parameter from the current conversation state`,
     }
 
     public static findSpecifiedParamState: LogMessageContent = {
         ApiBadRequestResponse: (): string => `Invalid state parameter requested - parameter not found in application state`,
-        ApiFoundResponse: (): string => `Returns specific state parameter value from current conversation state`,
+        ApiOkResponse: (): string => `Returns specific state parameter value from current conversation state`,
     }
 
     public static findTelegramInvitation: LogMessageContent = {
-        ApiFoundResponse: (): string => `Returns a Telegram group invitation link for joining the conversation chat`,
+        ApiOkResponse: (): string => `Returns a Telegram group invitation link for joining the conversation chat`,
     }
 
     public static findModelFile: LogMessageContent = {
-        ApiFoundResponse: (): string => `Returns the content of AI model configuration files - all files if no ID specified, or specific file for given ID (0: injector, 1: speaker, 2: summarizer)`,
+        ApiOkResponse: (): string => `Returns the content of AI model configuration files - all files if no name specified, or specific file for given name injector, speaker, summarizer)`,
         ApiNotFoundResponse: (): string => `No modelfiles found in directory or specified modelfile ID doesn't exist`,
     }
 
     public static setSettingsFile: LogMessageContent = {
-        ApiAcceptedResponse: (): string => ``,
+        ApiNoContentResponse: (): string => ``,
         ApiBadRequestResponse: (): string => ``,
     }
 
-    public static setContextLength: LogMessageContent = {
-        ApiAcceptedResponse: (): string => `Successfully updated conversation context length to the specified value`,
-        ApiBadRequestResponse: (): string => `Invalid context value - must be a valid number greater than 0`,
+    public static setPropertyValue: LogMessageContent = {
+        ApiNoContentResponse: (): string => `Successfully updated conversation property to the specified value`,
+        ApiBadRequestResponse: (): string => `Invalid value in property`,
     }
 
     public static setPrompt: LogMessageContent = {
-        ApiAcceptedResponse: (): string => `Successfully updated prompt with the specified ID`,
+        ApiNoContentResponse: (): string => `Successfully updated prompt with the specified ID`,
         ApiBadRequestResponse: (): string => ``,
     }
 
     public static setState: LogMessageContent = {
-        ApiAcceptedResponse: (): string => ``,
+        ApiNoContentResponse: (): string => ``,
         ApiBadRequestResponse: (): string => ``,
     }
 
     public static setStateForParam: LogMessageContent = {
-        ApiAcceptedResponse: (): string => ``,
+        ApiNoContentResponse: (): string => ``,
         ApiBadRequestResponse: (): string => ``,
     }
+  static setContextLength: any
 
 }
