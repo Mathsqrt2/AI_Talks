@@ -3,9 +3,9 @@ import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 import { StateParam } from "@libs/enums";
 
-export class ResponseStateParamDto {
+export class StateParamDto {
 
-    @ApiProperty({ description: SwaggerMessages.responseStateDto.aboutParam(), enum: StateParam, example: 'shouldContinue', required: true })
+    @ApiProperty({ description: SwaggerMessages.stateDto.aboutParam(), enum: StateParam, example: 'shouldContinue', required: true })
     @IsDefined()
     @IsEnum(StateParam)
     public param: StateParam

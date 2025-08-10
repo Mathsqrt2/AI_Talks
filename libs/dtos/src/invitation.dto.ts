@@ -2,7 +2,7 @@ import { IsDefined, IsString } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class ResponseInvitationDto {
+export class InvitationDto {
 
     @ApiProperty({ description: SwaggerMessages.InvitationDto.responseInvitation() })
     @IsDefined()

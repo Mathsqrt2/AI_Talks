@@ -1,5 +1,4 @@
 import { LogMessageContent } from "@libs/types/logs"
-import { ApiAcceptedResponse, ApiBadRequestResponse, ApiFoundResponse, ApiNotFoundResponse } from "@nestjs/swagger"
 
 export class SwaggerMessages {
 
@@ -70,14 +69,14 @@ export class SwaggerMessages {
         promptExample: (): string => `What do you think about astronomy?`,
     }
 
-    public static responseInjectDto: LogMessageContent = {
+    public static injectDto: LogMessageContent = {
         promptDescription: (): string => `The content or message to be injected into the conversation.`,
         modeDescription: (): string => `Specifies how the new content should be integrated (e.g., MERGE or REPLACE).`,
         botIdDescription: (): string => `Indicates the ID of the bot to which the content is directed.`,
         usernameDescription: (): string => `The username of the person requesting the content injection.`,
     }
 
-    public static responseMessageDto: LogMessageContent = {
+    public static messageDto: LogMessageContent = {
         generationTimeDescription: (): string => `Duration of the message generation process (in milliseconds).`,
         generatingStartTimeDescription: (): string => `Timestamp indicating when the message generation started.`,
         generatingEndTimeDescription: (): string => `Timestamp indicating when the message generation ended.`,
@@ -85,27 +84,36 @@ export class SwaggerMessages {
         authorDescription: (): string => `Identifies who authored or created the message.`,
     }
 
-    public static responsePromptsDto: LogMessageContent = {
+    public static promptsDto: LogMessageContent = {
         initialPromptDescription: (): string => `The initial prompt used to start the conversation flow.`,
         contextPromptDescription: (): string => `An additional prompt providing context or guidance during the conversation.`,
         contextPrompt1Description: (): string => `A supplementary context prompt to offer more detailed instructions.`,
         contextPrompt2Description: (): string => `Another context prompt delivering extra details or constraints.`,
-
+        injectorPromptDescription: (): string => `A prompt used to inject specific content or instructions into the conversation.`,
+        summarizerPromptDescription: (): string => `A prompt used to summarize the conversation or key points discussed.`,
     }
 
-    public static responseSettingsDto: LogMessageContent = {
+    public static settingsDto: LogMessageContent = {
         conversationNameDescription: (): string => `The name assigned to the current conversation or session.`,
+        conversationIdDescription: (): string => `Unique identifier for the conversation, used for tracking and management.`,
         isConversationInProgressDescription: (): string => `Indicates whether the conversation is currently active.`,
         maxMessagesCountDescription: (): string => `Maximum number of messages allowed within this conversation.`,
         maxContextSizeDescription: (): string => `Defines the maximum context size for the conversation's memory usage.`,
+        maxAttemptsDescription: (): string => `The maximum number of attempts allowed for generating a response in the conversation.`,
+        retryAfterTimeInMilisecondsDescription: (): string => `Time in milliseconds to wait before retrying a failed operation in the conversation.`,
         stateDescription: (): string => `Contains the current state of the conversation, including flags and indices.`,
         promptsDescription: (): string => `Holds the conversation's prompts or predefined messages for guiding the discussion flow.`,
     }
 
-    public static responseStateDto: LogMessageContent = {
+    public static stateDto: LogMessageContent = {
+        shouldArchiveLogDescription: (): string => `Indicates whether the conversation log should be archived in the database.`,
         shouldContinueDescription: (): string => `Indicates whether the conversation should continue after processing the current message.`,
         shouldDisplayDescription: (): string => `Determines if the conversation output should be sent to the telegram chat.`,
+        shouldSendToTelegramDescription: (): string => `Indicates whether the conversation output should be sent to the Telegram chat.`,
+        shouldBroadcastOnWebSocketDescription: (): string => `Indicates whether the conversation output should be broadcasted on a WebSocket.`,
         shouldLogDescription: (): string => `Specifies whether the conversation exchanges should be logged for further reference.`,
+        isGeneratingOnAirDescription: (): string => `Indicates whether the conversation is currently generating a response.`,
+        lastResponderDescription: (): string => `Identifies the last bot that responded in the conversation.`,
         enqueuedMessageDescription: (): string => `A bot message waiting to conversation resume.`,
         usersMessagesStackDescription: (): string => `A stack of user-provided messages awaiting processing in the conversation flow.`,
         currentMessageIndexDescription: (): string => `Tracks the index of the current message in the ongoing conversation.`,
@@ -171,7 +179,7 @@ export class SwaggerMessages {
     }
 
     public static setPrompt: LogMessageContent = {
-        ApiAcceptedResponse: (): string => ``,
+        ApiAcceptedResponse: (): string => `Successfully updated prompt with the specified ID`,
         ApiBadRequestResponse: (): string => ``,
     }
 

@@ -1,18 +1,18 @@
-import { ApiAcceptedResponse, ApiBadRequestResponse, ApiFoundResponse, ApiNotFoundResponse } from '@nestjs/swagger';
 import {
-  ResponseStateParamDto, ResponseSettingsDto, ResponsePromptsDto, ResponseStateDto,
-  ModelFileIdDto, PromptIdDto, ResponseInvitationDto, SetSettingsDto
-} from '@libs/dtos';
+  BadRequestException, Param, Post, Get, HttpStatus, NotFoundException,
+  Body, Controller, HttpCode, InternalServerErrorException,
+} from '@nestjs/common';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
-  BadRequestException, Param, Post, Get, HttpStatus,
-  Body, Controller, HttpCode, InternalServerErrorException,
-  NotFoundException,
-  Patch,
-  Put,
-} from '@nestjs/common';
+  StateParamDto, SettingsDto, PromptsDto, StateDto,
+  ModelFileIdDto, PromptIdDto, InvitationDto
+} from '@libs/dtos';
+import {
+  ApiAcceptedResponse, ApiBadRequestResponse,
+  ApiFoundResponse, ApiNotFoundResponse
+} from '@nestjs/swagger';
 import { SettingsService } from '@libs/settings';
-import { ModelfilesOutput } from '@libs/types';
+import { ModelfilesOutput, PromptOutput } from '@libs/types';
 import { PromptTypes } from '@libs/enums';
 import { readFile } from 'fs/promises';
 import { Logger } from '@libs/logger';
@@ -27,8 +27,8 @@ export class SettingsController {
 
   @Get()
   @HttpCode(HttpStatus.FOUND)
-  @ApiFoundResponse({ description: SwaggerMessages.findCurrentSettings.ApiFoundResponse(), type: ResponseSettingsDto })
-  public findCurrentSettings(): ResponseSettingsDto {
+  @ApiFoundResponse({ description: SwaggerMessages.findCurrentSettings.ApiFoundResponse(), type: SettingsDto })
+  public findCurrentSettings(): SettingsDto {
     const startTime: number = Date.now();
     this.logger.log(LogMessage.log.onUserResponseWithConfig(), { startTime });
     return this.settings.app;
@@ -37,7 +37,7 @@ export class SettingsController {
   @Get(`context`)
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: SwaggerMessages.findCurrentContextLength.ApiFoundResponse(), type: Number, example: 4096 })
-  public findCurrentContextLength() {
+  public findCurrentContextLength(): number {
     const startTime: number = Date.now();
     this.logger.log(LogMessage.log.onUserResponseWithContext(), { startTime });
     return this.settings.app.maxContextSize;
@@ -45,11 +45,11 @@ export class SettingsController {
 
   @Get([`prompt`, `prompt/:type`])
   @HttpCode(HttpStatus.FOUND)
-  @ApiFoundResponse({ description: SwaggerMessages.findCurrentPrompt.ApiFoundResponse(), type: ResponsePromptsDto })
+  @ApiFoundResponse({ description: SwaggerMessages.findCurrentPrompt.ApiFoundResponse(), type: PromptsDto })
   @ApiBadRequestResponse({ description: SwaggerMessages.findCurrentPrompt.ApiBadRequestResponse() })
   public findCurrentPrompt(
     @Param() { type }: PromptIdDto
-  ): { prompt: string | { [key: string]: string } } {
+  ): PromptOutput {
 
     const startTime: number = Date.now();
     const prompts = this.settings.app.prompts;
@@ -74,7 +74,7 @@ export class SettingsController {
   @Get(`state`)
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: SwaggerMessages.findCurrentState.ApiFoundResponse() })
-  public findCurrentState(): ResponseStateDto {
+  public findCurrentState(): StateDto {
     return {
       ...this.settings.app.state,
       isConversationInProgress: this.settings.app.isConversationInProgres
@@ -86,7 +86,7 @@ export class SettingsController {
   @ApiBadRequestResponse({ description: SwaggerMessages.findSpecifiedParamState.ApiBadRequestResponse() })
   @ApiFoundResponse({ description: SwaggerMessages.findSpecifiedParamState.ApiFoundResponse() })
   public findCurrentStateForParam(
-    @Param() { param }: ResponseStateParamDto,
+    @Param() { param }: StateParamDto,
   ) {
 
     const startTime: number = Date.now();
@@ -103,7 +103,7 @@ export class SettingsController {
   @Get(`telegram`)
   @HttpCode(HttpStatus.FOUND)
   @ApiFoundResponse({ description: SwaggerMessages.findTelegramInvitation.ApiFoundResponse() })
-  public findTelegramInvitation(): ResponseInvitationDto {
+  public findTelegramInvitation(): InvitationDto {
 
     if (!process.env.TELEGRAM_INVITATION || process.env.TELEGRAM_INVITATION === ``) {
       throw new NotFoundException(`There is not defined telegram invitation.`);
@@ -142,10 +142,11 @@ export class SettingsController {
   @ApiAcceptedResponse({ description: SwaggerMessages.setSettingsFile.ApiAcceptedResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setSettingsFile.ApiBadRequestResponse() })
   public setSettings(
-    @Body() body: SetSettingsDto
+    @Body() body: SettingsDto
   ) {
 
     const startTime: number = Date.now();
+    this.settings.app = body;
 
   }
 
@@ -202,7 +203,7 @@ export class SettingsController {
   @ApiAcceptedResponse({ description: SwaggerMessages.setStateForParam.ApiAcceptedResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setStateForParam.ApiBadRequestResponse() })
   public setStateForParam(
-    @Param() { param }: ResponseStateParamDto,
+    @Param() { param }: StateParamDto,
     @Body() body: { value: string | boolean },
   ) {
 
@@ -215,11 +216,4 @@ export class SettingsController {
     this.logger.log(LogMessage.log.onParamResponse(param), { startTime });
   }
 
-  @Patch(``)
-  public updateSettings() {
-
-  }
-
-  @Put(``)
-  public replace() { }
 }

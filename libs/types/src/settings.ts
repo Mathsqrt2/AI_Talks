@@ -1,7 +1,6 @@
 import { InjectContentPayload } from "./conversarion";
 import { BotsEnum } from "@libs/enums";
 
-
 export type SettingsFile = {
     conversationName: string,
     conversationId: number,
@@ -75,3 +74,4 @@ export type Message = {
 }
 
 export type ModelfilesOutput = string | { [key: string]: string };
+export type PromptOutput = { prompt: string | { [key: string]: string } }
