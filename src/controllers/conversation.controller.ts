@@ -22,12 +22,14 @@ import {
   InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
 import { EventsEnum } from '@libs/enums';
+import { ConversationService } from 'src/conversation.service';
 
 @Controller(`api/v1/conversation`)
 export class ConversationController {
 
   constructor(
     @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
+    private readonly conversationService: ConversationService,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
@@ -141,18 +143,13 @@ export class ConversationController {
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
 
-    await this.settings.clearStatistics();
-    this.settings.app.state.shouldContinue = false;
-    this.settings.app.state.enqueuedMessage = null;
-    this.settings.app.state.usersMessagesStackForBot1 = [];
-    this.settings.app.state.usersMessagesStackForBot2 = [];
-    this.settings.app.state.lastBotMessages = [];
-    this.settings.app.state.currentMessageIndex = 0;
-    this.settings.app.isConversationInProgres = false;
-    this.settings.app.conversationName = null;
-    this.settings.app.conversationId = null;
+    try {
+      await this.conversationService.stopConversation();
+    } catch (error) {
+      this.logger.error(LogMessage.error.onBreakConversationFail(), { startTime });
+      throw new InternalServerErrorException(LogMessage.error.onBreakConversationFail());
+    }
 
-    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { startTime });
   }
 
   @Post([`inject`])
@@ -187,44 +184,9 @@ export class ConversationController {
   public async prepareCurrentTalkSummary(): Promise<void> {
 
     const startTime: number = Date.now();
-    let maximumConnectingAttemptsNumber: number = this.settings.app.maxAttempts;
-    let maximumGeneratingAttemptsNumber: number = this.settings.app.maxAttempts;
-    let isSummaryFinished: boolean = false;
-    let summary: string = ``;
 
-    if (this.settings.app.state.shouldContinue) {
-      this.settings.app.state.shouldContinue = false;
-    }
-
-    while (this.settings.app.state.isGeneratingOnAir && maximumConnectingAttemptsNumber-- >= 0) {
-      const timeInMiliseconds = 30000;
-      await this.wait(timeInMiliseconds);
-    }
-
-    if (maximumConnectingAttemptsNumber === 0) {
-      this.logger.error(LogMessage.error.onSummaryGenerationFail(), { startTime })
-      throw new InternalServerErrorException(LogMessage.error.onSummaryGenerationFail());
-    }
-
-    this.settings.app.state.isGeneratingOnAir = true;
-    while (!isSummaryFinished && maximumGeneratingAttemptsNumber-- > 0) {
-
-      summary = await this.ai.summarize();
-
-      if (summary === `` || summary === null) {
-        continue;
-      }
-
-      isSummaryFinished = true;
-
-    }
-
-    if (!isSummaryFinished) {
-      throw new InternalServerErrorException(LogMessage.error.onSummarizeFail());
-    }
-
+    const summary = await this.conversationService.createConversationSummary();
     this.settings.app.state.isGeneratingOnAir = false;
-
     this.settings.app.state.shouldContinue = true;
     const payload: MessageEventPayload = {
       message: this.settings.app.state.enqueuedMessage

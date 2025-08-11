@@ -38,6 +38,7 @@ export class LogMessage {
         onCreateSummaryFail: (name: string): string => `Failed to summarize conversation ${name}.`,
         onDatabaseConnectionFail: (): string => `Failed to initalize database connection.`,
         onSummarizeFail: (): string => `Failed to summarize conversation.`,
+        onBreakConversationFail: (): string => `Failed to stop conversation.`,
     };
 
     public static log: LogMessageContent = {
@@ -65,6 +66,7 @@ export class LogMessage {
         onStatePatched: (): string => `State patched successfully.`,
         onPromptsPatched: (): string => `Prompts patched successfully.`,
         onPropertiesPatched: (): string => `Properties patched successfully.`,
+        onConversationHistoryDelete: (): string => `Conversation history deleted successfully.`,
     };
 
 }

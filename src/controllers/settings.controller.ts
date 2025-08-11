@@ -1,25 +1,22 @@
 import {
-  BadRequestException, Param, Get, HttpStatus, NotFoundException, Put,
-  Body, Controller, HttpCode, InternalServerErrorException, Patch,
+  StateParamDto, SettingsDto, PromptsDto, StateDto, PromptDto, PatchPromptsDto,
+  ModelFileIdDto, InvitationDto, SettingsPropertyDto, PatchStateDto, PatchPropertyDto,
+} from '@libs/dtos';
+import { MessageEventPayload, ModelfilesOutput, PromptOutput } from '@libs/types';
+import {
+  Param, Get, HttpStatus, NotFoundException, Put, Body, Controller,
+  HttpCode, InternalServerErrorException, Patch, Delete
 } from '@nestjs/common';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
-  StateParamDto, SettingsDto, PromptsDto, StateDto, PromptDto,
-  ModelFileIdDto, InvitationDto, SettingsPropertyDto
-} from '@libs/dtos';
-import {
-  ApiBadRequestResponse, ApiOkResponse, ApiNotFoundResponse,
-  ApiNoContentResponse
+  ApiNoContentResponse, ApiNotFoundResponse,
+  ApiBadRequestResponse, ApiOkResponse
 } from '@nestjs/swagger';
-import { MessageEventPayload, ModelfilesOutput, PromptOutput } from '@libs/types';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from '@libs/settings';
+import { EventsEnum } from '@libs/enums';
 import { readFile } from 'fs/promises';
 import { Logger } from '@libs/logger';
-import { PatchStateDto } from '@libs/dtos/patch-state.dto';
-import { PatchPromptsDto } from '@libs/dtos/patch-prompts.dto';
-import { PatchPropertyDto } from '@libs/dtos/patch-property.dto';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BotsEnum, EventsEnum } from '@libs/enums';
 
 @Controller(`api/v1/settings`)
 export class SettingsController {
@@ -236,6 +233,16 @@ export class SettingsController {
     }
 
     this.logger.log(LogMessage.log.onPropertiesPatched(), { startTime });
+  }
+
+  @Delete(`conversation`)
+  public deleteConversation(): void {
+    const startTime: number = Date.now();
+    this.settings.app.state.usersMessagesStackForBot1 = [];
+    this.settings.app.state.usersMessagesStackForBot2 = [];
+    this.settings.app.state.lastBotMessages = [];
+    this.settings.app.state.enqueuedMessage = null;
+    this.logger.log(LogMessage.log.onConversationHistoryDelete(), { startTime });
   }
 
 }

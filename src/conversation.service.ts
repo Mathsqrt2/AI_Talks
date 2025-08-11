@@ -6,7 +6,7 @@ import { BotsEnum, EventsEnum } from '@libs/enums';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { State } from '@libs/database';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
@@ -221,6 +221,67 @@ export class ConversationService {
       this.logger.error(LogMessage.error.onRetryFail(), { startTime });
       return;
     }
+  }
+
+  public async stopConversation() {
+
+    const startTime: number = Date.now();
+    await this.settings.clearStatistics();
+
+    this.settings.app.state.shouldContinue = false;
+    this.settings.app.state.enqueuedMessage = null;
+    this.settings.app.state.usersMessagesStackForBot1 = [];
+    this.settings.app.state.usersMessagesStackForBot2 = [];
+    this.settings.app.state.lastBotMessages = [];
+    this.settings.app.state.currentMessageIndex = 0;
+    this.settings.app.isConversationInProgres = false;
+    this.settings.app.conversationName = null;
+    this.settings.app.conversationId = null;
+
+    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { startTime });
+
+  }
+
+  public async createConversationSummary(): Promise<string> {
+
+    const startTime: number = Date.now();
+    let maximumConnectingAttemptsNumber: number = this.settings.app.maxAttempts;
+    let maximumGeneratingAttemptsNumber: number = this.settings.app.maxAttempts;
+    let isSummaryFinished: boolean = false;
+    let summary: string = ``;
+
+    if (this.settings.app.state.shouldContinue) {
+      this.settings.app.state.shouldContinue = false;
+    }
+
+    while (this.settings.app.state.isGeneratingOnAir && maximumConnectingAttemptsNumber-- >= 0) {
+      const timeInMiliseconds = 30000;
+      await this.wait(timeInMiliseconds);
+    }
+
+    if (maximumConnectingAttemptsNumber === 0) {
+      this.logger.error(LogMessage.error.onSummaryGenerationFail(), { startTime })
+      throw new InternalServerErrorException(LogMessage.error.onSummaryGenerationFail());
+    }
+
+    this.settings.app.state.isGeneratingOnAir = true;
+    while (!isSummaryFinished && maximumGeneratingAttemptsNumber-- > 0) {
+
+      summary = await this.ai.summarize();
+
+      if (summary === `` || summary === null) {
+        continue;
+      }
+
+      isSummaryFinished = true;
+
+    }
+
+    if (!isSummaryFinished) {
+      throw new InternalServerErrorException(LogMessage.error.onSummarizeFail());
+    }
+
+    return summary;
   }
 
 }
