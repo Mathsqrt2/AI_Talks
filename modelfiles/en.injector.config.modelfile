@@ -2,6 +2,9 @@
 PARAMETER temperature 0.75
 PARAMETER num_ctx 512
 PARAMETER top_p 0.75
+PARAMETER frequency_penalty 0.85
+PARAMETER presence_penalty 0.3
+
 PARAMETER stop ["ERROR:", "KONIEC"]
 
 SYSTEM """

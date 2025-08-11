@@ -112,11 +112,11 @@ export class ConversationService {
       const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot1.shift();
       message.content = await this.ai.merge(messageFromOutside, message);
     } else if (currentBot === BotsEnum.BOT_2 && this.settings.app.state.usersMessagesStackForBot2?.length > 0) {
-      const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot1.shift();
+      const messageFromOutside: InjectContentPayload = this.settings.app.state.usersMessagesStackForBot2.shift();
       message.content = await this.ai.merge(messageFromOutside, message);
     }
 
-    const lastMessages = [...this.settings.app.state.lastBotMessages];
+    const lastMessages = structuredClone(this.settings.app.state.lastBotMessages);
     const maxHistorySize: number = this.settings.app.maxMessagesCount;
     lastMessages.push(message);
 
@@ -124,6 +124,8 @@ export class ConversationService {
       const initialPrompt = lastMessages.shift();
       this.settings.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
       this.settings.app.state.lastBotMessages.unshift(initialPrompt);
+    } else {
+      this.settings.app.state.lastBotMessages = lastMessages;
     }
 
     while (!isMessageGenerated && generateAttempts-- > 0) {

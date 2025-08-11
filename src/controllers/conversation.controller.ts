@@ -181,24 +181,26 @@ export class ConversationController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
-  public async prepareCurrentTalkSummary(): Promise<void> {
+  public async prepareCurrentTalkSummary(): Promise<string> {
 
     const startTime: number = Date.now();
-
-    const summary = await this.conversationService.createConversationSummary();
-    this.settings.app.state.isGeneratingOnAir = false;
-    this.settings.app.state.shouldContinue = true;
-    const payload: MessageEventPayload = {
-      message: this.settings.app.state.enqueuedMessage
-    };
-
     try {
+
+      const summary = await this.conversationService.createConversationSummary();
+      this.settings.app.state.isGeneratingOnAir = false;
+      this.settings.app.state.shouldContinue = true;
+      const payload: MessageEventPayload = {
+        message: this.settings.app.state.enqueuedMessage
+      };
+
+
       await this.eventEmitter.emitAsync(EventsEnum.message, payload);
       this.settings.noticeInterrupt(`resume`);
       this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
+      return summary;
 
     } catch (error) {
-      this.logger.error(LogMessage.error.onResumeConversationFail(), { startTime })
+      this.logger.error(LogMessage.error.onResumeConversationFail(), { startTime, error });
       throw new InternalServerErrorException(LogMessage.error.onResumeConversationFail());
     }
   }
@@ -213,7 +215,6 @@ export class ConversationController {
   ): Promise<void> {
 
     const startTime: number = Date.now();
-
     if (this.settings.app.isConversationInProgres) {
       throw new ForbiddenException(`Couldn't load conversation. There is already running one.`)
     }
