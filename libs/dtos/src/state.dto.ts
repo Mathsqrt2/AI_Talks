@@ -49,7 +49,6 @@ export class StateDto {
 
     @ApiProperty({ description: SwaggerMessages.stateDto.enqueuedMessageDescription(), example: "Switch the topic to AI innovations!", required: false, nullable: true })
     @IsDefined()
-    @ValidateNested({ each: true })
     @Type(() => MessageDto)
     public enqueuedMessage?: MessageDto;
 

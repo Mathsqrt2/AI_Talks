@@ -1,28 +1,31 @@
 import {
-  BadRequestException, Param, Post, Get, HttpStatus, NotFoundException,
-  Body, Controller, HttpCode, InternalServerErrorException,
-  Put,
-  Patch,
+  BadRequestException, Param, Get, HttpStatus, NotFoundException, Put,
+  Body, Controller, HttpCode, InternalServerErrorException, Patch,
 } from '@nestjs/common';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
   StateParamDto, SettingsDto, PromptsDto, StateDto, PromptDto,
-  ModelFileIdDto, InvitationDto, SettingsPropertyDto, SetPromptDto
+  ModelFileIdDto, InvitationDto, SettingsPropertyDto
 } from '@libs/dtos';
 import {
-  ApiAcceptedResponse, ApiBadRequestResponse,
-  ApiOkResponse, ApiNotFoundResponse,
+  ApiBadRequestResponse, ApiOkResponse, ApiNotFoundResponse,
   ApiNoContentResponse
 } from '@nestjs/swagger';
-import { ModelfilesOutput, PromptOutput } from '@libs/types';
+import { MessageEventPayload, ModelfilesOutput, PromptOutput } from '@libs/types';
 import { SettingsService } from '@libs/settings';
 import { readFile } from 'fs/promises';
 import { Logger } from '@libs/logger';
+import { PatchStateDto } from '@libs/dtos/patch-state.dto';
+import { PatchPromptsDto } from '@libs/dtos/patch-prompts.dto';
+import { PatchPropertyDto } from '@libs/dtos/patch-property.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { BotsEnum, EventsEnum } from '@libs/enums';
 
 @Controller(`api/v1/settings`)
 export class SettingsController {
 
   constructor(
+    private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
   ) { }
@@ -146,84 +149,93 @@ export class SettingsController {
   ) {
     const startTime: number = Date.now();
     this.settings.app = body;
-    this.logger.log(LogMessage.log.onSettingsUpdated(), { startTime });
+    this.logger.log(LogMessage.log.onSettingsUpdate(), { startTime });
   }
 
   @Put(`prompt`)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiAcceptedResponse({ description: SwaggerMessages.setPrompt.ApiNoContentResponse() })
+  @ApiNoContentResponse({ description: SwaggerMessages.setPrompt.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setPrompt.ApiBadRequestResponse() })
   public setPrompts(
     @Body() prompts: PromptsDto
   ) {
     const startTime: number = Date.now();
     this.settings.app.prompts = prompts;
-    this.logger.log(LogMessage.log.onSettingsUpdated(), { startTime });
+    this.logger.log(LogMessage.log.onPromptsUpdate(), { startTime });
   }
 
   @Put(`state`)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiAcceptedResponse({ description: SwaggerMessages.setState.ApiNoContentResponse() })
+  @ApiNoContentResponse({ description: SwaggerMessages.setState.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setState.ApiBadRequestResponse() })
   public setState(
     @Body() body: StateDto
-  ) {
+  ): void {
+
     const startTime: number = Date.now();
     this.settings.app.state = body;
-    this.logger.log(LogMessage.log.onSettingsUpdated(), { startTime });
+    this.logger.log(LogMessage.log.onStateUpdate(), { startTime });
+
   }
 
-  @Patch(`:param`)
+  @Patch(`state`)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: SwaggerMessages.patchState.ApiNoContentResponse() })
+  @ApiBadRequestResponse({ description: SwaggerMessages.patchState.ApiBadRequestResponse() })
+  public patchState(
+    @Body() stateProperties: PatchStateDto
+  ): void {
+
+    const startTime: number = Date.now();
+    const existingState = structuredClone(this.settings.app.state);
+    this.settings.app.state = { ...existingState, ...stateProperties };
+    this.logger.log(LogMessage.log.onStatePatched(), { startTime });
+
+  }
+
+  @Patch(`prompt`)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: SwaggerMessages.patchPrompts.ApiNoContentResponse() })
+  @ApiBadRequestResponse({ description: SwaggerMessages.patchPrompts.ApiBadRequestResponse() })
+  public patchPrompts(
+    @Body() prompts: PatchPromptsDto
+  ) {
+    const startTime: number = Date.now();
+    const existingPrompts = structuredClone(this.settings.app.prompts);
+
+    this.settings.app.prompts = { ...existingPrompts, ...prompts };
+    this.logger.log(LogMessage.log.onPromptsPatched(), { startTime });
+  }
+
+  @Patch(`property`)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: SwaggerMessages.setPropertyValue.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setPropertyValue.ApiBadRequestResponse() })
   public async setProperty(
-    @Param() { param }: StateParamDto,
-    @Body() body: { context: number },
+    @Body() body: PatchPropertyDto,
   ): Promise<void> {
-
     const startTime: number = Date.now();
-    if (!body.context) {
-      throw new BadRequestException(LogMessage.error.onIncorrectValue(`context`));
+
+    const { state, prompts, ...properties } = body;
+    const existingSettings = structuredClone(this.settings.app);
+
+    this.settings.app = { ...existingSettings, ...properties };
+    if (state) {
+      this.settings.app.state = { ...this.settings.app.state, ...state };
     }
 
-    this.logger.log(LogMessage.log.onContextUpdated(body.context), { startTime });
-  }
-
-  @Patch(`prompt/:prompt`)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiNoContentResponse({ description: SwaggerMessages.setPrompt.ApiNoContentResponse() })
-  @ApiBadRequestResponse({ description: SwaggerMessages.setPrompt.ApiBadRequestResponse() })
-  public setPrompt(
-    @Body() { value }: SetPromptDto,
-    @Param() { prompt }: PromptDto,
-  ): void {
-
-    const startTime: number = Date.now();
-    if (!value) {
-      throw new BadRequestException(LogMessage.error.onInvalidBody());
+    if (prompts) {
+      this.settings.app.prompts = { ...this.settings.app.prompts, ...prompts };
     }
 
-    this.settings.app.prompts[prompt] = value;
-    this.logger.log(LogMessage.log.onPromptUpdated(prompt), { startTime });
-  }
-
-  @Patch(`state/:param`)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiNoContentResponse({ description: SwaggerMessages.setStateForParam.ApiNoContentResponse() })
-  @ApiBadRequestResponse({ description: SwaggerMessages.setStateForParam.ApiBadRequestResponse() })
-  public setStateForParam(
-    @Param() { param }: StateParamDto,
-    @Body() body: { value: string | boolean },
-  ) {
-
-    const startTime: number = Date.now();
-    if (!Object.prototype.hasOwnProperty.call(this.settings.app.state, param)) {
-      this.logger.error(LogMessage.error.onUndefinedParam(param), { startTime })
-      throw new BadRequestException(LogMessage.error.onUndefinedParam(param));
+    if (!existingSettings.isConversationInProgres && existingSettings.isConversationInProgres === true) {
+      this.settings.app.state.isGeneratingOnAir = false;
+      const payload: MessageEventPayload = { message: this.settings.findLastMessage() }
+      this.eventEmitter.emit(EventsEnum.message, payload);
+      this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
     }
 
-    this.logger.log(LogMessage.log.onParamResponse(param), { startTime });
+    this.logger.log(LogMessage.log.onPropertiesPatched(), { startTime });
   }
 
 }

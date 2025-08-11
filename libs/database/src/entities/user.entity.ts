@@ -1,9 +1,9 @@
 import { BaiscPropertiesEntity } from "./partials";
 import { v4 as uuidv4 } from "uuid";
 import { SHA512 } from "crypto-js";
-import { Column } from "typeorm";
+import { Column, Entity } from "typeorm";
 
-
+@Entity(`users`)
 export class UserEntity extends BaiscPropertiesEntity {
 
     @Column({ type: `varchar`, length: 256, unique: true })

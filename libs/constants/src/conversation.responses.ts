@@ -57,9 +57,14 @@ export class LogMessage {
         onMessageEmission: (id: number): string => `Message ${id} emitted successfully.`,
         onParamResponse: (param: string): string => `Responded with ${param} value`,
         onApplicationBootstrap: (): string => `Application launched successfully.`,
-        onSettingsUpdated: (): string => `Application settings updated successfully.`,
-        onPromptUpdated: (prompt: string): string => `Prompt ${prompt} updated successfully.`,
+        onSettingsUpdate: (): string => `Application settings updated successfully.`,
+        onPromptUpdate: (prompt: string): string => `Prompt ${prompt} updated successfully.`,
+        onPromptsUpdate: (): string => `Prompts updated successfully.`,
+        onStateUpdate: (): string => `State updated successfully.`,
         onUserResponseWithState: (): string => `Responded to user with current state.`,
+        onStatePatched: (): string => `State patched successfully.`,
+        onPromptsPatched: (): string => `Prompts patched successfully.`,
+        onPropertiesPatched: (): string => `Properties patched successfully.`,
     };
 
 }

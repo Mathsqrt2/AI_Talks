@@ -1,4 +1,4 @@
-import { IsBoolean, IsDefined, IsNumber, IsObject, IsString, ValidateNested } from "class-validator";
+import { IsBoolean, IsDefined, IsNumber, IsObject, IsString } from "class-validator";
 import { StateDto, PromptsDto } from "./dtos";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
@@ -44,14 +44,12 @@ export class SettingsDto {
     @ApiProperty({ description: SwaggerMessages.settingsDto.stateDescription(), example: { shouldContinue: true, shouldNotify: false, lastBotMessages: [], currentMessageIndex: 0 } })
     @IsDefined()
     @IsObject()
-    @ValidateNested({ each: true })
     @Type(() => StateDto)
     public state: StateDto;
 
     @ApiProperty({ description: SwaggerMessages.settingsDto.promptsDescription(), example: { initialPrompt: "Hello! How can I help?", contextPrompt: "Keep your answers concise." } })
     @IsDefined()
     @IsString()
-    @ValidateNested({ each: true })
     @Type(() => PromptsDto)
     public prompts: PromptsDto;
 

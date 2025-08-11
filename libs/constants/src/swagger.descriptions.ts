@@ -177,29 +177,38 @@ export class SwaggerMessages {
     }
 
     public static setSettingsFile: LogMessageContent = {
-        ApiNoContentResponse: (): string => ``,
-        ApiBadRequestResponse: (): string => ``,
+        ApiNoContentResponse: (): string => `Successfully updated settings file`,
+        ApiBadRequestResponse: (): string => `Failed to update settings file. Invalid data`,
     }
 
     public static setPropertyValue: LogMessageContent = {
         ApiNoContentResponse: (): string => `Successfully updated conversation property to the specified value`,
-        ApiBadRequestResponse: (): string => `Invalid value in property`,
+        ApiBadRequestResponse: (): string => `Failed to update conversation property. Invalid value in property`,
     }
 
     public static setPrompt: LogMessageContent = {
         ApiNoContentResponse: (): string => `Successfully updated prompt with the specified ID`,
-        ApiBadRequestResponse: (): string => ``,
+        ApiBadRequestResponse: (): string => `Failed to set prompt. Invalid prompt data`,
     }
 
     public static setState: LogMessageContent = {
-        ApiNoContentResponse: (): string => ``,
-        ApiBadRequestResponse: (): string => ``,
+        ApiNoContentResponse: (): string => `Successfully updated conversation state`,
+        ApiBadRequestResponse: (): string => `Failed to set state. Invalid state data`,
     }
 
     public static setStateForParam: LogMessageContent = {
-        ApiNoContentResponse: (): string => ``,
-        ApiBadRequestResponse: (): string => ``,
+        ApiNoContentResponse: (): string => `Successfully updated state for the specified parameter`,
+        ApiBadRequestResponse: (): string => `Failed to set state for parameter. Invalid state data`,
     }
-  static setContextLength: any
+
+    public static patchState: LogMessageContent = {
+        ApiNoContentResponse: (): string => `Successfully updated conversation state`,
+        ApiBadRequestResponse: (): string => `Failed to patch state. Invalid state data`,
+    }
+
+    public static patchPrompts: LogMessageContent = {
+        ApiNoContentResponse: (): string => `Successfully updated conversation prompts`,
+        ApiBadRequestResponse: (): string => `Failed to patch prompts. Invalid prompts data`,
+    }
 
 }

@@ -10,7 +10,7 @@ import { Log } from "./log.entity";
 @Entity(`conversations`)
 export class Conversation extends BaiscPropertiesEntity {
 
-    @Column({ type: `varchar`, length: 512 })
+    @Column({ type: `varchar`, length: 512, unique: true })
     public conversationName: string;
 
     @Column({ type: `text` })

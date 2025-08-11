@@ -266,4 +266,16 @@ export class SettingsService implements OnApplicationBootstrap {
         }
 
     }
+
+    public findLastMessage(): Message | undefined {
+        return this.app.state.enqueuedMessage
+            || this.app.state.lastBotMessages.at(-1)
+            || {
+            author: BotsEnum.BOT_1,
+            content: this.app.prompts.initialPrompt,
+            generatingEndTime: new Date(),
+            generatingStartTime: new Date(),
+            generationTime: 0,
+        };
+    }
 }
