@@ -156,7 +156,7 @@ export class ConversationService {
     const newPayload: MessageEventPayload = {
       message: {
         author: currentBot,
-        content,
+        content: content.replaceAll(/[\n\r*]| {2,}/g, ''),
         generatingStartTime,
         generatingEndTime: new Date(),
         generationTime: Date.now() - generatingStartTime.getTime(),
@@ -229,6 +229,7 @@ export class ConversationService {
 
     const startTime: number = Date.now();
     await this.settings.clearStatistics();
+    const name = this.settings.app.conversationName;
 
     this.settings.app.state.shouldContinue = false;
     this.settings.app.state.enqueuedMessage = null;
@@ -237,10 +238,10 @@ export class ConversationService {
     this.settings.app.state.lastBotMessages = [];
     this.settings.app.state.currentMessageIndex = 0;
     this.settings.app.isConversationInProgres = false;
-    this.settings.app.conversationName = null;
     this.settings.app.conversationId = null;
+    this.settings.app.conversationName = null;
 
-    this.logger.log(LogMessage.log.onBreakConversation(this.settings.app.conversationName), { startTime });
+    this.logger.log(LogMessage.log.onBreakConversation(name), { startTime });
 
   }
 

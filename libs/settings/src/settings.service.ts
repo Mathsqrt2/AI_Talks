@@ -136,7 +136,7 @@ export class SettingsService implements OnApplicationBootstrap {
         try {
             await this.settings.save(currentSettings);
         } catch (error) {
-            this.logger.error(`Failed to save current settings.`, { startTime });
+            this.logger.error(`Failed to save current settings.`);
         }
     }
 
@@ -149,7 +149,7 @@ export class SettingsService implements OnApplicationBootstrap {
             : this.statistics.bot_2.messages.push(payload.message);
 
         if (this.app.state.shouldLog) {
-            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex), { startTime });
+            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
         }
     }
 
@@ -186,7 +186,7 @@ export class SettingsService implements OnApplicationBootstrap {
         try {
             await writeFile(outPath, JSON.stringify(data));
         } catch (error) {
-            this.logger.error(LogMessage.error.onLocalFileSaveFail(), { error, startTime });
+            this.logger.error(LogMessage.error.onLocalFileSaveFail(), error);
             throw error
         }
 
@@ -251,7 +251,7 @@ export class SettingsService implements OnApplicationBootstrap {
                 }
                 return output
             } catch (error) {
-                this.logger.error(`Failed to read modelfiles.`, { error, startTime });
+                this.logger.error(`Failed to read modelfiles.`, error);
                 throw new InternalServerErrorException(`Failed to access modelfiles`)
             }
         }

@@ -14,4 +14,5 @@ export type InjectContentPayload = {
 
 export type MessageEventPayload = {
     message: Message,
+    
 }

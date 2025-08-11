@@ -36,10 +36,6 @@ export class ConversationController {
     private readonly ai: AiService,
   ) { }
 
-  private wait = async (timeInMiliseconds: number = 10000): Promise<void> => (
-    new Promise(resolve => setTimeout(() => resolve(), timeInMiliseconds))
-  );
-
   @Post([`init/:id`, `start/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiParam({ name: `id`, description: SwaggerMessages.init.aboutIdParam(), required: true, type: Number, example: 1 })
@@ -72,6 +68,7 @@ export class ConversationController {
     try {
 
       await this.eventEmitter.emitAsync(EventsEnum.startConversation, initEventPayload);
+      this.settings.app.state.currentMessageIndex++;
       this.logger.log(LogMessage.log.onConversationStart(), { startTime });
 
     } catch (error) {
@@ -184,6 +181,11 @@ export class ConversationController {
   public async prepareCurrentTalkSummary(): Promise<string> {
 
     const startTime: number = Date.now();
+
+    if(this.settings.app.state.currentMessageIndex === 0 || this.settings.app.state.lastBotMessages?.length === 0){
+      throw new InternalServerErrorException(LogMessage.error.onCreateSummaryFail(this.settings.app.conversationName));
+    }
+
     try {
 
       const summary = await this.conversationService.createConversationSummary();
@@ -192,7 +194,6 @@ export class ConversationController {
       const payload: MessageEventPayload = {
         message: this.settings.app.state.enqueuedMessage
       };
-
 
       await this.eventEmitter.emitAsync(EventsEnum.message, payload);
       this.settings.noticeInterrupt(`resume`);

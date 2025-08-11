@@ -44,7 +44,7 @@ export class AiService {
     public chatAs = async (bot: BotsEnum): Promise<string> => {
 
         this.settings.app.state.isGeneratingOnAir = true;
-        const lastMessages = [...this.settings.app.state.lastBotMessages];
+        const lastMessages = structuredClone(this.settings.app.state.lastBotMessages);
         const initialMessage = lastMessages.shift();
 
         const messages: OllamaMessage[] = lastMessages
@@ -52,8 +52,8 @@ export class AiService {
                 role: message.author === bot ? `assistant` : `user`,
                 content: message.content,
             }));
-        messages.unshift({ role: initialMessage.content, content: initialMessage.content });
 
+        messages.unshift({ role: initialMessage.author, content: initialMessage.content });
         const model = bot === BotsEnum.BOT_1
             ? `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker1`
             : `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker2`;
@@ -87,15 +87,15 @@ export class AiService {
         try {
 
             const summary = await this.ollama.generate({ model, prompt });
-            this.settings.app.state.isGeneratingOnAir = false;
             return summary.response;
 
         } catch (error) {
 
             this.logger.error(LogMessage.error.onCreateSummaryFail(this.settings.app.conversationName), { error, startTime });
-            this.settings.app.state.isGeneratingOnAir = false;
             throw error;
 
+        } finally {
+            this.settings.app.state.isGeneratingOnAir = false;
         }
     }
 }
