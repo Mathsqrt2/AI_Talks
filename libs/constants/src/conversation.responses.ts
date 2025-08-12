@@ -12,8 +12,10 @@ export class LogMessage {
         onConversationInterrupt: (): string => `Conversation is currently paused.`,
         onInitializationFail: (): string => `Failed to initialize new conversation.`,
         onConversationNotFound: (): string => `Specified conversation not found.`,
+        onEmptyTelegramInvitation: (): string => `There is not defined telegram invitation.`,
+        onEmptyMessage: (): string => `There is not defined message.`,
     };
-    
+
     public static error: LogMessageContent = {
         onConversationInitFail: (): string => `Failed to initialize conversation.`,
         onResumeConversationFail: (): string => `An internal error occurred during the conversation initialization.`,
@@ -41,6 +43,11 @@ export class LogMessage {
         onSummarizeFail: (): string => `Failed to summarize conversation.`,
         onBreakConversationFail: (): string => `Failed to stop conversation.`,
         onConversationRestoreFail: (): string => `Failed to restore conversation.`,
+        onFailedToAccessModelfile: (name: string): string => `Failed to access modelfile ${name}.`,
+        onSavingSettingsFail: (): string => `Failed to save current settings.`,
+        onModelfilesNotFound: (): string => `Modelfiles not found.`,
+        onModelfilesAccessFail: (name?: string): string => `Failed to access modelfile${name ? ` ${name}` : ``}.`,
+        onModelfileDoesntExist: (name?: string): string => `Specified modelfile${name ? ` ${name}` : ``} doesn't exist.`,
     };
 
     public static log: LogMessageContent = {

@@ -1,4 +1,5 @@
 import { Message, InjectContentPayload, InitEventPayload, MessageEventPayload } from '@libs/types';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Conversation, Message as MessageEntity } from '@libs/database';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { prompts, LogMessage } from '@libs/constants';
@@ -6,7 +7,6 @@ import { BotsEnum, EventsEnum } from '@libs/enums';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { State } from '@libs/database';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';

@@ -1,3 +1,4 @@
+import { EventsEnum, InjectionModeEnum, ConversationInterruptsEnum } from '@libs/enums';
 import { SwaggerMessages, LogMessage, prompts } from '@libs/constants';
 import { MessageEventPayload, InitEventPayload } from '@libs/types';
 import {
@@ -9,7 +10,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
 import { Conversation } from '@libs/database';
-import { EventsEnum } from '@libs/enums';
 import { Logger } from '@libs/logger';
 import { Repository } from 'typeorm';
 import {
@@ -91,7 +91,7 @@ export class ConversationController {
     }
 
     this.settings.app.state.shouldContinue = false;
-    this.settings.noticeInterrupt(`pause`);
+    this.settings.noticeInterrupt(ConversationInterruptsEnum.PAUSE);
     this.logger.log(LogMessage.log.onPauseConversation(), { startTime });
 
   }
@@ -116,7 +116,7 @@ export class ConversationController {
 
     try {
       await this.eventEmitter.emitAsync(EventsEnum.message, payload);
-      this.settings.noticeInterrupt(`resume`);
+      this.settings.noticeInterrupt(ConversationInterruptsEnum.RESUME);
       this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
 
     } catch (error) {
@@ -161,7 +161,7 @@ export class ConversationController {
       throw new BadRequestException(LogMessage.warn.onInvalidPayload());
     }
 
-    if (body.mode !== `REPLACE` && body.mode !== `MERGE`) {
+    if (body.mode !== InjectionModeEnum.REPLACE && body.mode !== InjectionModeEnum.MERGE) {
       this.logger.warn(LogMessage.warn.onInvalidMode(body.mode), { startTime });
       throw new BadRequestException(LogMessage.warn.onInvalidMode(body.mode));
     }
@@ -194,7 +194,7 @@ export class ConversationController {
       };
 
       await this.eventEmitter.emitAsync(EventsEnum.message, payload);
-      this.settings.noticeInterrupt(`resume`);
+      this.settings.noticeInterrupt(ConversationInterruptsEnum.RESUME);
       this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
       return summary;
 
@@ -206,9 +206,9 @@ export class ConversationController {
 
   @Post([`restore`])
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse({ description: `Conversation restored successfully` })
-  @ApiInternalServerErrorResponse({ description: `Failed to restore conversation` })
-  @ApiForbiddenResponse({ description: `Conversation is already in progress` })
+  @ApiAcceptedResponse({ description: SwaggerMessages.restoreConversation.ApiAcceptedResponse() })
+  @ApiInternalServerErrorResponse({ description: SwaggerMessages.restoreConversation.ApiInternalServerErrorResponse() })
+  @ApiForbiddenResponse({ description: SwaggerMessages.restoreConversation.ApiForbiddenResponse() })
   public async restoreConversationFromPayload(
     @Body() body: SettingsDto
   ): Promise<void> {
@@ -216,7 +216,7 @@ export class ConversationController {
     const startTime: number = Date.now();
     const existingSettings = structuredClone(this.settings.app);
     if (this.settings.app.isConversationInProgress) {
-      throw new ForbiddenException(`Couldn't load conversation. There is already running one.`);
+      throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
 
     try {
@@ -240,10 +240,10 @@ export class ConversationController {
 
   @Post([`restore/:id`])
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse({ description: `` })
-  @ApiInternalServerErrorResponse({ description: `` })
-  @ApiForbiddenResponse({ description: `` })
-  @ApiNotFoundResponse({ description: `` })
+  @ApiAcceptedResponse({ description: SwaggerMessages.restoreConversation.ApiAcceptedResponse() })
+  @ApiInternalServerErrorResponse({ description: SwaggerMessages.restoreConversation.ApiInternalServerErrorResponse() })
+  @ApiForbiddenResponse({ description: SwaggerMessages.restoreConversation.ApiForbiddenResponse() })
+  @ApiNotFoundResponse({ description: SwaggerMessages.restoreConversation.ApiNotFoundResponse() })
   public async restoreConversationFromDatabase(
     @Param() { id }: RestoreConversationByIdDto
   ): Promise<void> {
@@ -252,7 +252,7 @@ export class ConversationController {
     let conversation: Conversation;
 
     if (this.settings.app.isConversationInProgress) {
-      throw new ForbiddenException(`Couldn't load conversation. There is already running one.`)
+      throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning())
     }
 
     const relations = [`comments`, `messages`, `settings`, `states`, `summaries`];

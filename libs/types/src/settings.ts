@@ -1,6 +1,7 @@
 import { PromptsEnum } from "@libs/enums/prompts.enum";
 import { InjectContentPayload } from "./conversarion";
 import { BotsEnum } from "@libs/enums";
+import { ConversationInterruptsEnum } from "@libs/enums/conversation-interrupts.enum";
 
 export type SettingsFile = {
     conversationName: string,
@@ -47,8 +48,8 @@ export type AppState = {
 
 export type Archive = {
     startTime: Date,
-    pause: Date[],
-    resume: Date[],
+    [ConversationInterruptsEnum.PAUSE]: Date[],
+    [ConversationInterruptsEnum.RESUME]: Date[],
     bot_1: { messages: Message[] },
     bot_2: { messages: Message[] },
 }

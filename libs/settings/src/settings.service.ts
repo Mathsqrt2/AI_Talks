@@ -1,16 +1,19 @@
+import { State, Settings as SettingsEntity, Conversation } from '@libs/database';
+import { readdir, readFile, writeFile } from 'fs/promises';
+import { LogMessage, prompts } from '@libs/constants';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
     Injectable, InternalServerErrorException, Logger,
     NotFoundException, OnApplicationBootstrap
 } from '@nestjs/common';
-import { State, Settings as SettingsEntity, Conversation } from '@libs/database';
 import {
-    Archive, Message, SettingsFile, Statistics, ModelfilesOutput,
-    StatsProperties, MessageEventPayload
+    Archive, Message, SettingsFile, ModelfilesOutput,
+    StatsProperties, MessageEventPayload, Statistics,
 } from '@libs/types';
-import { readdir, readFile, writeFile } from 'fs/promises';
-import { BotsEnum, EventsEnum, ModelfilesEnum } from '@libs/enums';
-import { LogMessage, prompts } from '@libs/constants';
-import { InjectRepository } from '@nestjs/typeorm';
+import {
+    BotsEnum, EventsEnum, ModelfilesEnum,
+    ConversationInterruptsEnum
+} from '@libs/enums';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
 import { SHA256 } from 'crypto-js';
@@ -137,7 +140,6 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public async archiveSettings(): Promise<void> {
 
-        const startTime: number = Date.now();
         const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
         const currentSettings = this.findCurrentSettings();
 
@@ -148,16 +150,15 @@ export class SettingsService implements OnApplicationBootstrap {
         try {
             const settings = this.settings.create(currentSettings);
             await this.settings.save(settings);
-            this.logger.log(LogMessage.log.onSettingsSaveSuccess(this.app.conversationId), { startTime });
+            this.logger.log(LogMessage.log.onSettingsSaveSuccess(this.app.conversationId));
         } catch (error) {
-            this.logger.error(`Failed to save current settings.`);
+            this.logger.error(LogMessage.error.onSavingSettingsFail(), error);
         }
     }
 
     @OnEvent(EventsEnum.message)
     private insertMessageIntoStats(payload: MessageEventPayload) {
 
-        const startTime: number = Date.now();
         payload.message.author === BotsEnum.BOT_1
             ? this.statistics.bot_1.messages.push(payload.message)
             : this.statistics.bot_2.messages.push(payload.message);
@@ -172,13 +173,12 @@ export class SettingsService implements OnApplicationBootstrap {
         this.statistics.startTime = new Date();
     }
 
-    public noticeInterrupt(type: `pause` | `resume`): void {
+    public noticeInterrupt(type: ConversationInterruptsEnum): void {
         this.statistics[type].push(new Date())
     }
 
     public async archiveCurrentState(): Promise<void> {
 
-        const startTime: number = Date.now();
         const outPath = path.join(__dirname, `${this.app.conversationName}.${Date.now()}.json`);
         const data = {
             statistics: this.getStatistics(),
@@ -187,7 +187,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
         try {
             await writeFile(outPath, JSON.stringify(data));
-            this.logger.log(LogMessage.log.onLocalFileSaveSuccess(), { startTime });
+            this.logger.log(LogMessage.log.onLocalFileSaveSuccess());
         } catch (error) {
             this.logger.error(LogMessage.error.onLocalFileSaveFail(), error);
             throw error
@@ -240,9 +240,8 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public async findModelfile(modelfile?: ModelfilesEnum): Promise<ModelfilesOutput> {
 
-        const startTime: number = Date.now();
         if (this.modelFiles.length === 0) {
-            throw new NotFoundException(`No modelfiles was found.`);
+            throw new NotFoundException(LogMessage.error.onModelfilesNotFound());
         }
 
         if (!modelfile) {
@@ -254,8 +253,8 @@ export class SettingsService implements OnApplicationBootstrap {
                 }
                 return output
             } catch (error) {
-                this.logger.error(`Failed to read modelfiles.`, error);
-                throw new InternalServerErrorException(`Failed to access modelfiles`)
+                this.logger.error(LogMessage.error.onModelfilesAccessFail(), error);
+                throw new InternalServerErrorException(LogMessage.error.onModelfilesAccessFail())
             }
         }
 
@@ -265,7 +264,7 @@ export class SettingsService implements OnApplicationBootstrap {
             case ModelfilesEnum.SPEAKER: return this.modelFiles.find(modelFile => modelFile.includes(`speaker`) && modelFile.includes(language));
             case ModelfilesEnum.SUMMARIZER: return this.modelFiles.find(modelFile => modelFile.includes(`summarizer`) && modelFile.includes(language));
             default:
-                throw new NotFoundException(`Specified modelfile doesn't exist.`);
+                throw new NotFoundException(LogMessage.error.onModelfileDoesntExist(modelfile));
         }
 
     }

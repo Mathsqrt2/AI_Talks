@@ -53,7 +53,7 @@ export class TelegramGateway {
         }
 
         if (content === ``) {
-            this.logger.warn(`Message content is empty`, { context: who, startTime });
+            this.logger.warn(LogMessage.warn.onEmptyMessage(), { context: who, startTime });
             return false;
         }
 

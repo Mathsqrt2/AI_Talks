@@ -9,9 +9,8 @@ import {
 } from '@nestjs/common';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
-  ApiNoContentResponse, ApiNotFoundResponse,
+  ApiNoContentResponse, ApiNotFoundResponse, ApiAcceptedResponse,
   ApiBadRequestResponse, ApiOkResponse,
-  ApiAcceptedResponse
 } from '@nestjs/swagger';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from '@libs/settings';
@@ -96,7 +95,7 @@ export class SettingsController {
   public findTelegramInvitation(): InvitationDto {
 
     if (!process.env.TELEGRAM_INVITATION || process.env.TELEGRAM_INVITATION === ``) {
-      throw new NotFoundException(`There is not defined telegram invitation.`);
+      throw new NotFoundException(LogMessage.warn.onEmptyTelegramInvitation());
     }
     return { invitation: process.env.TELEGRAM_INVITATION }
   }
@@ -120,8 +119,8 @@ export class SettingsController {
       return { [name]: await readFile(modelfileSource, { encoding: `utf-8` }) };
 
     } catch (error) {
-      this.logger.error(`Failed to access modelfile`, { error, startTime });
-      throw new InternalServerErrorException(`Failed to access modelfile ${modelfile}`);
+      this.logger.error(LogMessage.error.onFailedToAccessModelfile(modelfile), { error, startTime });
+      throw new InternalServerErrorException(LogMessage.error.onFailedToAccessModelfile(modelfile));
     }
 
   }

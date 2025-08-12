@@ -1,4 +1,5 @@
 import { LogMessageContent } from "@libs/types/logs"
+import { ApiInternalServerErrorResponse } from "@nestjs/swagger"
 
 export class SwaggerMessages {
 
@@ -213,6 +214,13 @@ export class SwaggerMessages {
 
     public static deleteConversation: LogMessageContent = {
         ApiAcceptedResponse: (): string => `Successfully deleted conversation`,
+    }
+
+    public static restoreConversation: LogMessageContent = {
+        ApiAcceptedResponse: (): string => `Successfully restored conversation`,
+        ApiNotFoundResponse: (): string => `Failed to restore conversation. Conversation not found`,
+        ApiInternalServerErrorResponse: (): string => `Failed to restore conversation. Internal server error`,
+        ApiForbiddenResponse: (): string => `Failed to restore conversation. Access denied`,
     }
 
 }

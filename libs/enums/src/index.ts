@@ -7,3 +7,4 @@ export * from './logs-labels.enum';
 export * from './bots.enum';
 export * from './prompts.enum';
 export * from './settings-properties.enum';
+export * from './conversation-interrupts.enum';
