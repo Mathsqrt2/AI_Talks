@@ -1,5 +1,4 @@
 import { LogMessageContent } from "@libs/types/logs"
-import { ApiInternalServerErrorResponse } from "@nestjs/swagger"
 
 export class SwaggerMessages {
 
@@ -51,7 +50,7 @@ export class SwaggerMessages {
         aboutId: (): string => `Model file identifier (0: injector, 1: speaker, 2: summarizer)`,
     }
 
-    public static promptIdDto: LogMessageContent = {
+    public static promptDto: LogMessageContent = {
         aboutId: (): string => `Prompt identifier (0: initial, 1-2: context, 3: conversation, 4-5: custom)`
     }
 
@@ -222,5 +221,43 @@ export class SwaggerMessages {
         ApiInternalServerErrorResponse: (): string => `Failed to restore conversation. Internal server error`,
         ApiForbiddenResponse: (): string => `Failed to restore conversation. Access denied`,
     }
+
+    public static PatchStateDto: LogMessageContent = {
+        shouldArchiveLogDescription: (): string => `Whether conversation logs should be archived in the database.`,
+        shouldContinueDescription: (): string => `Whether the conversation should continue after the current message.`,
+        shouldSendToTelegramDescription: (): string => `Whether to send conversation outputs to the Telegram chat.`,
+        shouldDisplayResponseDescription: (): string => `Whether to display the generated response in logs`,
+        shouldBroadcastOnWebSocketDescription: (): string => `Whether to broadcast conversation outputs over WebSocket.`,
+        shouldLogDescription: (): string => `Whether to log conversation exchanges for auditing/debugging.`,
+        isGeneratingOnAirDescription: (): string => `Whether a response is currently being generated (runtime flag).`,
+        lastResponderDescription: (): string => `The last bot that responded in the conversation (enum BotsEnum).`,
+        enqueuedMessageDescription: (): string => `A message queued to be processed when the conversation resumes.`,
+        usersMessagesStackForBot1Description: (): string => `A FIFO/LIFO stack of user messages awaiting processing by Bot 1.`,
+        usersMessagesStackForBot2Description: (): string => `A FIFO/LIFO stack of user messages awaiting processing by Bot 2.`,
+        lastBotMessagesDescription: (): string => `Recent bot messages kept for short-term context/replay.`,
+        currentMessageIndexDescription: (): string => `Index of the current message being processed in the conversation.`,
+    };
+
+    public static PatchPropertyDto: LogMessageContent = {
+        conversationNameDescription: (): string => `The name assigned to the current conversation/session.`,
+        conversationIdDescription: (): string => `Unique numeric identifier of the conversation.`,
+        isConversationInProgressDescription: (): string => `Indicates whether a conversation is currently active.`,
+        maxMessagesCountDescription: (): string => `Maximum number of messages allowed in the conversation.`,
+        maxContextSizeDescription: (): string => `Maximum context size (e.g., tokens) used for the conversation memory.`,
+        maxAttemptsDescription: (): string => `Maximum number of generation attempts per response.`,
+        retryAfterTimeInMilisecondsDescription: (): string => `Delay (ms) before retrying a failed generation/operation.`,
+        stateDescription: (): string => `Partial state patch object applied to the conversation runtime state.`,
+        promptsDescription: (): string => `Partial prompts patch object applied to the conversation prompts.`,
+    };
+
+    public static PatchPromptsDto: LogMessageContent = {
+        contextPromptDescription: (): string => `Additional context or guidance prompt for the conversation.`,
+        contextPrompt1Description: (): string => `First supplementary context prompt for providing more detailed instructions.`,
+        contextPrompt2Description: (): string => `Second supplementary context prompt for providing extra details or constraints.`,
+        initialPromptDescription: (): string => `Initial prompt used to start the conversation.`,
+        injectorPromptDescription: (): string => `Prompt used to inject specific content or instructions into the conversation.`,
+        summarizerPromptDescription: (): string => `Prompt used to summarize the conversation or key points discussed.`,
+    };
+
 
 }
