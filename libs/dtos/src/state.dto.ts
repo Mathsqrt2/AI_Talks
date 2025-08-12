@@ -81,6 +81,6 @@ export class StateDto {
     @ApiProperty({ description: SwaggerMessages.stateDto.aboutConversationInProgress(), example: true, required: false, nullable: true })
     @IsDefined()
     @IsBoolean()
-    public isConversationInProgress?: boolean;
+    public isConversationInProgresss?: boolean;
 
 }

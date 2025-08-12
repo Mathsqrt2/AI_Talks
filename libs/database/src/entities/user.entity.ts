@@ -1,7 +1,7 @@
 import { BaiscPropertiesEntity } from "./partials";
 import { v4 as uuidv4 } from "uuid";
 import { SHA512 } from "crypto-js";
-import { Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 
 @Entity(`users`)
 export class UserEntity extends BaiscPropertiesEntity {
@@ -9,18 +9,22 @@ export class UserEntity extends BaiscPropertiesEntity {
     @Column({ type: `varchar`, length: 256, unique: true })
     public login: string;
 
-    @Column({ type: `varchar`, length: 512 })
-    private passwordHash: string;
+    @Column({ type: `varchar`, length: 512, select: false })
+    private password: string;
 
-    public set password(password: string) {
-        const salt: string = uuidv4();
-        const passwordHash: string = SHA512(password).toString();
-        const saltedHash = SHA512(`${password}${salt}`).toString();
-        this.passwordHash = `${salt}$${saltedHash}`;
+    @BeforeInsert()
+    @BeforeUpdate()
+    private async hashPassword() {
+        if (this.password) {
+            const salt: string = uuidv4();
+            const passwordHash: string = SHA512(this.password).toString();
+            const saltedHash = SHA512(`${salt}${passwordHash}`).toString();
+            this.password = `${salt}$${saltedHash}`;
+        }
     }
 
     public arePasswordsEqual(password: string): boolean {
-        const [salt, saltedHash] = this.passwordHash.split(`$`);
+        const [salt, saltedHash] = this.password.split(`$`);
         return SHA512(`${password}${salt}`).toString() === saltedHash;
     }
 

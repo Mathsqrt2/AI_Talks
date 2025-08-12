@@ -22,20 +22,20 @@ export class BaiscPropertiesEntity {
     public currentHash: string;
 
     @BeforeUpdate()
-    private refreshProperties() {
+    protected refreshProperties() {
         this.updatedAt = new Date();
         this.currentHash = this.currentEntityHash();
     }
 
     @BeforeInsert()
-    private createInitialValues() {
+    protected createInitialValues() {
         this.initializationHash = this.currentEntityHash();
         this.currentHash = this.currentEntityHash();
     }
 
-    private currentEntityHash(): string {
+    protected currentEntityHash(): string {
 
-        const currentEntity = { ...structuredClone(this) };
+        const currentEntity = structuredClone(this);
         delete currentEntity.createdAt;
         delete currentEntity.updatedAt;
         delete currentEntity.initializationHash;

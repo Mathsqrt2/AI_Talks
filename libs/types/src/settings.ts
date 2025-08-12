@@ -5,7 +5,7 @@ import { BotsEnum } from "@libs/enums";
 export type SettingsFile = {
     conversationName: string,
     conversationId: number,
-    isConversationInProgres: boolean,
+    isConversationInProgress: boolean,
     maxMessagesCount: number,
     maxContextSize: number,
     maxAttempts: number,

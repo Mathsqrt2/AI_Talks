@@ -27,7 +27,7 @@ export class ConversationService {
     private readonly ai: AiService,
   ) { }
 
-  private generateConversationName = async (): Promise<boolean> => {
+  private async generateConversationName(): Promise<boolean> {
 
     const startTime: number = Date.now();
     const seed = `${JSON.stringify(this.settings.app)}${Date.now()}`;
@@ -36,10 +36,11 @@ export class ConversationService {
     try {
 
       this.settings.app.conversationName = currentStateHash;
-      this.settings.app.conversationId = (await this.conversation.save({
+      const conversation = this.conversation.create({
         conversationName: currentStateHash,
         initialPrompt: prompts.initialPrompt,
-      })).id
+      });
+      this.settings.app.conversationId = (await this.conversation.save(conversation)).id;
 
       return true;
     } catch (error) {
@@ -66,7 +67,7 @@ export class ConversationService {
       ? BotsEnum.BOT_1
       : BotsEnum.BOT_2;
 
-    this.settings.app.isConversationInProgres = true;
+    this.settings.app.isConversationInProgress = true;
     this.settings.app.state.shouldContinue = true;
     this.settings.app.state.lastResponder = currentBot;
 
@@ -163,7 +164,7 @@ export class ConversationService {
       }
     }
 
-    if (!this.settings.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgress) {
       this.logger.error(LogMessage.error.onMessageAfterConversationBreak(), { startTime });
       return;
     }
@@ -180,14 +181,15 @@ export class ConversationService {
 
         await this.telegram.respondBy(currentBot, newPayload.message?.content);
         await this.eventEmitter.emitAsync(EventsEnum.message, newPayload);
-        await this.message.save({
+        const message = this.message.create({
           conversationId: this.settings.app.conversationId,
           content: newPayload.message?.content,
           generationTime: newPayload.message.generationTime,
           generatingStartTime: newPayload.message.generatingStartTime,
           generatingEndTime: newPayload.message.generatingEndTime,
           author: newPayload.message.author,
-        })
+        });
+        await this.message.save(message);
         this.settings.app.state.lastBotMessages.push(newPayload.message);
         this.settings.app.state.lastResponder = currentBot;
         this.logger.log(LogMessage.log.onMessageEmission(this.settings.app.state.currentMessageIndex++), { startTime });
@@ -212,7 +214,8 @@ export class ConversationService {
       enqueuedMessageAuthor: enqueuedMessage?.author || null,
     };
 
-    await this.state.save(currentStateArchive).catch(error => {
+    const currentState = this.state.create(currentStateArchive);
+    await this.state.save(currentState).catch(error => {
       this.logger.error(error, { error, startTime });
     });
 
@@ -237,7 +240,7 @@ export class ConversationService {
     this.settings.app.state.usersMessagesStackForBot2 = [];
     this.settings.app.state.lastBotMessages = [];
     this.settings.app.state.currentMessageIndex = 0;
-    this.settings.app.isConversationInProgres = false;
+    this.settings.app.isConversationInProgress = false;
     this.settings.app.conversationId = null;
     this.settings.app.conversationName = null;
 

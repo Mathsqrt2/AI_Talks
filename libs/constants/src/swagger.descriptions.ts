@@ -96,7 +96,7 @@ export class SwaggerMessages {
     public static settingsDto: LogMessageContent = {
         conversationNameDescription: (): string => `The name assigned to the current conversation or session.`,
         conversationIdDescription: (): string => `Unique identifier for the conversation, used for tracking and management.`,
-        isConversationInProgressDescription: (): string => `Indicates whether the conversation is currently active.`,
+        isConversationInProgresssDescription: (): string => `Indicates whether the conversation is currently active.`,
         maxMessagesCountDescription: (): string => `Maximum number of messages allowed within this conversation.`,
         maxContextSizeDescription: (): string => `Defines the maximum context size for the conversation's memory usage.`,
         maxAttemptsDescription: (): string => `The maximum number of attempts allowed for generating a response in the conversation.`,

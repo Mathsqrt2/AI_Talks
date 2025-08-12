@@ -25,7 +25,7 @@ export class SettingsController {
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
-  ) { }
+  ) {  }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -73,7 +73,7 @@ export class SettingsController {
     this.logger.log(LogMessage.log.onUserResponseWithState(), { startTime });
     return {
       ...this.settings.app.state,
-      isConversationInProgress: this.settings.app.isConversationInProgres
+      isConversationInProgresss: this.settings.app.isConversationInProgress
     }
   }
 
@@ -225,7 +225,7 @@ export class SettingsController {
       this.settings.app.prompts = { ...this.settings.app.prompts, ...prompts };
     }
 
-    if (!existingSettings.isConversationInProgres && existingSettings.isConversationInProgres === true) {
+    if (!existingSettings.isConversationInProgress && existingSettings.isConversationInProgress === true) {
       this.settings.app.state.isGeneratingOnAir = false;
       const payload: MessageEventPayload = { message: this.settings.findLastMessage() }
       this.eventEmitter.emit(EventsEnum.message, payload);

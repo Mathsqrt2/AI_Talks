@@ -16,7 +16,7 @@ export class PatchPropertyDto {
 
     @IsOptional()
     @IsBoolean()
-    public isConversationInProgres?: boolean;
+    public isConversationInProgress?: boolean;
 
     @IsOptional()
     @IsNumber()

@@ -26,6 +26,7 @@ services:
       MYSQL_ROOT_PASSWORD: v3ryD1ff1cultP@55w0Rd
       MYSQL_DATABASE: ai_talks
     volumes:
+      - ai_talks_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d/
 
   ai_talks_adminer:
@@ -66,6 +67,7 @@ services:
     expose:
       - 13000
     command: [ sh, -c, 'npm run start:conversation:dev' ]
-
+volumes:
+  ai_talks_data:
 networks:
   ai_talks_network:

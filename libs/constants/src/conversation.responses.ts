@@ -11,8 +11,9 @@ export class LogMessage {
         onInvalidMode: (mode?: string) => `Failed to inject message. Incorrect mode${mode ? ` "${mode}"` : ``}.`,
         onConversationInterrupt: (): string => `Conversation is currently paused.`,
         onInitializationFail: (): string => `Failed to initialize new conversation.`,
+        onConversationNotFound: (): string => `Specified conversation not found.`,
     };
-
+    
     public static error: LogMessageContent = {
         onConversationInitFail: (): string => `Failed to initialize conversation.`,
         onResumeConversationFail: (): string => `An internal error occurred during the conversation initialization.`,
@@ -39,6 +40,7 @@ export class LogMessage {
         onDatabaseConnectionFail: (): string => `Failed to initalize database connection.`,
         onSummarizeFail: (): string => `Failed to summarize conversation.`,
         onBreakConversationFail: (): string => `Failed to stop conversation.`,
+        onConversationRestoreFail: (): string => `Failed to restore conversation.`,
     };
 
     public static log: LogMessageContent = {
@@ -67,6 +69,9 @@ export class LogMessage {
         onPromptsPatched: (): string => `Prompts patched successfully.`,
         onPropertiesPatched: (): string => `Properties patched successfully.`,
         onConversationHistoryDelete: (): string => `Conversation history deleted successfully.`,
+        onConversationRestored: (): string => `Conversation restored successfully.`,
+        onLocalFileSaveSuccess: (): string => `Local file saved successfully.`,
+        onSettingsSaveSuccess: (id: number): string => `Settings ${id} saved successfully.`,
     };
 
 }

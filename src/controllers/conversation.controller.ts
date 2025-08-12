@@ -1,15 +1,16 @@
 import { SwaggerMessages, LogMessage, prompts } from '@libs/constants';
 import { MessageEventPayload, InitEventPayload } from '@libs/types';
 import {
-  RestoreConversationPayloadDto, RestoreConversationByIdDto,
-  InitDto, ConversationInitDto, InjectMessageDto
+  RestoreConversationByIdDto, InitDto, ConversationInitDto,
+  InjectMessageDto, SettingsDto
 } from '@libs/dtos';
+import { ConversationService } from 'src/conversation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
 import { Conversation } from '@libs/database';
+import { EventsEnum } from '@libs/enums';
 import { Logger } from '@libs/logger';
-import { AiService } from '@libs/ai';
 import { Repository } from 'typeorm';
 import {
   ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
@@ -21,8 +22,6 @@ import {
   ForbiddenException, Get, HttpCode, HttpStatus,
   InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
-import { EventsEnum } from '@libs/enums';
-import { ConversationService } from 'src/conversation.service';
 
 @Controller(`api/v1/conversation`)
 export class ConversationController {
@@ -33,7 +32,6 @@ export class ConversationController {
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
-    private readonly ai: AiService,
   ) { }
 
   @Post([`init/:id`, `start/:id`])
@@ -50,7 +48,7 @@ export class ConversationController {
   ): Promise<void> {
 
     const startTime: number = Date.now();
-    if (this.settings.app.isConversationInProgres) {
+    if (this.settings.app.isConversationInProgress) {
       this.logger.warn(LogMessage.warn.onConversationAlreadyRunning(), { startTime });
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning());
     }
@@ -87,7 +85,7 @@ export class ConversationController {
   public async pauseConversation(): Promise<void> {
 
     const startTime: number = Date.now();
-    if (!this.settings.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgress) {
       this.logger.warn(LogMessage.warn.onPauseMissingConversation(), { startTime });
       throw new BadRequestException(LogMessage.warn.onPauseMissingConversation())
     }
@@ -106,7 +104,7 @@ export class ConversationController {
   public async resumeConversation(): Promise<void> {
 
     const startTime: number = Date.now();
-    if (!this.settings.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgress) {
       this.logger.warn(LogMessage.warn.onResumeMissingConversation(), { startTime });
       throw new BadRequestException(LogMessage.warn.onResumeMissingConversation())
     }
@@ -135,7 +133,7 @@ export class ConversationController {
   public async breakConversation(): Promise<void> {
 
     const startTime: number = Date.now();
-    if (!this.settings.app.isConversationInProgres) {
+    if (!this.settings.app.isConversationInProgress) {
       this.logger.warn(LogMessage.warn.onBreakMissingConversation(), { startTime });
       throw new BadRequestException(LogMessage.warn.onBreakMissingConversation())
     }
@@ -182,7 +180,7 @@ export class ConversationController {
 
     const startTime: number = Date.now();
 
-    if(this.settings.app.state.currentMessageIndex === 0 || this.settings.app.state.lastBotMessages?.length === 0){
+    if (this.settings.app.state.currentMessageIndex === 0 || this.settings.app.state.lastBotMessages?.length === 0) {
       throw new InternalServerErrorException(LogMessage.error.onCreateSummaryFail(this.settings.app.conversationName));
     }
 
@@ -208,33 +206,36 @@ export class ConversationController {
 
   @Post([`restore`])
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse({ description: `` })
-  @ApiInternalServerErrorResponse({ description: `` })
-  @ApiForbiddenResponse({ description: `` })
+  @ApiAcceptedResponse({ description: `Conversation restored successfully` })
+  @ApiInternalServerErrorResponse({ description: `Failed to restore conversation` })
+  @ApiForbiddenResponse({ description: `Conversation is already in progress` })
   public async restoreConversationFromPayload(
-    @Body() body: RestoreConversationPayloadDto
+    @Body() body: SettingsDto
   ): Promise<void> {
 
     const startTime: number = Date.now();
-    if (this.settings.app.isConversationInProgres) {
-      throw new ForbiddenException(`Couldn't load conversation. There is already running one.`)
+    const existingSettings = structuredClone(this.settings.app);
+    if (this.settings.app.isConversationInProgress) {
+      throw new ForbiddenException(`Couldn't load conversation. There is already running one.`);
     }
 
-    const relations: string[] = [`settings`, `states`, `messages`, `comments`];
-    let conversation: Conversation;
+    try {
 
-    if (!Number.isNaN(+body.id)) {
-      conversation = await this.conversation.findOne({ where: { id: +body.id }, relations });
-    } else {
-      conversation = await this.conversation.findOne({ where: { conversationName: body.id }, relations });
+      this.settings.app = body;
+      this.settings.app.state.currentMessageIndex = body.state.lastBotMessages.length - 1;
+
+      if (!existingSettings.isConversationInProgress && this.settings.app.isConversationInProgress) {
+        const payload: MessageEventPayload = { message: this.settings.findLastMessage() };
+        this.settings.app.state.shouldContinue = true;
+        await this.eventEmitter.emitAsync(EventsEnum.message, payload);
+      }
+
+      this.logger.log(LogMessage.log.onConversationRestored(), { startTime });
+
+    } catch (error) {
+      this.logger.error(LogMessage.error.onConversationRestoreFail(), { startTime, error });
+      throw new InternalServerErrorException(LogMessage.error.onConversationRestoreFail());
     }
-
-    if (!conversation) {
-      this.logger.warn(`Specified conversation not found`, { startTime });
-      throw new NotFoundException(`Specified conversation not found`);
-    }
-
-
   }
 
   @Post([`restore/:id`])
@@ -250,21 +251,28 @@ export class ConversationController {
     const startTime: number = Date.now();
     let conversation: Conversation;
 
-    if (this.settings.app.isConversationInProgres) {
+    if (this.settings.app.isConversationInProgress) {
       throw new ForbiddenException(`Couldn't load conversation. There is already running one.`)
     }
 
+    const relations = [`comments`, `messages`, `settings`, `states`, `summaries`];
     if (!Number.isNaN(+id)) {
-      conversation = await this.conversation.findOne({ where: { id: +id } });
+      conversation = await this.conversation.findOne({
+        where: { id: +id }, relations
+      });
     } else {
-      conversation = await this.conversation.findOne({ where: { conversationName: id } });
+      conversation = await this.conversation.findOne({
+        where: { conversationName: id }, relations
+      });
     }
 
     if (!conversation) {
-      this.logger.warn(`Specified conversation not found`, { startTime });
-      throw new NotFoundException(`Specified conversation not found`);
+      this.logger.warn(LogMessage.warn.onConversationNotFound(), { startTime });
+      throw new NotFoundException(LogMessage.warn.onConversationNotFound());
     }
 
+    this.settings.applyConversationSettingsAndState(conversation);
+    this.logger.log(LogMessage.log.onConversationRestored(), { startTime });
 
   }
 

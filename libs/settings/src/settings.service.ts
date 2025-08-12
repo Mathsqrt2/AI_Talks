@@ -2,7 +2,7 @@ import {
     Injectable, InternalServerErrorException, Logger,
     NotFoundException, OnApplicationBootstrap
 } from '@nestjs/common';
-import { State, Settings as SettingsEntity } from '@libs/database';
+import { State, Settings as SettingsEntity, Conversation } from '@libs/database';
 import {
     Archive, Message, SettingsFile, Statistics, ModelfilesOutput,
     StatsProperties, MessageEventPayload
@@ -31,7 +31,7 @@ export class SettingsService implements OnApplicationBootstrap {
     public app: SettingsFile = {
         conversationName: null,
         conversationId: null,
-        isConversationInProgres: false,
+        isConversationInProgress: false,
         maxMessagesCount: 64,
         maxContextSize: 4096,
         maxAttempts: 10,
@@ -61,6 +61,18 @@ export class SettingsService implements OnApplicationBootstrap {
 
         }
     };
+
+    private statistics: Archive = {
+        startTime: null,
+        pause: [],
+        resume: [],
+        bot_1: {
+            messages: [],
+        },
+        bot_2: {
+            messages: [],
+        }
+    }
 
     public async onApplicationBootstrap() {
 
@@ -95,7 +107,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     }
 
-    private prepareComparableSettingsString = (settings: SettingsEntity): string => {
+    private prepareComparableSettingsString(settings: SettingsEntity): string {
         let output: string = ``;
         output += settings?.retryAfterTimeInMiliseconds ?? `noRetryTime`;
         output += settings?.maxAttempts ?? `noMaxAttempts`;
@@ -104,13 +116,13 @@ export class SettingsService implements OnApplicationBootstrap {
         return output;
     }
 
-    private areSettingsEqual = (previous: SettingsEntity, current: SettingsEntity): boolean => {
+    private areSettingsEqual(previous: SettingsEntity, current: SettingsEntity): boolean {
         const previousSettingsHash = SHA256(this.prepareComparableSettingsString(previous)).toString();
         const currentSettingsHash = SHA256(this.prepareComparableSettingsString(current)).toString();
         return previousSettingsHash === currentSettingsHash
     }
 
-    private findCurrentSettings = (): SettingsEntity => {
+    private findCurrentSettings(): SettingsEntity {
         return this.settings.create({
             id: null,
             conversationId: this.app?.conversationId || null,
@@ -123,7 +135,7 @@ export class SettingsService implements OnApplicationBootstrap {
         })
     }
 
-    public archiveSettings = async (): Promise<void> => {
+    public async archiveSettings(): Promise<void> {
 
         const startTime: number = Date.now();
         const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
@@ -134,7 +146,9 @@ export class SettingsService implements OnApplicationBootstrap {
         }
 
         try {
-            await this.settings.save(currentSettings);
+            const settings = this.settings.create(currentSettings);
+            await this.settings.save(settings);
+            this.logger.log(LogMessage.log.onSettingsSaveSuccess(this.app.conversationId), { startTime });
         } catch (error) {
             this.logger.error(`Failed to save current settings.`);
         }
@@ -158,23 +172,11 @@ export class SettingsService implements OnApplicationBootstrap {
         this.statistics.startTime = new Date();
     }
 
-    private statistics: Archive = {
-        startTime: null,
-        pause: [],
-        resume: [],
-        bot_1: {
-            messages: [],
-        },
-        bot_2: {
-            messages: [],
-        }
-    }
-
-    public noticeInterrupt = (type: `pause` | `resume`): void => {
+    public noticeInterrupt(type: `pause` | `resume`): void {
         this.statistics[type].push(new Date())
     }
 
-    public archiveCurrentState = async (): Promise<void> => {
+    public async archiveCurrentState(): Promise<void> {
 
         const startTime: number = Date.now();
         const outPath = path.join(__dirname, `${this.app.conversationName}.${Date.now()}.json`);
@@ -185,6 +187,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
         try {
             await writeFile(outPath, JSON.stringify(data));
+            this.logger.log(LogMessage.log.onLocalFileSaveSuccess(), { startTime });
         } catch (error) {
             this.logger.error(LogMessage.error.onLocalFileSaveFail(), error);
             throw error
@@ -192,17 +195,17 @@ export class SettingsService implements OnApplicationBootstrap {
 
     }
 
-    private findAverageTime = (messages: Message[]): number => {
+    private findAverageTime(messages: Message[]): number {
         return messages.length > 0
             ? +Number(this.findTotalTime(messages) / messages.length).toFixed(1)
             : 0;
     }
 
-    private findTotalTime = (messages: Message[]): number => {
+    private findTotalTime(messages: Message[]): number {
         return messages.reduce((total, entry) => total + entry.generationTime, 0);
     }
 
-    public getStatistics = (who?: BotsEnum): Statistics | StatsProperties => {
+    public getStatistics(who?: BotsEnum): Statistics | StatsProperties {
 
         const bot1Messages = this.statistics.bot_1.messages;
         const bot2Messages = this.statistics.bot_2.messages;
@@ -229,7 +232,7 @@ export class SettingsService implements OnApplicationBootstrap {
         return statistics;
     }
 
-    public clearStatistics = async (): Promise<void> => {
+    public async clearStatistics(): Promise<void> {
         await this.archiveCurrentState()
         this.statistics.bot_1.messages = [];
         this.statistics.bot_2.messages = [];
@@ -277,5 +280,9 @@ export class SettingsService implements OnApplicationBootstrap {
             generatingStartTime: new Date(),
             generationTime: 0,
         };
+    }
+
+    public applyConversationSettingsAndState(conversation: Conversation): void {
+
     }
 }

@@ -4,8 +4,8 @@ import { prompts } from '@libs/constants/prompts';
 import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
 import { Injectable } from '@nestjs/common';
-import { Logger } from '@libs/logger';
 import { BotsEnum } from '@libs/enums';
+import { Logger } from '@libs/logger';
 
 @Injectable()
 export class AiService {
@@ -16,7 +16,7 @@ export class AiService {
         private readonly logger: Logger,
     ) { }
 
-    public merge = async (message2: InjectContentPayload, message1: Message): Promise<string> => {
+    public async merge(message2: InjectContentPayload, message1: Message): Promise<string> {
 
         const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
@@ -41,7 +41,7 @@ export class AiService {
         }
     }
 
-    public chatAs = async (bot: BotsEnum): Promise<string> => {
+    public async chatAs(bot: BotsEnum): Promise<string> {
 
         this.settings.app.state.isGeneratingOnAir = true;
         const lastMessages = structuredClone(this.settings.app.state.lastBotMessages);
@@ -63,18 +63,7 @@ export class AiService {
         return modelResponse.message?.content;
     }
 
-    public respondTo = async (message: Message, bot: BotsEnum): Promise<string> => {
-
-        const context: number[] = [];
-        const model = bot === BotsEnum.BOT_1
-            ? `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker1`
-            : `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker2`;
-
-        const modelResponse = await this.ollama.generate({ model, prompt: ``, context });
-        return modelResponse.response;
-    }
-
-    public summarize = async (): Promise<string> => {
+    public async summarize(): Promise<string> {
 
         const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;

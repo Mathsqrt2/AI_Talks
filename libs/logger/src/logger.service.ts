@@ -20,7 +20,7 @@ export class Logger {
         this.logger = new NestLogger(this.appName);
     }
 
-    private shouldLog = (): boolean => {
+    private shouldLog(): boolean {
         return this.settings.app.state.shouldLog;
     }
 
@@ -52,7 +52,7 @@ export class Logger {
 
     }
 
-    public log = (message: any, config?: LoggerConfig): string => {
+    public log(message: any, config?: LoggerConfig): string {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
@@ -72,7 +72,7 @@ export class Logger {
         return message;
     }
 
-    public warn = (message: any, config?: LoggerConfig): string => {
+    public warn(message: any, config?: LoggerConfig): string {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
@@ -92,7 +92,7 @@ export class Logger {
         return message;
     }
 
-    public error = (message: any, config?: ErrorConfig): void => {
+    public error(message: any, config?: ErrorConfig): void {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
@@ -119,7 +119,7 @@ export class Logger {
         return message;
     }
 
-    public debug = (message: any, config?: LoggerConfig): void => {
+    public debug(message: any, config?: LoggerConfig): void {
 
         const context = config?.context ?? null;
         const save = config?.save ?? this.settings.app.state.shouldArchiveLog;
@@ -138,4 +138,5 @@ export class Logger {
 
         return message;
     }
+    
 }

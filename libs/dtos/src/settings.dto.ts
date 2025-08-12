@@ -16,10 +16,10 @@ export class SettingsDto {
     @IsNumber()
     public conversationId: number;
 
-    @ApiProperty({ description: SwaggerMessages.settingsDto.isConversationInProgressDescription(), example: true })
+    @ApiProperty({ description: SwaggerMessages.settingsDto.isConversationInProgresssDescription(), example: true })
     @IsDefined()
     @IsBoolean()
-    public isConversationInProgres: boolean;
+    public isConversationInProgress: boolean;
 
     @ApiProperty({ description: SwaggerMessages.settingsDto.maxMessagesCountDescription(), example: 128 })
     @IsDefined()
