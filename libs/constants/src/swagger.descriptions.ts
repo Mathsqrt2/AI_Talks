@@ -211,4 +211,8 @@ export class SwaggerMessages {
         ApiBadRequestResponse: (): string => `Failed to patch prompts. Invalid prompts data`,
     }
 
+    public static deleteConversation: LogMessageContent = {
+        ApiAcceptedResponse: (): string => `Successfully deleted conversation`,
+    }
+
 }

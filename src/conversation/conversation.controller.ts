@@ -4,7 +4,7 @@ import {
   RestoreConversationByIdDto, InitDto, ConversationInitDto,
   InjectMessageDto, SettingsDto
 } from '@libs/dtos';
-import { ConversationService } from 'src/conversation.service';
+import { ConversationService } from 'src/conversation/conversation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';

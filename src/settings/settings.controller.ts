@@ -10,7 +10,8 @@ import {
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
   ApiNoContentResponse, ApiNotFoundResponse,
-  ApiBadRequestResponse, ApiOkResponse
+  ApiBadRequestResponse, ApiOkResponse,
+  ApiAcceptedResponse
 } from '@nestjs/swagger';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from '@libs/settings';
@@ -25,7 +26,7 @@ export class SettingsController {
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
     private readonly logger: Logger,
-  ) {  }
+  ) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -97,7 +98,6 @@ export class SettingsController {
     if (!process.env.TELEGRAM_INVITATION || process.env.TELEGRAM_INVITATION === ``) {
       throw new NotFoundException(`There is not defined telegram invitation.`);
     }
-
     return { invitation: process.env.TELEGRAM_INVITATION }
   }
 
@@ -168,11 +168,9 @@ export class SettingsController {
   public setState(
     @Body() body: StateDto
   ): void {
-
     const startTime: number = Date.now();
     this.settings.app.state = body;
     this.logger.log(LogMessage.log.onStateUpdate(), { startTime });
-
   }
 
   @Patch(`state`)
@@ -182,12 +180,10 @@ export class SettingsController {
   public patchState(
     @Body() stateProperties: PatchStateDto
   ): void {
-
     const startTime: number = Date.now();
     const existingState = structuredClone(this.settings.app.state);
     this.settings.app.state = { ...existingState, ...stateProperties };
     this.logger.log(LogMessage.log.onStatePatched(), { startTime });
-
   }
 
   @Patch(`prompt`)
@@ -199,7 +195,6 @@ export class SettingsController {
   ) {
     const startTime: number = Date.now();
     const existingPrompts = structuredClone(this.settings.app.prompts);
-
     this.settings.app.prompts = { ...existingPrompts, ...prompts };
     this.logger.log(LogMessage.log.onPromptsPatched(), { startTime });
   }
@@ -236,6 +231,8 @@ export class SettingsController {
   }
 
   @Delete(`conversation`)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({ description: SwaggerMessages.deleteConversation.ApiAcceptedResponse() })
   public deleteConversation(): void {
     const startTime: number = Date.now();
     this.settings.app.state.usersMessagesStackForBot1 = [];
