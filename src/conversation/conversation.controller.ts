@@ -7,11 +7,8 @@ import {
 } from '@libs/dtos';
 import { ConversationService } from 'src/conversation/conversation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
-import { Conversation } from '@libs/database';
 import { Logger } from '@libs/logger';
-import { Repository } from 'typeorm';
 import {
   ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
   ApiForbiddenResponse, ApiInternalServerErrorResponse,
@@ -20,14 +17,13 @@ import {
 import {
   BadRequestException, Body, Controller, Param, Post,
   ForbiddenException, Get, HttpCode, HttpStatus,
-  InternalServerErrorException, NotFoundException,
+  InternalServerErrorException
 } from '@nestjs/common';
 
 @Controller(`api/v1/conversation`)
 export class ConversationController {
 
   constructor(
-    @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
     private readonly conversationService: ConversationService,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
@@ -249,30 +245,24 @@ export class ConversationController {
   ): Promise<void> {
 
     const startTime: number = Date.now();
-    let conversation: Conversation;
-
     if (this.settings.app.isConversationInProgress) {
       throw new ForbiddenException(LogMessage.warn.onConversationAlreadyRunning())
     }
 
-    const relations = [`comments`, `messages`, `settings`, `states`, `summaries`];
-    if (!Number.isNaN(+id)) {
-      conversation = await this.conversation.findOne({
-        where: { id: +id }, relations
-      });
-    } else {
-      conversation = await this.conversation.findOne({
-        where: { conversationName: id }, relations
-      });
-    }
-
-    if (!conversation) {
-      this.logger.warn(LogMessage.warn.onConversationNotFound(), { startTime });
-      throw new NotFoundException(LogMessage.warn.onConversationNotFound());
-    }
-
-    this.settings.applyConversationSettingsAndState(conversation);
+    this.settings.applyConversationSettingsAndState(id);
     this.logger.log(LogMessage.log.onConversationRestored(), { startTime });
+
+  }
+
+  @Post([`reset`])
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({ description: SwaggerMessages.resetConversation.ApiAcceptedResponse() })
+  @ApiInternalServerErrorResponse({ description: SwaggerMessages.resetConversation.ApiInternalServerErrorResponse() })
+  public async resetConversation(): Promise<void> {
+
+    const startTime: number = Date.now();
+    this.settings.restoreDefaults();
+    this.logger.log(LogMessage.log.onConversationReset(), { startTime });
 
   }
 

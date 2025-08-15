@@ -14,6 +14,7 @@ export class LogMessage {
         onConversationNotFound: (): string => `Specified conversation not found.`,
         onEmptyTelegramInvitation: (): string => `There is not defined telegram invitation.`,
         onEmptyMessage: (): string => `There is not defined message.`,
+        onArchiveStateFail: (): string => `Failed to archive current state.`,
     };
 
     public static error: LogMessageContent = {

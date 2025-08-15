@@ -82,6 +82,7 @@ export class SwaggerMessages {
         generatingEndTimeDescription: (): string => `Timestamp indicating when the message generation ended.`,
         contentDescription: (): string => `The textual content of the generated message.`,
         authorDescription: (): string => `Identifies who authored or created the message.`,
+        uuidDescription: (): string => `Universally unique identifier for the message.`,
     }
 
     public static promptsDto: LogMessageContent = {
@@ -259,5 +260,9 @@ export class SwaggerMessages {
         summarizerPromptDescription: (): string => `Prompt used to summarize the conversation or key points discussed.`,
     };
 
+    public static resetConversation: LogMessageContent = {
+        ApiAcceptedResponse: (): string => `Conversation reset successfully.`,
+        ApiInternalServerErrorResponse: (): string => `Failed to reset conversation. Internal server error`,
+    };
 
 }

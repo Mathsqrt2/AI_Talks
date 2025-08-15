@@ -29,4 +29,9 @@ export class MessageDto {
     @IsDefined()
     @IsEnum(BotsEnum)
     public author: BotsEnum;
+
+    @ApiProperty({ description: SwaggerMessages.messageDto.uuidDescription(), example: "0a44b8b588aaea880e339b35eb3abf06acb1a20cbe431e7f00a12588bafba9fb" })
+    @IsString()
+    @IsDefined()
+    public uuid: string;
 }

@@ -1,7 +1,10 @@
-import { State, Settings as SettingsEntity, Conversation } from '@libs/database';
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { LogMessage, prompts } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+    State, Settings as SettingsEntity,
+    Conversation, Message as MessageEntity
+} from '@libs/database';
 import {
     Injectable, InternalServerErrorException, Logger,
     NotFoundException, OnApplicationBootstrap
@@ -16,6 +19,7 @@ import {
 } from '@libs/enums';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { SHA256 } from 'crypto-js';
 import { resolve } from 'path';
 import * as path from 'path';
@@ -26,6 +30,8 @@ export class SettingsService implements OnApplicationBootstrap {
     private readonly logger: Logger = new Logger(SettingsService.name);
     constructor(
         @InjectRepository(SettingsEntity) private readonly settings: Repository<SettingsEntity>,
+        @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
+        @InjectRepository(MessageEntity) private readonly message: Repository<MessageEntity>,
         @InjectRepository(State) private readonly state: Repository<State>,
     ) { }
 
@@ -179,6 +185,34 @@ export class SettingsService implements OnApplicationBootstrap {
 
     public async archiveCurrentState(): Promise<void> {
 
+        let wasSaved = false;
+        try {
+
+            const currentState = this.state.create({
+                conversationId: this.app.conversationId,
+                shouldContinue: this.app.state.shouldContinue,
+                shouldSendToTelegram: this.app.state.shouldSendToTelegram,
+                shouldDisplayResponse: this.app.state.shouldDisplayResponse,
+                shouldBroadcastOnWebSocket: this.app.state.shouldBroadcastOnWebSocket,
+                shouldLog: this.app.state.shouldLog,
+                isGeneratingOnAir: this.app.state.isGeneratingOnAir,
+                lastResponderName: this.app.state.lastResponder,
+                enqueuedMessageContent: this.app.state.enqueuedMessage.content,
+                enqueuedMessageAuthor: this.app.state.enqueuedMessage.author,
+                currentMessageIndex: this.app.state.currentMessageIndex,
+            });
+            await this.state.save(currentState);
+            wasSaved = true;
+
+        } catch (error) {
+            this.logger.error(LogMessage.error.onArchiveStateFail(), error);
+        }
+
+
+        if (wasSaved) {
+            return;
+        }
+
         const outPath = path.join(__dirname, `${this.app.conversationName}.${Date.now()}.json`);
         const data = {
             statistics: this.getStatistics(),
@@ -269,7 +303,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     }
 
-    public findLastMessage(): Message | undefined {
+    public findLastMessage(): Message {
         return this.app.state.enqueuedMessage
             || this.app.state.lastBotMessages.at(-1)
             || {
@@ -278,10 +312,62 @@ export class SettingsService implements OnApplicationBootstrap {
             generatingEndTime: new Date(),
             generatingStartTime: new Date(),
             generationTime: 0,
+            uuid: uuidv4(),
         };
     }
 
-    public applyConversationSettingsAndState(conversation: Conversation): void {
+    public restoreDefaults(): void {
 
+    }
+
+    private applyState(state: State): void {
+
+        this.app.state.currentMessageIndex = state.currentMessageIndex;
+
+    }
+
+    private applySettings(settings: SettingsEntity): void {
+
+    }
+
+    private applyMessages(messages: MessageEntity[]): void {
+
+    }
+
+    public async applyConversationSettingsAndState(id: number | string): Promise<void> {
+
+        const startTime: number = Date.now();
+        let conversation: Conversation;
+
+        const relations = [`comments`, `messages`, `settings`, `states`, `summaries`];
+        if (Number.isNaN(+id)) {
+            conversation = await this.conversation.findOne({
+                where: { conversationName: id.toString() }, relations
+            });
+        } else {
+            conversation = await this.conversation.findOne({
+                where: { id: +id }, relations
+            });
+        }
+
+        if (!conversation) {
+            this.logger.warn(LogMessage.warn.onConversationNotFound(), { startTime });
+            throw new NotFoundException(LogMessage.warn.onConversationNotFound());
+        }
+
+        const state = await this.state.findOne({ where: { conversationId: conversation.id } });
+        if (state) {
+            this.applyState(state);
+        }
+
+        const settings = await this.settings.findOne({ where: { conversationId: conversation.id } });
+        if (settings) {
+            this.applySettings(settings);
+        }
+
+        const messages = await this.message.find({ where: { conversationId: conversation.id } });
+        if (messages) {
+            this.applyMessages(messages);
+        }
     }
 }

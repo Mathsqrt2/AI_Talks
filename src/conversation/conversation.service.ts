@@ -11,6 +11,7 @@ import { State } from '@libs/database';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { SHA256 } from 'crypto-js';
 
 @Injectable()
@@ -27,7 +28,7 @@ export class ConversationService {
     private readonly ai: AiService,
   ) { }
 
-  private async generateConversationName(): Promise<boolean> {
+  private async generateConversation(): Promise<boolean> {
 
     const startTime: number = Date.now();
     const seed = `${JSON.stringify(this.settings.app)}${Date.now()}`;
@@ -57,7 +58,7 @@ export class ConversationService {
   private async startConversation(initPayload: InitEventPayload): Promise<void> {
 
     const startTime: number = Date.now();
-    const isNameGeneratedSuccessfully: boolean = await this.generateConversationName();
+    const isNameGeneratedSuccessfully: boolean = await this.generateConversation();
     if (!isNameGeneratedSuccessfully) {
       this.logger.warn(LogMessage.warn.onInitializationFail(), { startTime });
       return;
@@ -77,7 +78,8 @@ export class ConversationService {
         author: currentBot,
         content: initPayload.prompt,
         generationTime: 0,
-        generatingEndTime: new Date()
+        generatingEndTime: new Date(),
+        uuid: uuidv4()
       }
     };
 
@@ -87,6 +89,7 @@ export class ConversationService {
       generatingStartTime: new Date(),
       generatingEndTime: new Date(),
       generationTime: 0,
+      uuid: uuidv4()
     });
 
     await this.telegram.respondBy(currentBot, prompts.separator);
@@ -161,6 +164,7 @@ export class ConversationService {
         generatingStartTime,
         generatingEndTime: new Date(),
         generationTime: Date.now() - generatingStartTime.getTime(),
+        uuid: uuidv4()
       }
     }
 
