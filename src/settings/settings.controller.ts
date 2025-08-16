@@ -5,7 +5,8 @@ import {
 import { MessageEventPayload, ModelfilesOutput, PromptOutput } from '@libs/types';
 import {
   Param, Get, HttpStatus, NotFoundException, Put, Body, Controller,
-  HttpCode, InternalServerErrorException, Patch, Delete
+  HttpCode, InternalServerErrorException, Patch, Delete,
+  BadRequestException
 } from '@nestjs/common';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
@@ -140,11 +141,12 @@ export class SettingsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: SwaggerMessages.setSettingsFile.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setSettingsFile.ApiBadRequestResponse() })
-  public setSettings(
+  public async setSettings(
     @Body() body: SettingsDto
-  ) {
+  ): Promise<void> {
     const startTime: number = Date.now();
     this.settings.app = body;
+    await this.settings.archiveSettings();
     this.logger.log(LogMessage.log.onSettingsUpdate(), { startTime });
   }
 
@@ -152,11 +154,12 @@ export class SettingsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: SwaggerMessages.setPrompt.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setPrompt.ApiBadRequestResponse() })
-  public setPrompts(
+  public async setPrompts(
     @Body() prompts: PromptsDto
-  ) {
+  ): Promise<void> {
     const startTime: number = Date.now();
     this.settings.app.prompts = prompts;
+    await this.settings.archiveSettings();
     this.logger.log(LogMessage.log.onPromptsUpdate(), { startTime });
   }
 
@@ -164,11 +167,12 @@ export class SettingsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: SwaggerMessages.setState.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.setState.ApiBadRequestResponse() })
-  public setState(
+  public async setState(
     @Body() body: StateDto
-  ): void {
+  ): Promise<void> {
     const startTime: number = Date.now();
     this.settings.app.state = body;
+    await this.settings.archiveSettings();
     this.logger.log(LogMessage.log.onStateUpdate(), { startTime });
   }
 
@@ -176,12 +180,19 @@ export class SettingsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: SwaggerMessages.patchState.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.patchState.ApiBadRequestResponse() })
-  public patchState(
+  public async patchState(
     @Body() stateProperties: PatchStateDto
-  ): void {
+  ): Promise<void> {
     const startTime: number = Date.now();
+
+    if (!stateProperties || Object.keys(stateProperties).length === 0) {
+      this.logger.warn(LogMessage.warn.onInvalidFields(`patch state`));
+      throw new BadRequestException(LogMessage.warn.onInvalidFields(`patch state`));
+    }
+
     const existingState = structuredClone(this.settings.app.state);
     this.settings.app.state = { ...existingState, ...stateProperties };
+    await this.settings.archiveSettings();
     this.logger.log(LogMessage.log.onStatePatched(), { startTime });
   }
 
@@ -189,12 +200,19 @@ export class SettingsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({ description: SwaggerMessages.patchPrompts.ApiNoContentResponse() })
   @ApiBadRequestResponse({ description: SwaggerMessages.patchPrompts.ApiBadRequestResponse() })
-  public patchPrompts(
+  public async patchPrompts(
     @Body() prompts: PatchPromptsDto
-  ) {
+  ): Promise<void> {
     const startTime: number = Date.now();
+
+    if (!prompts || Object.keys(prompts).length === 0) {
+      this.logger.warn(LogMessage.warn.onInvalidFields(`patch prompts`));
+      throw new BadRequestException(LogMessage.warn.onInvalidFields(`patch prompts`));
+    }
+
     const existingPrompts = structuredClone(this.settings.app.prompts);
     this.settings.app.prompts = { ...existingPrompts, ...prompts };
+    await this.settings.archiveSettings();
     this.logger.log(LogMessage.log.onPromptsPatched(), { startTime });
   }
 
@@ -206,6 +224,11 @@ export class SettingsController {
     @Body() body: PatchPropertyDto,
   ): Promise<void> {
     const startTime: number = Date.now();
+
+    if (!body || Object.keys(body).length === 0) {
+      this.logger.warn(LogMessage.warn.onInvalidFields(`patch property`));
+      throw new BadRequestException(LogMessage.warn.onInvalidFields(`patch property`));
+    }
 
     const { state, prompts, ...properties } = body;
     const existingSettings = structuredClone(this.settings.app);
@@ -225,8 +248,8 @@ export class SettingsController {
       this.eventEmitter.emit(EventsEnum.message, payload);
       this.logger.log(LogMessage.log.onResumeConversation(), { startTime });
     }
-
-    this.logger.log(LogMessage.log.onPropertiesPatched(), { startTime });
+    await this.settings.archiveSettings();
+    this.logger.log(LogMessage.log.onPropertiesPatched(Object.keys(body).length), { startTime });
   }
 
   @Delete(`conversation`)

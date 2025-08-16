@@ -23,6 +23,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { SHA256 } from 'crypto-js';
 import { resolve } from 'path';
 import * as path from 'path';
+import { RestorableSettingsEnum } from '@libs/enums/restorable-settings.enum';
+import { RestorableStateEnum } from '@libs/enums/restorable-state.enum';
 
 @Injectable()
 export class SettingsService implements OnApplicationBootstrap {
@@ -98,20 +100,17 @@ export class SettingsService implements OnApplicationBootstrap {
             return;
         }
 
-        if (previousSettings?.maxMessagesCount) {
-            this.app.maxMessagesCount = previousSettings.maxMessagesCount;
+        for (const key of Object.values(RestorableSettingsEnum)) {
+            if (previousSettings[key]) {
+                this.app[key] = previousSettings[key];
+            }
         }
 
-        if (previousSettings?.maxContextSize) {
-            this.app.maxContextSize = previousSettings.maxContextSize;
-        }
-
-        if (previousSettings?.maxAttempts) {
-            this.app.maxAttempts = previousSettings.maxAttempts;
-        }
-
-        if (previousSettings?.retryAfterTimeInMiliseconds) {
-            this.app.retryAfterTimeInMiliseconds = previousSettings.retryAfterTimeInMiliseconds;
+        const previousState = await this.state.findOne({ where: {}, order: { id: `desc` } });
+        for (const key of Object.values(RestorableStateEnum)) {
+            if (previousState[key]) {
+                this.app.state[key] = previousState[key];
+            }
         }
 
     }
