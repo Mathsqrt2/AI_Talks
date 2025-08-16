@@ -80,6 +80,8 @@ export class LogMessage {
         onConversationRestored: (): string => `Conversation restored successfully.`,
         onLocalFileSaveSuccess: (): string => `Local file saved successfully.`,
         onSettingsSaveSuccess: (id: number): string => `Settings ${id} saved successfully.`,
+        onConversationReset: (): string => `Conversation reset successfully.`,
+        onConversationSettingsApplied: (name: string): string => `Successfully applied settings for conversation ${name}.`
     };
 
 }

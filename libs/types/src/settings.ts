@@ -73,7 +73,7 @@ export type Message = {
     generatingEndTime: Date,
     content: string,
     author: BotsEnum,
-    uuid: string,
+    uuid?: string,
 }
 
 export type ModelfilesOutput = string | { [key: string]: string };

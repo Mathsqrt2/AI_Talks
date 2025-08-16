@@ -1,4 +1,4 @@
-import { IsDate, IsDefined, IsEnum, IsNumber, IsString } from "class-validator";
+import { IsDate, IsDefined, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
 import { BotsEnum } from "@libs/enums";
@@ -32,6 +32,6 @@ export class MessageDto {
 
     @ApiProperty({ description: SwaggerMessages.messageDto.uuidDescription(), example: "0a44b8b588aaea880e339b35eb3abf06acb1a20cbe431e7f00a12588bafba9fb" })
     @IsString()
-    @IsDefined()
-    public uuid: string;
+    @IsOptional()
+    public uuid?: string;
 }

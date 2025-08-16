@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { ConversationSubproperty } from "./partials";
 import { Conversation } from "./conversation.entity";
+import { BotsEnum } from "@libs/enums";
 
 @Entity(`messages`)
 export class Message extends ConversationSubproperty {
@@ -9,8 +10,8 @@ export class Message extends ConversationSubproperty {
     @JoinColumn({ name: `conversationId` })
     public assignedConversation: Conversation;
 
-    @Column({ type: `varchar`, length: 32 })
-    public author: string;
+    @Column({ type: `varchar`, enum: BotsEnum, length: 32 })
+    public author: BotsEnum;
 
     @Column({ type: `text`, nullable: false })
     public content: string;

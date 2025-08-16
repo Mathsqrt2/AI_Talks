@@ -317,21 +317,75 @@ export class SettingsService implements OnApplicationBootstrap {
     }
 
     public restoreDefaults(): void {
-
+        this.app = {
+            conversationName: null,
+            conversationId: null,
+            isConversationInProgress: false,
+            maxMessagesCount: 64,
+            maxContextSize: 4096,
+            maxAttempts: 10,
+            retryAfterTimeInMiliseconds: 10000,
+            state: {
+                shouldArchiveLog: true,
+                shouldContinue: false,
+                shouldSendToTelegram: false,
+                shouldDisplayResponse: true,
+                shouldBroadcastOnWebSocket: true,
+                shouldLog: true,
+                lastResponder: null,
+                enqueuedMessage: null,
+                isGeneratingOnAir: false,
+                usersMessagesStackForBot1: [],
+                usersMessagesStackForBot2: [],
+                lastBotMessages: [],
+                currentMessageIndex: 0,
+            },
+            prompts: {
+                initialPrompt: prompts.initialPrompt,
+                contextPrompt: prompts.ollamaPrompt,
+                contextPrompt1: prompts.ollamaPrompt1,
+                contextPrompt2: prompts.ollamaPrompt2,
+                summarizerPrompt: prompts.summarizerPrompt,
+                injectorPrompt: prompts.injectorPrompt,
+            }
+        }
     }
 
     private applyState(state: State): void {
-
         this.app.state.currentMessageIndex = state.currentMessageIndex;
-
+        this.app.state.shouldArchiveLog = state.shouldArchiveLog;
+        this.app.state.shouldContinue = state.shouldContinue;
+        this.app.state.shouldSendToTelegram = state.shouldSendToTelegram;
+        this.app.state.shouldDisplayResponse = state.shouldDisplayResponse;
+        this.app.state.shouldBroadcastOnWebSocket = state.shouldBroadcastOnWebSocket;
+        this.app.state.shouldLog = state.shouldLog;
+        this.app.state.isGeneratingOnAir = state.isGeneratingOnAir;
+        this.app.state.enqueuedMessage = {
+            content: state.enqueuedMessageContent,
+            author: state.enqueuedMessageAuthor,
+            generatingEndTime: null,
+            generatingStartTime: null,
+            generationTime: 0,
+        };
+        this.app.state.lastResponder = state.lastResponderName;
+        this.app.state.currentMessageIndex = state.currentMessageIndex;
     }
 
     private applySettings(settings: SettingsEntity): void {
-
+        this.app.maxMessagesCount = settings.maxMessagesCount;
+        this.app.maxContextSize = settings.maxContextSize;
+        this.app.maxAttempts = settings.maxAttempts;
+        this.app.retryAfterTimeInMiliseconds = settings.retryAfterTimeInMiliseconds;
     }
 
     private applyMessages(messages: MessageEntity[]): void {
-
+        this.app.state.lastBotMessages = messages.map(message => ({
+            author: message.author,
+            content: message.content,
+            generatingEndTime: message.generatingEndTime,
+            generatingStartTime: message.generatingStartTime,
+            generationTime: message.generationTime,
+        }));
     }
 
     public async applyConversationSettingsAndState(id: number | string): Promise<void> {
@@ -355,6 +409,10 @@ export class SettingsService implements OnApplicationBootstrap {
             throw new NotFoundException(LogMessage.warn.onConversationNotFound());
         }
 
+        this.app.conversationName = conversation.conversationName;
+        this.app.conversationId = conversation.id;
+        this.app.isConversationInProgress = false;
+
         const state = await this.state.findOne({ where: { conversationId: conversation.id } });
         if (state) {
             this.applyState(state);
@@ -365,9 +423,16 @@ export class SettingsService implements OnApplicationBootstrap {
             this.applySettings(settings);
         }
 
-        const messages = await this.message.find({ where: { conversationId: conversation.id } });
+        const messages = await this.message.find({
+            where: { conversationId: conversation.id },
+            order: { id: `desc` },
+            take: this.app.maxMessagesCount,
+        });
+
         if (messages) {
             this.applyMessages(messages);
         }
+
+        this.logger.log(LogMessage.log.onConversationSettingsApplied(this.app.conversationName), { startTime });
     }
 }
