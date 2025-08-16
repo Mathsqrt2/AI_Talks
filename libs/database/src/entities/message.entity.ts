@@ -10,7 +10,7 @@ export class Message extends ConversationSubproperty {
     @JoinColumn({ name: `conversationId` })
     public assignedConversation: Conversation;
 
-    @Column({ type: `varchar`, enum: BotsEnum, length: 32 })
+    @Column({ type: `enum`, enum: BotsEnum })
     public author: BotsEnum;
 
     @Column({ type: `text`, nullable: false })

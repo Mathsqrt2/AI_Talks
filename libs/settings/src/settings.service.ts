@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 import { LogMessage, prompts } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-    State, Settings as SettingsEntity,
+    State as StateEntity, Settings as SettingsEntity,
     Conversation, Message as MessageEntity
 } from '@libs/database';
 import {
@@ -32,7 +32,7 @@ export class SettingsService implements OnApplicationBootstrap {
         @InjectRepository(SettingsEntity) private readonly settings: Repository<SettingsEntity>,
         @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
         @InjectRepository(MessageEntity) private readonly message: Repository<MessageEntity>,
-        @InjectRepository(State) private readonly state: Repository<State>,
+        @InjectRepository(StateEntity) private readonly state: Repository<StateEntity>,
     ) { }
 
     private modelFiles: string[] = [];
@@ -205,7 +205,7 @@ export class SettingsService implements OnApplicationBootstrap {
             wasSaved = true;
 
         } catch (error) {
-            this.logger.error(LogMessage.error.onArchiveStateFail(), error);
+            this.logger.error(LogMessage.warn.onArchiveStateFail(), error);
         }
 
 
@@ -351,7 +351,7 @@ export class SettingsService implements OnApplicationBootstrap {
         }
     }
 
-    private applyState(state: State): void {
+    private applyState(state: StateEntity): void {
         this.app.state.currentMessageIndex = state.currentMessageIndex;
         this.app.state.shouldArchiveLog = state.shouldArchiveLog;
         this.app.state.shouldContinue = state.shouldContinue;
@@ -411,7 +411,6 @@ export class SettingsService implements OnApplicationBootstrap {
 
         this.app.conversationName = conversation.conversationName;
         this.app.conversationId = conversation.id;
-        this.app.isConversationInProgress = false;
 
         const state = await this.state.findOne({ where: { conversationId: conversation.id } });
         if (state) {
@@ -433,6 +432,11 @@ export class SettingsService implements OnApplicationBootstrap {
             this.applyMessages(messages);
         }
 
-        this.logger.log(LogMessage.log.onConversationSettingsApplied(this.app.conversationName), { startTime });
+        this.app.isConversationInProgress = true;
+        this.app.state.isGeneratingOnAir = false;
+        this.app.state.shouldContinue = false;
+        this.app.state.lastResponder = this.app.state.lastBotMessages.at(-1).author;
+
+        this.logger.log(LogMessage.log.onConversationSettingsApplied(this.app.conversationName));
     }
 }

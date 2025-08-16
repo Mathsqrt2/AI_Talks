@@ -122,6 +122,7 @@ export class SwaggerMessages {
         lastBotMessagesExample: (): string => `A list of the most recent bot messages to maintain context or for replay.`,
         aboutParam: (): string => `State parameter to retrieve from conversation state.`,
         aboutConversationInProgress: (): string => `Flag indicating whether a conversation is currently active.`,
+        aboutProperty: (): string => `The property to retrieve from settings`,
     }
 
     public static setPromptDto: LogMessageContent = {

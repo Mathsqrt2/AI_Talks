@@ -31,13 +31,13 @@ export class State extends ConversationSubproperty {
     @Column({ type: `boolean`, nullable: true })
     public isGeneratingOnAir: boolean;
 
-    @Column({ type: `varchar`, enum: BotsEnum, nullable: true, length: 256 })
+    @Column({ type: `enum`, enum: BotsEnum, nullable: true })
     public lastResponderName: BotsEnum;
 
     @Column({ type: `text`, nullable: true })
     public enqueuedMessageContent: string;
 
-    @Column({ type: `varchar`, enum: BotsEnum, nullable: true, length: 256 })
+    @Column({ type: `enum`, enum: BotsEnum, nullable: true })
     public enqueuedMessageAuthor: BotsEnum;
 
     @Column({ type: `int` })

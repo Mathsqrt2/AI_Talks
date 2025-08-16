@@ -121,16 +121,12 @@ export class ConversationService {
     }
 
     const lastMessages = structuredClone(this.settings.app.state.lastBotMessages);
-    const maxHistorySize: number = this.settings.app.maxMessagesCount;
-    lastMessages.push(message);
-
+    const maxHistorySize: number = this.settings.app.maxMessagesCount - 1;
     if (lastMessages.length > maxHistorySize) {
       const initialPrompt = lastMessages.shift();
       this.settings.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
       this.settings.app.state.lastBotMessages.unshift(initialPrompt);
-    } else {
-      this.settings.app.state.lastBotMessages = lastMessages;
-    }
+    } 
 
     while (!isMessageGenerated && generateAttempts-- > 0) {
       try {
@@ -235,7 +231,6 @@ export class ConversationService {
   public async stopConversation() {
 
     const startTime: number = Date.now();
-    await this.settings.clearStatistics();
     const name = this.settings.app.conversationName;
 
     this.settings.app.state.shouldContinue = false;
@@ -247,7 +242,8 @@ export class ConversationService {
     this.settings.app.isConversationInProgress = false;
     this.settings.app.conversationId = null;
     this.settings.app.conversationName = null;
-
+    await this.settings.clearStatistics();
+    
     this.logger.log(LogMessage.log.onBreakConversation(name), { startTime });
 
   }

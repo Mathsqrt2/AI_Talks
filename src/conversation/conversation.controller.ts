@@ -107,7 +107,7 @@ export class ConversationController {
 
     this.settings.app.state.shouldContinue = true;
     const payload: MessageEventPayload = {
-      message: this.settings.app.state.enqueuedMessage
+      message: this.settings.findLastMessage(),
     };
 
     try {
@@ -137,7 +137,7 @@ export class ConversationController {
     try {
       await this.conversationService.stopConversation();
     } catch (error) {
-      this.logger.error(LogMessage.error.onBreakConversationFail(), { startTime });
+      this.logger.error(LogMessage.error.onBreakConversationFail(), { startTime, error });
       throw new InternalServerErrorException(LogMessage.error.onBreakConversationFail());
     }
 
