@@ -25,6 +25,7 @@
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.9",
     "@nestjs/event-emitter": "^3.0.0",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.9",
     "@nestjs/platform-socket.io": "^11.1.5",
     "@nestjs/schedule": "^5.0.1",

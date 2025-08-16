@@ -17,10 +17,13 @@ import {
 import {
   BadRequestException, Body, Controller, Param, Post,
   ForbiddenException, Get, HttpCode, HttpStatus,
-  InternalServerErrorException
+  InternalServerErrorException,
+  UseGuards
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller(`api/v1/conversation`)
+@UseGuards(AuthGuard)
 export class ConversationController {
 
   constructor(

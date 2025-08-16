@@ -6,6 +6,7 @@ import { Logger, LoggerModule } from '@libs/logger';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { LogMessage } from '@libs/constants';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -13,6 +14,7 @@ import { LogMessage } from '@libs/constants';
     EventEmitterModule.forRoot({ global: true }),
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    AuthModule,
     ConversationModule,
     SettingsModule,
     LoggerModule,

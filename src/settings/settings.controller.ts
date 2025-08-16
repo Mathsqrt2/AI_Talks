@@ -6,7 +6,8 @@ import { MessageEventPayload, ModelfilesOutput, PromptOutput } from '@libs/types
 import {
   Param, Get, HttpStatus, NotFoundException, Put, Body, Controller,
   HttpCode, InternalServerErrorException, Patch, Delete,
-  BadRequestException
+  BadRequestException,
+  UseGuards
 } from '@nestjs/common';
 import { SwaggerMessages, LogMessage } from '@libs/constants';
 import {
@@ -15,11 +16,13 @@ import {
 } from '@nestjs/swagger';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from '@libs/settings';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { EventsEnum } from '@libs/enums';
 import { readFile } from 'fs/promises';
 import { Logger } from '@libs/logger';
 
 @Controller(`api/v1/settings`)
+@UseGuards(AuthGuard)
 export class SettingsController {
 
   constructor(

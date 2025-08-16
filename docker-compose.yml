@@ -42,6 +42,8 @@ services:
     <<: *application-base
     container_name: ai_talks_api
     environment:
+      # for demo purposes - DO NOT USE THIS VALUE!!!
+      JWT_SECRET: 90ee31b9-65f1-4c94-9319-ad2026125e3a 
       MODEL: *model
       LANGUAGE: PL
       API_PORT: 13000
