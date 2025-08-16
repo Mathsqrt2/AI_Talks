@@ -115,18 +115,18 @@ export class SettingsService implements OnApplicationBootstrap {
 
     }
 
-    private prepareComparableSettingsString(settings: SettingsEntity): string {
+    private prepareComparableString(values: SettingsEntity | StateEntity): string {
         let output: string = ``;
-        output += settings?.retryAfterTimeInMiliseconds ?? `noRetryTime`;
-        output += settings?.maxAttempts ?? `noMaxAttempts`;
-        output += settings?.maxContextSize ?? `noMaxContext`;
-        output += settings?.maxMessagesCount ?? `noMaxMessagesCount`;
+        const isState = RestorableStateEnum.SHOULD_LOG in values;
+        for (const key of Object.values(isState ? RestorableStateEnum : RestorableSettingsEnum)) {
+            output += values[key] ?? `no${key}`;
+        }
         return output;
     }
 
-    private areSettingsEqual(previous: SettingsEntity, current: SettingsEntity): boolean {
-        const previousSettingsHash = SHA256(this.prepareComparableSettingsString(previous)).toString();
-        const currentSettingsHash = SHA256(this.prepareComparableSettingsString(current)).toString();
+    private areEqual<T extends StateEntity | SettingsEntity>(previous: T, current: T): boolean {
+        const previousSettingsHash = SHA256(this.prepareComparableString(previous)).toString();
+        const currentSettingsHash = SHA256(this.prepareComparableString(current)).toString();
         return previousSettingsHash === currentSettingsHash
     }
 
@@ -148,60 +148,50 @@ export class SettingsService implements OnApplicationBootstrap {
         const previousSettings = await this.settings.findOne({ where: {}, order: { id: `desc` } });
         const currentSettings = this.findCurrentSettings();
 
-        if (this.areSettingsEqual(previousSettings, currentSettings)) {
+        if (this.areEqual(previousSettings, currentSettings)) {
             return;
         }
 
         try {
-            const settings = this.settings.create(currentSettings);
-            await this.settings.save(settings);
+            await this.settings.save(currentSettings);
             this.logger.log(LogMessage.log.onSettingsSaveSuccess(this.app.conversationId));
         } catch (error) {
             this.logger.error(LogMessage.error.onSavingSettingsFail(), error);
         }
     }
 
-    @OnEvent(EventsEnum.message)
-    private insertMessageIntoStats(payload: MessageEventPayload) {
-
-        payload.message.author === BotsEnum.BOT_1
-            ? this.statistics.bot_1.messages.push(payload.message)
-            : this.statistics.bot_2.messages.push(payload.message);
-
-        if (this.app.state.shouldLog) {
-            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
-        }
-    }
-
-    @OnEvent(EventsEnum.startConversation)
-    private onStartConversation() {
-        this.statistics.startTime = new Date();
-    }
-
-    public noticeInterrupt(type: ConversationInterruptsEnum): void {
-        this.statistics[type].push(new Date())
+    private findCurrentState(): StateEntity {
+        return this.state.create({
+            conversationId: this.app.conversationId,
+            shouldContinue: this.app.state.shouldContinue,
+            shouldSendToTelegram: this.app.state.shouldSendToTelegram,
+            shouldDisplayResponse: this.app.state.shouldDisplayResponse,
+            shouldBroadcastOnWebSocket: this.app.state.shouldBroadcastOnWebSocket,
+            shouldArchiveLog: this.app.state.shouldArchiveLog,
+            shouldLog: this.app.state.shouldLog,
+            isGeneratingOnAir: this.app.state.isGeneratingOnAir,
+            lastResponderName: this.app.state.lastResponder ?? null,
+            enqueuedMessageContent: this.app.state.enqueuedMessage?.content ?? null,
+            enqueuedMessageAuthor: this.app.state.enqueuedMessage?.author ?? null,
+            currentMessageIndex: this.app.state.currentMessageIndex ?? null,
+        })
     }
 
     public async archiveCurrentState(): Promise<void> {
 
+        const previousState = await this.state.findOne({ where: {}, order: { id: `desc` } });
+        const currentState = this.findCurrentState();
         let wasSaved = false;
+
+        if (this.areEqual(previousState, currentState)) {
+            return;
+        }
+
         try {
 
-            const currentState = this.state.create({
-                conversationId: this.app.conversationId,
-                shouldContinue: this.app.state.shouldContinue,
-                shouldSendToTelegram: this.app.state.shouldSendToTelegram,
-                shouldDisplayResponse: this.app.state.shouldDisplayResponse,
-                shouldBroadcastOnWebSocket: this.app.state.shouldBroadcastOnWebSocket,
-                shouldLog: this.app.state.shouldLog,
-                isGeneratingOnAir: this.app.state.isGeneratingOnAir,
-                lastResponderName: this.app.state.lastResponder,
-                enqueuedMessageContent: this.app.state.enqueuedMessage.content,
-                enqueuedMessageAuthor: this.app.state.enqueuedMessage.author,
-                currentMessageIndex: this.app.state.currentMessageIndex,
-            });
             await this.state.save(currentState);
             wasSaved = true;
+            this.logger.log(LogMessage.log.onStateSaveSuccess(this.app.conversationId));
 
         } catch (error) {
             this.logger.error(LogMessage.warn.onArchiveStateFail(), error);
@@ -226,6 +216,27 @@ export class SettingsService implements OnApplicationBootstrap {
             throw error
         }
 
+    }
+
+    @OnEvent(EventsEnum.message)
+    private insertMessageIntoStats(payload: MessageEventPayload) {
+
+        payload.message.author === BotsEnum.BOT_1
+            ? this.statistics.bot_1.messages.push(payload.message)
+            : this.statistics.bot_2.messages.push(payload.message);
+
+        if (this.app.state.shouldLog) {
+            this.logger.log(LogMessage.log.onSuccessfullyInsertedMessage(this.app.state.currentMessageIndex));
+        }
+    }
+
+    @OnEvent(EventsEnum.startConversation)
+    private onStartConversation() {
+        this.statistics.startTime = new Date();
+    }
+
+    public noticeInterrupt(type: ConversationInterruptsEnum): void {
+        this.statistics[type].push(new Date())
     }
 
     private findAverageTime(messages: Message[]): number {

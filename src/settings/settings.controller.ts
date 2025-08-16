@@ -172,7 +172,7 @@ export class SettingsController {
   ): Promise<void> {
     const startTime: number = Date.now();
     this.settings.app.state = body;
-    await this.settings.archiveSettings();
+    await this.settings.archiveCurrentState();
     this.logger.log(LogMessage.log.onStateUpdate(), { startTime });
   }
 
@@ -192,7 +192,7 @@ export class SettingsController {
 
     const existingState = structuredClone(this.settings.app.state);
     this.settings.app.state = { ...existingState, ...stateProperties };
-    await this.settings.archiveSettings();
+    await this.settings.archiveCurrentState();
     this.logger.log(LogMessage.log.onStatePatched(), { startTime });
   }
 

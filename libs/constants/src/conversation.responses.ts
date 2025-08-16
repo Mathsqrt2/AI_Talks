@@ -8,7 +8,7 @@ export class LogMessage {
         onPauseMissingConversation: (): string => `Failed to pause. Currently there are no processed talks.`,
         onResumeMissingConversation: (): string => `Failed to continue. Currently there are no processed talks.`,
         onInvalidPayload: (): string => `Failed to inject content. Invalid payload.`,
-        onInvalidFields: (where: string): string => `Failed to inject content. Invalid DTO in ${where}.`,
+        onInvalidFields: (where: string): string => `Failed to inject content. Invalid payload in ${where}.`,
         onInvalidMode: (mode?: string) => `Failed to inject message. Incorrect mode${mode ? ` "${mode}"` : ``}.`,
         onConversationInterrupt: (): string => `Conversation is currently paused.`,
         onInitializationFail: (): string => `Failed to initialize new conversation.`,
@@ -50,6 +50,7 @@ export class LogMessage {
         onModelfilesNotFound: (): string => `Modelfiles not found.`,
         onModelfilesAccessFail: (name?: string): string => `Failed to access modelfile${name ? ` ${name}` : ``}.`,
         onModelfileDoesntExist: (name?: string): string => `Specified modelfile${name ? ` ${name}` : ``} doesn't exist.`,
+        onSavingStateFail: (): string => `Failed to save current state.`,
     };
 
     public static log: LogMessageContent = {
@@ -82,7 +83,8 @@ export class LogMessage {
         onLocalFileSaveSuccess: (): string => `Local file saved successfully.`,
         onSettingsSaveSuccess: (id: number): string => `Settings ${id} saved successfully.`,
         onConversationReset: (): string => `Conversation reset successfully.`,
-        onConversationSettingsApplied: (name: string): string => `Successfully applied settings for conversation ${name}.`
+        onConversationSettingsApplied: (name: string): string => `Successfully applied settings for conversation ${name}.`,
+        onStateSaveSuccess: (id: string | number): string => `State ${id} saved successfully.`,
     };
 
 }
