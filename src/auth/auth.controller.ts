@@ -1,5 +1,13 @@
+import { RefreshTokenDto } from "@libs/dtos/refresh-token.dto";
+import { SignUpDto } from "@libs/dtos/sign-up.dto";
+import { SignInDto } from "@libs/dtos/sign-in.dto";
+import {
+    Body, Controller, HttpCode, HttpStatus,
+    Post, UseGuards
+} from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { Body, Controller, HttpCode, HttpStatus, Post } from "@nestjs/common";
+import { AuthGuard } from "./auth.guard";
+import { SignOutDto } from "@libs/dtos/sign-out.dto";
 
 @Controller(`api/v1/auth`)
 export class AuthController {
@@ -9,35 +17,37 @@ export class AuthController {
     ) { }
 
     @Post(`signin`)
-    @HttpCode(HttpStatus.ACCEPTED)
+    @HttpCode(HttpStatus.OK)
     public async signIn(
-        @Body() body
-    ) {
-        await this.authService.generateToken();
+        @Body() body: SignInDto
+    ): Promise<void> {
+        await this.authService.generateToken(body);
     }
 
     @Post(`signup`)
-    @HttpCode(HttpStatus.ACCEPTED)
+    @HttpCode(HttpStatus.OK)
     public async signUp(
-        @Body() body
-    ) {
-        await this.authService.registerUser();
+        @Body() body: SignUpDto
+    ): Promise<void> {
+        await this.authService.registerUser(body);
     }
 
     @Post(`signout`)
-    @HttpCode(HttpStatus.ACCEPTED)
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
     public async signOut(
-        @Body() body
-    ) {
-        await this.authService.removeToken();
+        @Body() body: SignOutDto
+    ): Promise<void> {
+        await this.authService.removeToken(body);
     }
 
     @Post(`refresh`)
-    @HttpCode(HttpStatus.ACCEPTED)
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
     public async refreshToken(
-        @Body() body
-    ) {
-        await this.authService.refreshToken();
+        @Body() body: RefreshTokenDto
+    ): Promise<void> {
+        await this.authService.refreshToken(body);
     }
 
 }

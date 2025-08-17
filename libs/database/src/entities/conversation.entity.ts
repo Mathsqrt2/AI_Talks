@@ -1,4 +1,4 @@
-import { BaiscPropertiesEntity } from "./partials/basic-properties.entity";
+import { BasicPropertiesEntity } from "./partials/basic-properties.entity";
 import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
 import { Settings } from "./settings.entity";
 import { Comment } from "./comment.entity";
@@ -8,7 +8,7 @@ import { State } from "./state.entity";
 import { Log } from "./log.entity";
 
 @Entity(`conversations`)
-export class Conversation extends BaiscPropertiesEntity {
+export class Conversation extends BasicPropertiesEntity {
 
     @Column({ type: `varchar`, length: 512, unique: true })
     public conversationName: string;

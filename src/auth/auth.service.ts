@@ -1,13 +1,58 @@
-import { Injectable } from "@nestjs/common";
+import { SignInDto, RefreshTokenDto, SignOutDto, SignUpDto } from "@libs/dtos";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "@libs/database";
+import { JwtService } from "@nestjs/jwt";
+import { Logger } from "@libs/logger";
+import { Repository } from "typeorm";
+import { v4 as uuidv4 } from "uuid";
+import { JWTPayload } from "@libs/types/auth";
 
 @Injectable()
 export class AuthService {
 
-    public async generateToken() { }
+    constructor(
+        @InjectRepository(UserEntity) private readonly user: Repository<UserEntity>,
+        private readonly jwtService: JwtService,
+        private readonly logger: Logger,
+    ) { }
 
-    public async registerUser() { }
+    public async generateToken({ login, password }: SignInDto) {
 
-    public async removeToken() { }
+        const user = await this.user.findOne({ where: { login } }).catch(e => {
+            this.logger.error(`Error finding user: ${login}`, e);
+            throw new UnauthorizedException(`Username or password is incorrect`);
+        });
 
-    public async refreshToken() { }
+        if (!user) {
+            this.logger.warn(`User not found: ${login}`);
+            throw new UnauthorizedException(`Username or password is incorrect`);
+        }
+
+        if (!user.arePasswordsEqual(password)) {
+            throw new UnauthorizedException(`Username or password is incorrect`);
+        }
+
+        const payload: JWTPayload = {
+            userId: user.id,
+            login: user.login,
+            initializationHash: user.initializationHash,
+            createdAt: user.createdAt.toISOString(),
+            payloadGeneratedTime: new Date().toISOString(),
+            payloadUUIDv4: uuidv4()
+        };
+
+        const token = await this.jwtService.sign(payload, { expiresIn: `1h` });
+        const refreshToken = await this.jwtService.sign(payload, { expiresIn: `7d` });
+        this.logger.log(`Generated token for user: ${login}`);
+
+        return { token, refreshToken };
+
+    }
+
+    public async registerUser({ }: SignUpDto) { }
+
+    public async removeToken({ }: SignOutDto) { }
+
+    public async refreshToken({ }: RefreshTokenDto) { }
 }

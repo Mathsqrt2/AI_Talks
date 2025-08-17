@@ -1,16 +1,21 @@
-import { BaiscPropertiesEntity } from "./partials";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, OneToMany } from "typeorm";
+import { BasicPropertiesEntity } from "./partials";
 import { v4 as uuidv4 } from "uuid";
 import { SHA512 } from "crypto-js";
-import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
+import { AuthTokenEntity } from "./auth-token.entity";
 
 @Entity(`users`)
-export class UserEntity extends BaiscPropertiesEntity {
+export class UserEntity extends BasicPropertiesEntity {
 
     @Column({ type: `varchar`, length: 256, unique: true })
     public login: string;
 
     @Column({ type: `varchar`, length: 512, select: false })
     private password: string;
+
+    @OneToMany(() => AuthTokenEntity, token => token.user)
+    @JoinColumn()
+    public tokens: AuthTokenEntity[];
 
     @BeforeInsert()
     @BeforeUpdate()

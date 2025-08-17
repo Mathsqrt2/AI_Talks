@@ -13,7 +13,7 @@ import { Module } from '@nestjs/common';
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
         entities: Object.values(Entities),
-        synchronize: false,
+        synchronize: true,
       })
     }),
     TypeOrmModule.forFeature(Object.values(Entities))

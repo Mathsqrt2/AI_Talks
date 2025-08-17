@@ -4,7 +4,7 @@ import {
 } from "typeorm";
 import { SHA512 } from "crypto-js";
 
-export class BaiscPropertiesEntity {
+export class BasicPropertiesEntity {
 
     @PrimaryGeneratedColumn({ type: `int` })
     public id: number;

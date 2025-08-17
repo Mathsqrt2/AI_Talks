@@ -18,3 +18,7 @@ export * from "./restore-conversation-by-payload.dto";
 export * from "./set-context.dto";
 export * from "./set-prompt.dto";
 export * from "./settings-property.dto";
+export * from "./sign-in.dto";
+export * from "./sign-out.dto";
+export * from "./sign-up.dto";
+export * from "./refresh-token.dto";
