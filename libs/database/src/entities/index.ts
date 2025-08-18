@@ -1,4 +1,5 @@
 export * from "./conversation.entity";
+export * from "./auth-token.entity";
 export * from "./settings.entity";
 export * from "./comment.entity";
 export * from "./message.entity";

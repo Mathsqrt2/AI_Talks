@@ -30,7 +30,8 @@ export class UserEntity extends BasicPropertiesEntity {
 
     public arePasswordsEqual(password: string): boolean {
         const [salt, saltedHash] = this.password.split(`$`);
-        return SHA512(`${password}${salt}`).toString() === saltedHash;
+        const passwordHash = SHA512(password).toString();
+        return SHA512(`${salt}${passwordHash}`).toString() === saltedHash;
     }
 
 }
