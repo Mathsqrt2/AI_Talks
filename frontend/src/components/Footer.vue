@@ -2,5 +2,7 @@
 </script>
 
 <template>
-  <h1>Footer</h1>
+  <div class="bg-gray-900 h-32 w-full flex justify-center items-center">
+    <h1>Footer</h1>
+  </div>
 </template>
