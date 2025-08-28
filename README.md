@@ -42,7 +42,7 @@ You can get these informations from [botFather](https://telegram.me/BotFather).
 Make sure Docker is installed, then run:
 
 ```bash
-docker compose up -d
+docker compose --profile prod up -d -V --build
 ```
 
 #### 4. Using the Application
