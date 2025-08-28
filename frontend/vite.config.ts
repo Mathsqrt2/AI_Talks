@@ -1,5 +1,6 @@
-import vue from '@vitejs/plugin-vue';
+/// <reference types="vite/client" />
 import tailwind from '@tailwindcss/vite';
+import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 
 // https://vite.dev/config/

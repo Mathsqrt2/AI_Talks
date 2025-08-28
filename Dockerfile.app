@@ -14,10 +14,34 @@ RUN mkdir -p /usr/src/app/.pnpm-store && \
     chown -R node:node /usr/src/app/.pnpm-store
 
 USER node
+
 WORKDIR /usr/src/app
 
 COPY --chown=node:node ./package*.json ./
 COPY --chown=node:node . .
+
+FROM $IMAGE AS frontend
+
+ENV TZ="Europe/Warsaw"
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/src/app/.pnpm-store && \
+    chown -R node:node /usr/src/app && \
+    chown -R node:node /usr/src/app/.pnpm-store
+
+USER node
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node ./frontend/package*.json ./
+
+RUN npm install
+
+COPY --chown=node:node ./frontend .
 
 FROM $IMAGE AS builder
 
