@@ -1,0 +1,23 @@
+name: deploy all
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    if: (github.event_name == 'workflow_dispatch') || (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'deploy'))
+    steps:
+      - uses: actions/checkout@v3
+      - name: Stop existing services
+        run: |
+          docker compose --profile prod stop
+          docker compose --profile prod down
+          docker-compose rm -f
+          docker volume prune -f
+      - name: Build and start services
+        run: |
+          docker compose --profile prod up -d

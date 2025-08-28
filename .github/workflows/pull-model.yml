@@ -1,0 +1,51 @@
+name: pull model
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'The model to pull'
+        required: true
+        default: 'gemma3:4b'
+        options:
+          - 'gemma3:270m'
+          - 'gemma3:1b'
+          - 'gemma3:4b'
+          - 'gemma3:12b'
+          - 'gemma3:27b'
+
+jobs:
+  pull-model:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Wait for ollama container to be ready
+        run: |
+          until docker exec ollama-container bash -c 'echo "Container is ready"'; do
+            echo "Waiting for ollama"
+            sleep 10
+          done
+
+      - name: Pull model into Docker container
+        run: |
+          docker exec ollama-container bash -c "ollama pull '${{ github.event.inputs.model }}'"
+
+      - name: Create models inside Docker container
+        run: |
+          docker exec ollama-container bash -c "
+            ./scripts/build_models.sh '${{ github.event.inputs.model }}'
+          "
+
+      - name: Set model environment variable inside Docker container
+        run: |
+          docker exec ollama-container bash -c "
+            export MODEL='${{ github.event.inputs.model }}' && \
+            echo 'Model set to: $MODEL'
+          "
+
+      - name: Verify model is set correctly
+        run: |
+          docker exec ollama-container bash -c "echo 'MODEL is: $MODEL'"
