@@ -6,9 +6,37 @@ x-application-base: &application-base
   networks:
     - ai_talks_network
 
+x-api-base: &api-base
+  <<: *application-base
+  container_name: ai_talks_api
+  environment:
+    # for demo purposes - DO NOT USE THIS VALUE!!!
+    JWT_SECRET: 90ee31b9-65f1-4c94-9319-ad2026125e3a 
+    MODEL: *model
+    LANGUAGE: PL
+    API_PORT: 13000
+    OLLAMA_HOST: ai_host:11434
+    DB_HOST: ai_talks_database
+    DB_PORT: 3306
+    DB_USER: root
+    DB_PASS: v3ryD1ff1cultP@55w0Rd
+    DB_NAME: ai_talks
+  working_dir: /usr/src/app
+  depends_on:
+    - ai_talks_database
+    - ai_talks_adminer
+    - ai_host
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - 13000:13000
+  expose:
+    - 13000
+
 services:
   ai_host:
     <<: *application-base
+    profiles: [dev, prod]
     build:
       context: .
       dockerfile: ./Dockerfile.ollama
@@ -20,6 +48,7 @@ services:
 
   ai_talks_database:
     <<: *application-base
+    profiles: [dev, prod]
     image: mysql:8.0
     container_name: ai_talks_database
     environment:
@@ -31,6 +60,7 @@ services:
 
   ai_talks_adminer:
     <<: *application-base
+    profiles: [dev, prod]
     image: adminer
     container_name: ai_talks_adminer
     depends_on:
@@ -38,37 +68,24 @@ services:
     ports:
       - 18080:8080
 
-  ai_talks:
-    <<: *application-base
-    container_name: ai_talks_api
-    environment:
-      # for demo purposes - DO NOT USE THIS VALUE!!!
-      JWT_SECRET: 90ee31b9-65f1-4c94-9319-ad2026125e3a 
-      MODEL: *model
-      LANGUAGE: PL
-      API_PORT: 13000
-      OLLAMA_HOST: ai_host:11434
-      DB_HOST: ai_talks_database
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASS: v3ryD1ff1cultP@55w0Rd
-      DB_NAME: ai_talks
+  ai_talks-prod:
+    <<: *api-base
+    profiles: [prod]
     build:
       context: .
       dockerfile: ./Dockerfile.app
-      target: dev
-    working_dir: /app
-    depends_on:
-      - ai_talks_database
-      - ai_talks_adminer
-      - ai_host
-    volumes:
-      - .:/app
-    ports:
-      - 13000:13000
-    expose:
-      - 13000
-    command: [ sh, -c, 'npm run start:conversation:dev' ]
+      target: production
+    command: npm run start:prod
+    
+  ai_talks-dev: 
+    <<: *api-base
+    profiles: [dev]
+    build:
+      context: .
+      dockerfile: ./Dockerfile.app
+      target: development
+    command: npm run start:dev
+
 volumes:
   ai_talks_data:
 networks:

@@ -75,7 +75,8 @@
     },
     "types": [
       "node",
-      "./.env.d.ts"
+      "./.env.d.ts",
+      "jest"
     ]
   }
 }

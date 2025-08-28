@@ -1,35 +1,57 @@
-ARG IMAGE=node:22
+ARG IMAGE=node:24
+
+FROM $IMAGE AS development
+
+ENV TZ="Europe/Warsaw"
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/src/app/.pnpm-store && \
+    chown -R node:node /usr/src/app && \
+    chown -R node:node /usr/src/app/.pnpm-store
+
+USER node
+WORKDIR /usr/src/app
+
+COPY --chown=node:node ./package*.json ./
+COPY --chown=node:node . .
 
 FROM $IMAGE AS builder
 
-WORKDIR /app
+ENV NODE_ENV=production
+ENV CI=true
 
-COPY . .
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN npm install
+WORKDIR /usr/src/app
 
-FROM builder AS dev
-
-CMD [""]
-
-FROM builder AS prod-build
+COPY --chown=node:node ./package*.json .
+COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node . .
 
 RUN npm run build
+RUN npm prune --prod
 
-RUN npm prune --production
+USER node
 
-FROM $IMAGE AS prod
-
-COPY --chown=node:node --from=prod-build /app/dist /app/dist
-COPY --chown=node:node --from=prod-build /app/node_modules /app/node_modules
-COPY --chown=node:node --from=prod-build /app/.env /app/.env
+FROM $IMAGE AS production
 
 ENV NODE_ENV=production
 
-ENTRYPOINT [ "node", "./main.js" ]
+ENV TZ="Europe/Warsaw"
 
-WORKDIR /app/dist
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openssl && \
+    rm -rf /var/lib/apt/lists/*
 
-CMD [""]
+WORKDIR /usr/src/app
 
-USER node
+COPY --chown=node:node ./package*.json ./ 
+COPY --chown=node:node --from=builder /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
