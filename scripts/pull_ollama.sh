@@ -1,3 +1,5 @@
+#!/bin/sh
+
 MODEL="$1"
 echo "Pulling model: $MODEL"
 

@@ -1,4 +1,4 @@
-x-model: &model gemma3:4b
+x-model: &model gemma3:1b
 
 x-application-base: &application-base
   restart: always
