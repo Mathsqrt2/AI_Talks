@@ -26,8 +26,6 @@ x-api-base: &api-base
     - ai_talks_database
     - ai_talks_adminer
     - ai_host
-  volumes:
-    - .:/usr/src/app
   ports:
     - 13000:13000
   expose:
@@ -80,6 +78,8 @@ services:
   ai_talks-dev: 
     <<: *api-base
     profiles: [dev]
+    volumes:
+      - .:/usr/src/app
     build:
       context: .
       dockerfile: ./Dockerfile.app

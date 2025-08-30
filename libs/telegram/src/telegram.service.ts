@@ -18,20 +18,24 @@ export class TelegramGateway {
     ) {
 
         const startTime: number = Date.now();
-        try {
-            this.speaker1 = new TelegramBot(process.env.TOKEN1, { polling: true });
-            this.logger.log(LogMessage.log.onBotConnected(BotsEnum.BOT_1), { startTime });
-        } catch (error) {
-            this.logger.error(LogMessage.error.onBotConnectionFail(BotsEnum.BOT_1), { error, startTime });
-            this.speaker1 = null;
+        if (process.env.TOKEN1) {
+            try {
+                this.speaker1 = new TelegramBot(process.env.TOKEN1, { polling: true });
+                this.logger.log(LogMessage.log.onBotConnected(BotsEnum.BOT_1), { startTime });
+            } catch (error) {
+                this.logger.error(LogMessage.error.onBotConnectionFail(BotsEnum.BOT_1), { error, startTime });
+                this.speaker1 = null;
+            }
         }
 
-        try {
-            this.speaker2 = new TelegramBot(process.env.TOKEN2, { polling: true });
-            this.logger.log(LogMessage.log.onBotConnected(BotsEnum.BOT_2), { startTime });
-        } catch (error) {
-            this.logger.error(LogMessage.error.onBotConnectionFail(BotsEnum.BOT_2), { error, startTime });
-            this.speaker2 = null;
+        if (process.env.TOKEN2) {
+            try {
+                this.speaker2 = new TelegramBot(process.env.TOKEN2, { polling: true });
+                this.logger.log(LogMessage.log.onBotConnected(BotsEnum.BOT_2), { startTime });
+            } catch (error) {
+                this.logger.error(LogMessage.error.onBotConnectionFail(BotsEnum.BOT_2), { error, startTime });
+                this.speaker2 = null;
+            }
         }
 
     }

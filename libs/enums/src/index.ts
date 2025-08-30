@@ -8,3 +8,5 @@ export * from './bots.enum';
 export * from './prompts.enum';
 export * from './settings-properties.enum';
 export * from './conversation-interrupts.enum';
+export * from './restorable-settings.enum';
+export * from './restorable-state.enum';

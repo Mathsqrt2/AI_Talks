@@ -2,6 +2,10 @@ import { readdir, readFile, writeFile } from 'fs/promises';
 import { LogMessage, prompts } from '@libs/constants';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+    BotsEnum, EventsEnum, ModelfilesEnum, RestorableStateEnum,
+    ConversationInterruptsEnum, RestorableSettingsEnum,
+} from '@libs/enums';
+import {
     State as StateEntity, Settings as SettingsEntity,
     Conversation, Message as MessageEntity
 } from '@libs/database';
@@ -13,18 +17,12 @@ import {
     Archive, Message, SettingsFile, ModelfilesOutput,
     StatsProperties, MessageEventPayload, Statistics,
 } from '@libs/types';
-import {
-    BotsEnum, EventsEnum, ModelfilesEnum,
-    ConversationInterruptsEnum
-} from '@libs/enums';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { SHA256 } from 'crypto-js';
 import { resolve } from 'path';
 import * as path from 'path';
-import { RestorableSettingsEnum } from '@libs/enums/restorable-settings.enum';
-import { RestorableStateEnum } from '@libs/enums/restorable-state.enum';
 
 @Injectable()
 export class SettingsService implements OnApplicationBootstrap {
@@ -101,14 +99,14 @@ export class SettingsService implements OnApplicationBootstrap {
         }
 
         for (const key of Object.values(RestorableSettingsEnum)) {
-            if (previousSettings[key]) {
+            if (previousSettings && previousSettings[key]) {
                 this.app[key] = previousSettings[key];
             }
         }
 
         const previousState = await this.state.findOne({ where: {}, order: { id: `desc` } });
         for (const key of Object.values(RestorableStateEnum)) {
-            if (previousState[key]) {
+            if (previousState && previousState[key]) {
                 this.app.state[key] = previousState[key];
             }
         }
