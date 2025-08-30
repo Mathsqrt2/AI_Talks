@@ -12,6 +12,12 @@ import { DatabaseModule } from "@libs/database";
         JwtModule.register({
             global: true,
             secret: process.env.JWT_SECRET,
+            signOptions: {
+                algorithm: 'HS512',
+                audience: `app`,
+                issuer: `auth`,
+                expiresIn: '15m',
+            },
         })],
     controllers: [
         AuthController,

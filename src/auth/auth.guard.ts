@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { JWTPayload } from "@libs/types/auth";
 import { JwtService } from "@nestjs/jwt";
 import { Logger } from "@libs/logger";
 
@@ -15,33 +16,45 @@ export class AuthGuard implements CanActivate {
         const startTime: number = Date.now();
         const request = context.switchToHttp().getRequest();
         if (!request.headers?.authorization) {
-            throw new UnauthorizedException("Authorization header is missing");
+            this.logger.warn(`Authorization header is missing`, { startTime });
+            return false;
         }
 
         const [method, token] = request.headers.authorization.split(" ");
         if (!method || !token) {
-            throw new UnauthorizedException("Authorization method or token is missing");
+            this.logger.warn(`Authorization method or token is missing`, { startTime });
+            return false;
         }
 
         if (method.toLowerCase() !== "jwt" && method !== "Bearer") {
-            throw new UnauthorizedException("Invalid authorization method");
+            this.logger.warn(`Invalid authorization method: ${method}`, { startTime });
+            return false;
         }
-        
-        const payload = await this.jwtService.verifyAsync(token);
-        if (!payload) {
-            throw new UnauthorizedException("Invalid token");
+
+        try {
+
+            const payload = await this.jwtService.verifyAsync<JWTPayload>(token, {
+                secret: process.env.JWT_SECRET,
+                algorithms: ['HS512'],
+                audience: `app`,
+                issuer: `auth`,
+            });
+
+            if (!payload) {
+                this.logger.warn(`Invalid token`, { startTime });
+                return false;
+            }
+
+            // if (Date.now() > new Date(payload).getTime()) {
+            //     throw new UnauthorizedException("Token has expired");
+            // }
+
+        } catch (error) {
+            this.logger.error("JWT verification failed", { error, startTime });
+            throw error;
         }
-        
-        // try {
-
-
-        // } catch (error) {
-        //     this.logger.error("JWT verification failed", { error, startTime });
-        //     throw error;
-        // }
 
         return true;
-
     }
 
 }

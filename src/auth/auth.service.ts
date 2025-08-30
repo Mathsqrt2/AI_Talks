@@ -42,8 +42,8 @@ export class AuthService {
             payloadUUIDv4: uuidv4()
         };
 
-        const token = await this.jwtService.sign(payload, { expiresIn: `1h` });
-        const refreshToken = await this.jwtService.sign(payload, { expiresIn: `7d` });
+        const token = await this.jwtService.sign(payload, { expiresIn: `1h`, algorithm: 'HS512' });
+        const refreshToken = await this.jwtService.sign(payload, { expiresIn: `7d`, algorithm: 'HS512' });
         this.logger.log(`Generated token for user: ${login}`);
 
         return { token, refreshToken };
