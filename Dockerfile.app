@@ -15,14 +15,19 @@ FROM base AS development
 
 COPY --chown=node:node ./package*.json ./
 
+RUN mkdir -p /usr/src/app/node_modules && \
+    chown -R node:node /usr/src/app/node_modules
+
 RUN npm install --package-lock-only && npm ci
 
 COPY --chown=node:node . .
 
-
 FROM base AS frontend-development
 
 COPY --chown=node:node ./frontend/package*.json ./
+
+RUN mkdir -p /usr/src/app/node_modules && \
+    chown -R node:node /usr/src/app/node_modules
 
 RUN npm install --package-lock-only && npm ci
 
