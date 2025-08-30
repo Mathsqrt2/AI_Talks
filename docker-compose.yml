@@ -80,6 +80,7 @@ services:
     profiles: [dev]
     volumes:
       - .:/usr/src/app
+      - /usr/src/app/node_modules
     build:
       context: .
       dockerfile: ./Dockerfile.app
@@ -90,10 +91,13 @@ services:
     <<: *application-base
     profiles: [dev]
     container_name: ai_talks_frontend
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
     build:
       context: .
       dockerfile: Dockerfile.app
-      target: frontend
+      target: frontend-development
     ports:
       - 5173:5173
     command: npm run dev

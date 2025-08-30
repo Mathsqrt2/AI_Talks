@@ -11,25 +11,20 @@ RUN apt-get update && \
 
 WORKDIR /usr/src/app
 
-FROM base AS prod-base 
-
-ENV NODE_ENV=production
-
-ENV CI=true
-
 FROM base AS development
 
 COPY --chown=node:node ./package*.json ./
 
+RUN npm install --package-lock-only && npm ci
+
 COPY --chown=node:node . .
 
-USER node
 
-FROM base AS frontend
+FROM base AS frontend-development
 
 COPY --chown=node:node ./frontend/package*.json ./
 
-RUN npm ci
+RUN npm install --package-lock-only && npm ci
 
 COPY --chown=node:node ./frontend .
 
@@ -63,7 +58,11 @@ RUN npm prune --prod
 
 USER node
 
-FROM prod-base AS production
+FROM base AS production
+
+ENV NODE_ENV=production
+
+ENV CI=true
 
 COPY --chown=node:node ./package*.json ./ 
 
@@ -74,3 +73,5 @@ COPY --chown=node:node --from=builder /usr/src/app/modelfiles ./modelfiles
 COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
 
 COPY --chown=node:node --from=frontend-builder /usr/src/app/dist ./frontend/dist
+
+USER node
