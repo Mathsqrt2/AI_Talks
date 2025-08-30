@@ -7,6 +7,7 @@ on:
         description: 'The model to pull'
         required: true
         default: 'gemma3:4b'
+        type: choice
         options:
           - 'gemma3:270m'
           - 'gemma3:1b'

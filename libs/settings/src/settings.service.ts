@@ -115,7 +115,7 @@ export class SettingsService implements OnApplicationBootstrap {
 
     private prepareComparableString(values: SettingsEntity | StateEntity): string {
         let output: string = ``;
-        const isState = RestorableStateEnum.SHOULD_LOG in values;
+        const isState = values[RestorableStateEnum.SHOULD_LOG] !== undefined;
         for (const key of Object.values(isState ? RestorableStateEnum : RestorableSettingsEnum)) {
             output += values[key] ?? `no${key}`;
         }
