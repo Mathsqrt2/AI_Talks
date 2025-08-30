@@ -1,3 +1,5 @@
+name: ai_talks
+
 x-model: &model gemma3:1b
 
 x-application-base: &application-base
@@ -73,6 +75,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.app
       target: production
+    image: ai_talks_api-prod
     command: npm run start:prod
     
   ai_talks-dev: 
@@ -85,6 +88,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.app
       target: development
+    image: ai_talks_api-dev
     command: npm run start:dev
 
   frontend:
@@ -98,6 +102,7 @@ services:
       context: .
       dockerfile: Dockerfile.app
       target: frontend-development
+    image: ai_talks_frontend
     ports:
       - 5173:5173
     command: npm run dev
