@@ -16,6 +16,8 @@ declare namespace NodeJS {
     DB_PASS: string;
     DB_NAME: string;
 
+    CORS_ORIGIN: string;
+
     MODEL: 'gemma3:1b' | 'gemma3:4b' | 'gemma3:12b' | 'gemma3:27b';
     LANGUAGE: 'PL' | 'EN';
 

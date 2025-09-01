@@ -2,7 +2,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConsoleLogger, ValidationPipe } from '@nestjs/common';
 import { SwaggerMessages } from '@libs/constants';
 import { NestFactory } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
 import { AiTalks } from './app.module';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AiTalks, {
@@ -12,6 +14,14 @@ async function bootstrap() {
       prefix: `AI_Talks`,
       timestamp: true,
     }),
+  });
+
+  app.use(helmet());
+  app.use(cookieParser());
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN,
+    methods: `GET,POST,PUT,PATCH,DELETE`,
+    allowedHeaders: `Content-Type, Authorization`,
   });
 
   const config = new DocumentBuilder()
