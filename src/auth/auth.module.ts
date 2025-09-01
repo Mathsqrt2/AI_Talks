@@ -1,14 +1,27 @@
-import { Module } from "@nestjs/common";
-import { JwtModule } from "@nestjs/jwt";
-import { AuthService } from "./auth.service";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { AuthController } from "./auth.controller";
-import { LoggerModule } from "@libs/logger";
 import { DatabaseModule } from "@libs/database";
+import { AuthService } from "./auth.service";
+import { LoggerModule } from "@libs/logger";
+import { JwtModule } from "@nestjs/jwt";
+import { Module } from "@nestjs/common";
 
 @Module({
     imports: [
         LoggerModule,
         DatabaseModule,
+        ThrottlerModule.forRoot({
+            throttlers: [
+                {
+                    ttl: 60000,
+                    limit: 50,
+                },
+                {
+                    ttl: 1000,
+                    limit: 10,
+                }
+            ]
+        }),
         JwtModule.register({
             global: true,
             secret: process.env.JWT_SECRET,
