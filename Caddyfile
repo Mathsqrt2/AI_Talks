@@ -1,0 +1,22 @@
+{
+	auto_https off
+}
+
+:80 {
+    encode zstd gzip
+
+    @adminer path /adminer*
+    handle @adminer {
+        uri strip_prefix /adminer
+        reverse_proxy ai_talks_adminer:8080
+    }
+
+    handle_path /* {
+        reverse_proxy ai_talks_api:13000
+    }
+
+}
+
+:443 {
+    redir http://localhost{uri} 308
+}

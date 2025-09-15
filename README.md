@@ -42,15 +42,25 @@ You can get these informations from [botFather](https://telegram.me/BotFather).
 Make sure Docker is installed, then run:
 
 ```bash
+# Application build with proxy (default)
 docker compose --profile prod up -d -V --build
+
+# Application build if you're already using 80 and 443 ports
+docker compose --profile prod-native up -d -V --build
 ```
+
+> **⚠ Disclaimer** 
+> This application includes a container running a reverse proxy, which requires **ports 80 and 443** to be available.  
+> If you already have another service running on these ports, you can still access the containers directly:  
+> - **API** → port `13000`  
+> - **Adminer** → port `18080`
 
 #### 4. Using the Application
 
 Send an HTTP request using tools like **Postman** or **Insomnia**:
 
 ```http
-POST http://localhost:13000/init/1
+POST http://localhost/init/1
 ```
 
 ---
@@ -63,7 +73,7 @@ You can check available routes, required parameters, and expected responses.
 The documentation is automatically generated and accessible at:
 
 ```http
-GET http://localhost:13000/api
+GET http://localhost/api
 ```
 
 ---

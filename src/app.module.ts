@@ -8,6 +8,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { LogMessage } from '@libs/constants';
+import { FrontendModule } from './frontend/frontend.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LogMessage } from '@libs/constants';
     ConversationModule,
     SettingsModule,
     LoggerModule,
+    FrontendModule,
   ],
 })
 

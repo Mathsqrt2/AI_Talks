@@ -1,13 +1,10 @@
 name: ai_talks
-
-x-model: &model gemma3:1b
-
+x-model: &model gemma3:270m
 x-application-base: &application-base
   restart: always
   tty: true
   networks:
     - ai_talks_network
-
 x-api-base: &api-base
   <<: *application-base
   container_name: ai_talks_api
@@ -32,11 +29,23 @@ x-api-base: &api-base
     - 13000:13000
   expose:
     - 13000
-
+  
 services:
+  ai_talks_router:
+    <<: *application-base
+    container_name: ai_talks_router
+    image: caddy:latest
+    profiles: [prod]
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
+
   ai_host:
     <<: *application-base
-    profiles: [dev, prod]
+    profiles: [dev, prod-native, prod]
     build:
       context: .
       dockerfile: ./Dockerfile.ollama
@@ -48,7 +57,7 @@ services:
 
   ai_talks_database:
     <<: *application-base
-    profiles: [dev, prod]
+    profiles: [dev, prod-native, prod]
     image: mysql:8.0
     container_name: ai_talks_database
     environment:
@@ -60,7 +69,7 @@ services:
 
   ai_talks_adminer:
     <<: *application-base
-    profiles: [dev, prod]
+    profiles: [dev, prod-native, prod]
     image: adminer
     container_name: ai_talks_adminer
     depends_on:
@@ -70,7 +79,7 @@ services:
 
   ai_talks-prod:
     <<: *api-base
-    profiles: [prod]
+    profiles: [prod-native, prod]
     build:
       context: .
       dockerfile: ./Dockerfile.app
@@ -109,5 +118,6 @@ services:
 
 volumes:
   ai_talks_data:
+  caddy_config:
 networks:
   ai_talks_network:
