@@ -2,13 +2,14 @@ import { ConversationModule } from './conversation/conversation.module';
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { SettingsModule } from './settings/settings.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { Logger, LoggerModule } from '@libs/logger';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { LogMessage } from '@libs/constants';
-import { FrontendModule } from './frontend/frontend.module';
+import { resolve } from 'path';
 
 @Module({
   imports: [
@@ -31,8 +32,17 @@ import { FrontendModule } from './frontend/frontend.module';
     ConversationModule,
     SettingsModule,
     LoggerModule,
-    FrontendModule,
-  ],
+    ServeStaticModule.forRoot({
+      rootPath: resolve(__dirname, `frontend`, `dist`),
+      renderPath: `/`,
+      exclude: [`/api*`],
+      serveStaticOptions: {
+        maxAge: `1y`,
+        etag: true,
+        index: `index.html`,
+      }
+    })
+  ]
 })
 
 export class AiTalks implements OnApplicationBootstrap {

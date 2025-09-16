@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
+    NODE_ENV: `production` | `development` | undefined;
     API_PORT: number;
     OLLAMA_HOST: string;
 
