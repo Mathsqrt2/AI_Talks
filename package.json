@@ -1,6 +1,6 @@
 {
   "name": "ai_talks",
-  "version": "3.0",
+  "version": "3.0.1",
   "description": "AI Talks is an application that facilitates conversations between two language models. Each model receives a specialized prompt, guiding them to maintain dialogue and intentionally drift into digressions, making conversations engaging and varied.",
   "author": "Mathsqrt2",
   "private": true,

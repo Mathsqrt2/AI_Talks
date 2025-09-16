@@ -21,7 +21,7 @@ import { EventsEnum } from '@libs/enums';
 import { readFile } from 'fs/promises';
 import { Logger } from '@libs/logger';
 
-@Controller(`api/v1/settings`)
+@Controller(`v1/settings`)
 @UseGuards(AuthGuard)
 export class SettingsController {
 

@@ -9,7 +9,7 @@ import { AuthService } from "./auth.service";
 import { AuthGuard } from "./auth.guard";
 import { SignOutDto } from "@libs/dtos/sign-out.dto";
 
-@Controller(`api/v1/auth`)
+@Controller(`v1/auth`)
 export class AuthController {
 
     constructor(

@@ -1,6 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <h1 class="text-red-200">Content Page</h1>
+  <div class="w-full">
+    <h1 class="text-red-200 bg-blue-100">Content Page</h1>
+  </div>
 </template>

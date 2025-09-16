@@ -22,7 +22,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 
-@Controller(`api/v1/conversation`)
+@Controller(`v1/conversation`)
 @UseGuards(AuthGuard)
 export class ConversationController {
 

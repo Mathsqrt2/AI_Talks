@@ -16,6 +16,7 @@ async function bootstrap() {
     }),
   });
 
+  app.setGlobalPrefix(`api`)
   app.use(helmet());
   app.use(cookieParser());
   app.enableCors({
