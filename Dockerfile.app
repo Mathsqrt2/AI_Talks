@@ -77,6 +77,6 @@ COPY --chown=node:node --from=builder /usr/src/app/modelfiles ./modelfiles
 
 COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
 
-COPY --chown=node:node --from=frontend-builder /usr/src/app/dist ./frontend/dist
+COPY --chown=node:node --from=frontend-builder /usr/src/app/dist ./dist/frontend/dist
 
 USER node

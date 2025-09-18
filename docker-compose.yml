@@ -38,7 +38,6 @@ services:
     profiles: [prod]
     ports:
       - 80:80
-      - 443:443
     volumes:
       - caddy_config:/config
       - ./Caddyfile:/etc/caddy/Caddyfile

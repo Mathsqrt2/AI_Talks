@@ -34,8 +34,8 @@ import { resolve } from 'path';
     LoggerModule,
     ServeStaticModule.forRoot({
       rootPath: resolve(__dirname, `frontend`, `dist`),
-      renderPath: `/`,
-      exclude: [`/api*`],
+      renderPath: `/ui`,
+      exclude: [`/api`],
       serveStaticOptions: {
         maxAge: `1y`,
         etag: true,

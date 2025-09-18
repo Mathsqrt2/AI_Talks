@@ -76,6 +76,18 @@ The documentation is automatically generated and accessible at:
 GET http://localhost/api
 ```
 
+Access to the application’s database is available at the address below, using the credentials specified in the .env file or in [docker-compose.yml](./docker-compose.yml)
+
+```http
+GET http://localhost/adminer
+```
+
+Access to the application interface, which allows you to manage the conversation through buttons and view it in real time, is available at the address below:
+
+```http
+GET http://localhost/ui
+```
+
 ---
 
 ### 📄 Features
@@ -98,6 +110,9 @@ GET http://localhost/api
 6. **Error Handling and Retry Mechanism**  
    If message generation or delivery fails, the application will attempt a predefined number of retries as specified in the settings. If all retries fail, it will save its state and gracefully terminate the conversation.
 
+7. **Interactive User Interface**
+   The application offers an intuitive interface for managing the system and monitoring the current state of ongoing conversations. It leverages WebSockets to deliver real-time updates, ensuring that users can seamlessly interact with and observe the conversation as it unfolds.
+
 ---
 
 ### 🛠️ Tech Stack
@@ -108,6 +123,9 @@ GET http://localhost/api
 - [**TelegramBot API**](https://www.npmjs.com/package/node-telegram-bot-api) – API for integrating Telegram bot functionality.
 - [**TypeORM**](https://typeorm.io/) – Powerful ORM for database interactions in Node.js applications.
 - [**Docker**](https://www.docker.com/) – Tool for containerizing applications and their dependencies.
+- [**WebSockets**](https://socket.io/) - Enables real-time, bidirectional communication between the client and the server.
+- [**vue**](https://vuejs.org/) - Progressive JavaScript framework for building interactive user interfaces.
+- [**Tailwindcss**](https://tailwindcss.com/) - Utility-first CSS framework for rapidly building modern and responsive user interfaces.
 
 ---
 

@@ -2,21 +2,22 @@
 	auto_https off
 }
 
-:80 {
+http://:80 {
     encode zstd gzip
-
+    header Strict-Transport-Security "max-age=0"
+    
     @adminer path /adminer*
     handle @adminer {
         uri strip_prefix /adminer
-        reverse_proxy ai_talks_adminer:8080
+        reverse_proxy ai_talks_adminer:8080 {
+            header_up X-Forwarded-Proto "http"
+        }
     }
 
     handle_path /* {
-        reverse_proxy ai_talks_api:13000
+        reverse_proxy ai_talks_api:13000 {
+            header_up X-Forwarded-Proto "http"
+        }
     }
 
-}
-
-:443 {
-    redir http://localhost{uri} 308
 }

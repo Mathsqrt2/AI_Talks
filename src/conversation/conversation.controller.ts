@@ -5,7 +5,7 @@ import {
   RestoreConversationByIdDto, InitDto, ConversationInitDto,
   InjectMessageDto, SettingsDto
 } from '@libs/dtos';
-import { ConversationService } from 'src/conversation/conversation.service';
+import { ConversationService } from './conversation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from '@libs/settings';
 import { Logger } from '@libs/logger';
@@ -20,7 +20,7 @@ import {
   InternalServerErrorException,
   UseGuards
 } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller(`v1/conversation`)
 @UseGuards(AuthGuard)
@@ -173,7 +173,7 @@ export class ConversationController {
 
   @Get([`summary`])
   @HttpCode(HttpStatus.ACCEPTED)
-  @ApiAcceptedResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
+  @ApiAcceptedResponse({ description: SwaggerMessages.summaryGeneration.aboutAcceptedResponse() })
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.summaryGeneration.aboutInternalServerError() })
   public async prepareCurrentTalkSummary(): Promise<string> {
 
