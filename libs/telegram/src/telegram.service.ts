@@ -40,7 +40,7 @@ export class TelegramGateway {
 
     }
 
-    public respondBy = async (who: BotsEnum, content: string): Promise<boolean> => {
+    public async respondBy(who: BotsEnum, content: string): Promise<boolean> {
 
         const startTime: number = Date.now();
         if (!this.speaker1 || !this.speaker2) {

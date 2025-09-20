@@ -17,8 +17,7 @@ import {
 import {
   BadRequestException, Body, Controller, Param, Post,
   ForbiddenException, Get, HttpCode, HttpStatus,
-  InternalServerErrorException,
-  UseGuards
+  InternalServerErrorException, UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 
@@ -81,7 +80,7 @@ export class ConversationController {
   @HttpCode(HttpStatus.OK)
   @ApiBadRequestResponse({ description: SwaggerMessages.pause.aboutBadRequestResponse() })
   @ApiOkResponse({ description: SwaggerMessages.pause.aboutOkResponse() })
-  public async pauseConversation(): Promise<void> {
+  public pauseConversation(): void {
 
     const startTime: number = Date.now();
     if (!this.settings.app.isConversationInProgress) {
@@ -150,9 +149,9 @@ export class ConversationController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiBadRequestResponse({ description: SwaggerMessages.inject.aboutBadRequestResponse() })
   @ApiAcceptedResponse({ description: SwaggerMessages.inject.aboutAcceptedResponse() })
-  public async injectContentIntoConversation(
+  public injectContentIntoConversation(
     @Body() body: InjectMessageDto,
-  ): Promise<void> {
+  ): void {
 
     const startTime: number = Date.now();
     if (!body) {
@@ -243,9 +242,9 @@ export class ConversationController {
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.restoreConversation.ApiInternalServerErrorResponse() })
   @ApiForbiddenResponse({ description: SwaggerMessages.restoreConversation.ApiForbiddenResponse() })
   @ApiNotFoundResponse({ description: SwaggerMessages.restoreConversation.ApiNotFoundResponse() })
-  public async restoreConversationFromDatabase(
+  public restoreConversationFromDatabase(
     @Param() { id }: RestoreConversationByIdDto
-  ): Promise<void> {
+  ): void {
 
     const startTime: number = Date.now();
     if (this.settings.app.isConversationInProgress) {
@@ -261,7 +260,7 @@ export class ConversationController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiAcceptedResponse({ description: SwaggerMessages.resetConversation.ApiAcceptedResponse() })
   @ApiInternalServerErrorResponse({ description: SwaggerMessages.resetConversation.ApiInternalServerErrorResponse() })
-  public async resetConversation(): Promise<void> {
+  public resetConversation(): void {
 
     const startTime: number = Date.now();
     this.settings.restoreDefaults();

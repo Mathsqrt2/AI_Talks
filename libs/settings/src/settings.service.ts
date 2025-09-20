@@ -83,7 +83,7 @@ export class SettingsService implements OnApplicationBootstrap {
         }
     }
 
-    public async onApplicationBootstrap() {
+    public async onApplicationBootstrap(): Promise<void> {
 
         const path: string = resolve(__dirname, `..`, `modelfiles`);
         const files = await readdir(path);
@@ -217,7 +217,7 @@ export class SettingsService implements OnApplicationBootstrap {
     }
 
     @OnEvent(EventsEnum.message)
-    private insertMessageIntoStats(payload: MessageEventPayload) {
+    private insertMessageIntoStats(payload: MessageEventPayload): void {
 
         payload.message.author === BotsEnum.BOT_1
             ? this.statistics.bot_1.messages.push(payload.message)
@@ -229,7 +229,7 @@ export class SettingsService implements OnApplicationBootstrap {
     }
 
     @OnEvent(EventsEnum.startConversation)
-    private onStartConversation() {
+    private onStartConversation(): void {
         this.statistics.startTime = new Date();
     }
 
