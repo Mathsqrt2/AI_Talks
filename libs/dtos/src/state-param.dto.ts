@@ -1,13 +1,13 @@
 import { IsDefined, IsEnum } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
-import { StateParam } from "@libs/enums";
+import { StateParamEnum } from "@libs/enums";
 
-export class StateParamDto {
+export class StateParamEnumDto {
 
-    @ApiProperty({ description: SwaggerMessages.stateDto.aboutParam(), enum: StateParam, example: 'shouldContinue', required: true })
+    @ApiProperty({ description: SwaggerMessages.stateDto.aboutParam(), enum: StateParamEnum, example: 'shouldContinue', required: true })
     @IsDefined()
-    @IsEnum(StateParam)
-    public param: StateParam
+    @IsEnum(StateParamEnum)
+    public param: StateParamEnum
 
 }

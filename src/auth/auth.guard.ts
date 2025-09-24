@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { JWTPayload } from "@libs/types/auth";
+import { JWTPayload } from "@libs/types/auth.types";
 import { JwtService } from "@nestjs/jwt";
 import { Logger } from "@libs/logger";
 

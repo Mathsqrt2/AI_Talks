@@ -6,7 +6,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Logger } from "@libs/logger";
 import { Repository } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
-import { JWTPayload } from "@libs/types/auth";
+import { JWTPayload } from "@libs/types/auth.types";
 
 @Injectable()
 export class AuthService {

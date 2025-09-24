@@ -1,11 +1,9 @@
 import { IsBoolean, IsEnum, IsNumber, IsObject, IsOptional, ValidateNested } from "class-validator";
-import { InjectContentPayloadDto } from "./inject-content-payload.dto";
+import { InjectContentPayloadDto, MessageDto } from "./dtos";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { SwaggerMessages } from "@libs/constants";
-import { MessageDto } from "./message.dto";
 import { Type } from "class-transformer";
 import { BotsEnum } from "@libs/enums";
-
 
 export class PatchStateDto {
 

@@ -1,4 +1,4 @@
-import { SettingsPropertiesEnum } from "@libs/enums/settings-properties.enum";
+import { SettingsPropertiesEnum } from "@libs/enums";
 import { IsDefined, IsEnum } from "class-validator";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";

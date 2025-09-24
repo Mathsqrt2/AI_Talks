@@ -4,17 +4,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
 import { LogsLabelsEnum } from '@libs/enums';
-import { Log } from '@libs/database';
+import { LogEntity } from '@libs/database';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class Logger {
 
     private appName: string = `ai_talks`;
-    private logger: NestLogger;
+    private logger: NestLogger = new NestLogger(this.appName);
 
     constructor(
-        @InjectRepository(Log) private readonly logs: Repository<Log>,
+        @InjectRepository(LogEntity) private readonly logs: Repository<LogEntity>,
         private readonly settings: SettingsService,
     ) {
         this.logger = new NestLogger(this.appName);
@@ -138,5 +138,5 @@ export class Logger {
 
         return message;
     }
-    
+
 }

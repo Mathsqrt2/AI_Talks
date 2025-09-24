@@ -1,4 +1,4 @@
-import { LogMessageContent } from "@libs/types/logs"
+import { LogMessageContent } from "@libs/types/logs.types"
 
 export class SwaggerMessages {
 

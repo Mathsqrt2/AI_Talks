@@ -1,13 +1,13 @@
 import { Message, InjectContentPayload, InitEventPayload, MessageEventPayload } from '@libs/types';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Conversation, Message as MessageEntity } from '@libs/database';
+import { ConversationEntity, MessageEntity } from '@libs/database';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { prompts, LogMessage } from '@libs/constants';
 import { BotsEnum, EventsEnum } from '@libs/enums';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
-import { State } from '@libs/database';
+import { StateEntity } from '@libs/database';
 import { Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
 import { Repository } from 'typeorm';
@@ -18,9 +18,9 @@ import { SHA256 } from 'crypto-js';
 export class ConversationService {
 
   constructor(
-    @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
+    @InjectRepository(ConversationEntity) private readonly conversation: Repository<ConversationEntity>,
     @InjectRepository(MessageEntity) private readonly message: Repository<MessageEntity>,
-    @InjectRepository(State) private readonly state: Repository<State>,
+    @InjectRepository(StateEntity) private readonly state: Repository<StateEntity>,
     private readonly eventEmitter: EventEmitter2,
     private readonly telegram: TelegramGateway,
     private readonly settings: SettingsService,
@@ -126,7 +126,7 @@ export class ConversationService {
       const initialPrompt = lastMessages.shift();
       this.settings.app.state.lastBotMessages = lastMessages.slice(-maxHistorySize);
       this.settings.app.state.lastBotMessages.unshift(initialPrompt);
-    } 
+    }
 
     while (!isMessageGenerated && generateAttempts-- > 0) {
       try {
@@ -243,7 +243,7 @@ export class ConversationService {
     this.settings.app.conversationId = null;
     this.settings.app.conversationName = null;
     await this.settings.clearStatistics();
-    
+
     this.logger.log(LogMessage.log.onBreakConversation(name), { startTime });
 
   }

@@ -1,7 +1,5 @@
-import { PromptsEnum } from "@libs/enums/prompts.enum";
-import { InjectContentPayload } from "./conversarion";
-import { BotsEnum } from "@libs/enums";
-import { ConversationInterruptsEnum } from "@libs/enums/conversation-interrupts.enum";
+import { ConversationInterruptsEnum, BotsEnum, PromptsEnum } from "@libs/enums";
+import { InjectContentPayload } from "./conversarion.types";
 
 export type SettingsFile = {
     conversationName: string,

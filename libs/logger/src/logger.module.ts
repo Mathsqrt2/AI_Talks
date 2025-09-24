@@ -1,19 +1,28 @@
+import { DynamicModule, Module, Type } from '@nestjs/common';
+import { LoggerTarget } from '@libs/types/logger.types';
 import { SettingsModule } from '@libs/settings';
-import { DatabaseModule } from '@libs/database';
+import { DatabaseModule, LogEntity } from '@libs/database';
 import { Logger } from './logger.service';
-import { Module } from '@nestjs/common';
+import { getLoggerToken } from './inject-logger.decorator';
+import { Repository } from 'typeorm';
 
 @Module({
   imports: [
     DatabaseModule,
     SettingsModule,
   ],
-  providers: [
-    Logger,
-  ],
-  exports: [
-    Logger,
-  ],
 })
 
-export class LoggerModule { }
+export class LoggerModule {
+
+  // static forFeature(targets: Type<LoggerTarget>[] | Type<LoggerTarget>): DynamicModule {
+  //   if (!Array.isArray(targets)) { targets = [targets] };
+  //   const providers = targets.map((target) => ({
+  //     provide: getLoggerToken(target),
+  //     useFactory: (repository: Repository<LogEntity>)
+  //   }))
+
+
+  // }
+
+}

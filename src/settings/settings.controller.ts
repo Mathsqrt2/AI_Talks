@@ -1,5 +1,5 @@
 import {
-  StateParamDto, SettingsDto, PromptsDto, StateDto, PromptDto, PatchPromptsDto,
+  StateParamEnumDto, SettingsDto, PromptsDto, StateDto, PromptDto, PatchPromptsDto,
   ModelFileIdDto, InvitationDto, SettingsPropertyDto, PatchStateDto, PatchPropertyDto,
 } from '@libs/dtos';
 import { MessageEventPayload, ModelfilesOutput, PromptOutput } from '@libs/types';
@@ -86,7 +86,7 @@ export class SettingsController {
   @ApiBadRequestResponse({ description: SwaggerMessages.findSpecifiedParamState.ApiBadRequestResponse() })
   @ApiOkResponse({ description: SwaggerMessages.findSpecifiedParamState.ApiOkResponse() })
   public findCurrentStateForParam(
-    @Param() { param }: StateParamDto,
+    @Param() { param }: StateParamEnumDto,
   ) {
     const startTime: number = Date.now();
     this.logger.log(LogMessage.log.onParamResponse(param), { startTime });

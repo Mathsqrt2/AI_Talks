@@ -1,5 +1,5 @@
 import { InjectionModeEnum } from "@libs/enums";
-import { Message } from "./settings";
+import { Message } from "./settings.types";
 
 export type BodyInitPayload = {
     prompt: string,

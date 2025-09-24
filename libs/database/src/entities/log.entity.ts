@@ -1,13 +1,13 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { ConversationSubproperty } from "./partials";
-import { Conversation } from "./conversation.entity";
+import { ConversationEntity } from "./conversation.entity";
 
 @Entity(`logs`)
-export class Log extends ConversationSubproperty {
+export class LogEntity extends ConversationSubproperty {
 
-    @ManyToOne(() => Conversation, conversation => conversation.logs, { onDelete: `CASCADE` })
+    @ManyToOne(() => ConversationEntity, conversation => conversation.logs, { onDelete: `CASCADE` })
     @JoinColumn({ name: `conversationId` })
-    public assignedConversation: Conversation;
+    public assignedConversation: ConversationEntity;
 
     @Column({ type: `text` })
     public content: string;

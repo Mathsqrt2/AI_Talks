@@ -1,14 +1,14 @@
 import { JoinColumn, Column, Entity, ManyToOne } from "typeorm";
 import { ConversationSubproperty } from "./partials";
-import { Conversation } from "./conversation.entity";
+import { ConversationEntity } from "./conversation.entity";
 import { BotsEnum } from "@libs/enums";
 
 @Entity(`states`)
-export class State extends ConversationSubproperty {
+export class StateEntity extends ConversationSubproperty {
 
-    @ManyToOne(() => Conversation, conversation => conversation.states)
+    @ManyToOne(() => ConversationEntity, conversation => conversation.states)
     @JoinColumn({ name: `conversationId` })
-    public assignedConversation: Conversation;
+    public assignedConversation: ConversationEntity;
 
     @Column({ type: `boolean`, nullable: true })
     public shouldContinue: boolean;

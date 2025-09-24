@@ -6,8 +6,8 @@ import {
     ConversationInterruptsEnum, RestorableSettingsEnum,
 } from '@libs/enums';
 import {
-    State as StateEntity, Settings as SettingsEntity,
-    Conversation, Message as MessageEntity
+    StateEntity, SettingsEntity,
+    ConversationEntity,  MessageEntity
 } from '@libs/database';
 import {
     Injectable, InternalServerErrorException, Logger,
@@ -29,8 +29,8 @@ export class SettingsService implements OnApplicationBootstrap {
 
     private readonly logger: Logger = new Logger(SettingsService.name);
     constructor(
+        @InjectRepository(ConversationEntity) private readonly conversation: Repository<ConversationEntity>,
         @InjectRepository(SettingsEntity) private readonly settings: Repository<SettingsEntity>,
-        @InjectRepository(Conversation) private readonly conversation: Repository<Conversation>,
         @InjectRepository(MessageEntity) private readonly message: Repository<MessageEntity>,
         @InjectRepository(StateEntity) private readonly state: Repository<StateEntity>,
     ) { }
@@ -399,7 +399,7 @@ export class SettingsService implements OnApplicationBootstrap {
     public async applyConversationSettingsAndState(id: number | string): Promise<void> {
 
         const startTime: number = Date.now();
-        let conversation: Conversation;
+        let conversation: ConversationEntity;
 
         const relations = [`comments`, `messages`, `settings`, `states`, `summaries`];
         if (Number.isNaN(+id)) {

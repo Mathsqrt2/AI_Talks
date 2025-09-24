@@ -1,4 +1,4 @@
-export enum StateParam {
+export enum StateParamEnum {
     SHOULD_ARCHIVE_LOG = "shouldArchiveLog",
     SHOULD_CONTINUE = "shouldContinue",
     SHOULD_SEND_TO_TELEGRAM = "shouldSendToTelegram",

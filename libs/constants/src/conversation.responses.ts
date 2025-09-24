@@ -1,4 +1,4 @@
-import { LogMessageContent } from "@libs/types/logs";
+import { LogMessageContent } from "@libs/types/logs.types";
 export class LogMessage {
 
     public static warn: LogMessageContent = {
@@ -41,6 +41,7 @@ export class LogMessage {
         onSaveConversationNameFail: (name: string) => `Failed to save conversation ${name} in database.`,
         onMergeMessagesFail: (name: string): string => `Failed to merge mssages in ${name}.`,
         onCreateSummaryFail: (name: string): string => `Failed to summarize conversation ${name}.`,
+        onChatAsFail: (name: string): string => `Failed to chat as ${name}.`,
         onDatabaseConnectionFail: (): string => `Failed to initalize database connection.`,
         onSummarizeFail: (): string => `Failed to summarize conversation.`,
         onBreakConversationFail: (): string => `Failed to stop conversation.`,

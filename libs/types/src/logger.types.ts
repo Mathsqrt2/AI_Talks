@@ -1,0 +1,1 @@
+export type LoggerTarget = { [key: string]: unknown, name: string };

@@ -1,14 +1,14 @@
 import { BasicPropertiesEntity } from "./partials/basic-properties.entity";
 import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
-import { Settings } from "./settings.entity";
-import { Comment } from "./comment.entity";
-import { Message } from "./message.entity";
-import { Summary } from "./summary.entity";
-import { State } from "./state.entity";
-import { Log } from "./log.entity";
+import { SettingsEntity } from "./settings.entity";
+import { MessageEntity } from "./message.entity";
+import { SummaryEntity } from "./summary.entity";
+import { StateEntity } from "./state.entity";
+import { CommentEntity } from "./comment.entity";
+import { LogEntity } from "./log.entity";
 
 @Entity(`conversations`)
-export class Conversation extends BasicPropertiesEntity {
+export class ConversationEntity extends BasicPropertiesEntity {
 
     @Column({ type: `varchar`, length: 512, unique: true })
     public conversationName: string;
@@ -16,28 +16,28 @@ export class Conversation extends BasicPropertiesEntity {
     @Column({ type: `text` })
     public initialPrompt: string;
 
-    @OneToMany(() => Comment, comment => comment.assignedConversation, { onDelete: `CASCADE` })
+    @OneToMany(() => CommentEntity, comment => comment.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
-    public comments: Comment[];
+    public comments: CommentEntity[];
 
-    @OneToMany(() => Log, log => log.assignedConversation, { onDelete: `CASCADE` })
+    @OneToMany(() => LogEntity, log => log.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
-    public logs: Log[];
+    public logs: LogEntity[];
 
-    @OneToMany(() => Message, message => message.assignedConversation, { onDelete: `CASCADE` })
+    @OneToMany(() => MessageEntity, message => message.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
-    public messages: Message[];
+    public messages: MessageEntity[];
 
-    @OneToMany(() => Settings, settings => settings.assignedConversation, { onDelete: `CASCADE` })
+    @OneToMany(() => SettingsEntity, settings => settings.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
-    public settings: Settings[];
+    public settings: SettingsEntity[];
 
-    @OneToMany(() => State, state => state.assignedConversation, { onDelete: `CASCADE` })
+    @OneToMany(() => StateEntity, state => state.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
-    public states: State[];
+    public states: StateEntity[];
 
-    @OneToMany(() => Summary, summary => summary.assignedConversation, { onDelete: `CASCADE` })
+    @OneToMany(() => SummaryEntity, summary => summary.assignedConversation, { onDelete: `CASCADE` })
     @JoinColumn()
-    public summaries: Summary[];
+    public summaries: SummaryEntity[];
 
 }

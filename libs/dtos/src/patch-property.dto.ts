@@ -1,10 +1,8 @@
 import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from "class-validator";
-import { PatchPromptsDto } from "./patch-prompts.dto";
+import { PatchPromptsDto, PatchStateDto } from "./dtos";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { SwaggerMessages } from "@libs/constants";
-import { PatchStateDto } from "./patch-state.dto";
 import { Type } from "class-transformer";
-
 
 export class PatchPropertyDto {
 
