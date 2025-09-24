@@ -11,13 +11,14 @@ import { Repository } from 'typeorm';
 export class Logger {
 
     private appName: string = `ai_talks`;
-    private logger: NestLogger = new NestLogger(this.appName);
+    private logger: NestLogger;
 
     constructor(
         @InjectRepository(LogEntity) private readonly logs: Repository<LogEntity>,
         private readonly settings: SettingsService,
+        private readonly name?: string,
     ) {
-        this.logger = new NestLogger(this.appName);
+        this.logger = new NestLogger(name || this.appName);
     }
 
     private shouldLog(): boolean {

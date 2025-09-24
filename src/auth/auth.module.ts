@@ -5,10 +5,15 @@ import { AuthService } from "./auth.service";
 import { LoggerModule } from "@libs/logger";
 import { JwtModule } from "@nestjs/jwt";
 import { Module } from "@nestjs/common";
+import { AuthGuard } from "./auth.guard";
 
 @Module({
     imports: [
-        LoggerModule,
+        LoggerModule.forFeature([
+            AuthService,
+            AuthController,
+            AuthGuard,
+        ]),
         DatabaseModule,
         ThrottlerModule.forRoot({
             throttlers: [
@@ -36,8 +41,12 @@ import { Module } from "@nestjs/common";
         AuthController,
     ],
     providers: [
-        AuthService
+        AuthService,
+        AuthGuard,
     ],
+    exports: [
+        LoggerModule.forFeature(AuthGuard)
+    ]
 })
 
 export class AuthModule { }

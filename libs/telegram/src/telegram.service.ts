@@ -3,8 +3,7 @@ import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
 import { Injectable } from '@nestjs/common';
 import { BotsEnum } from '@libs/enums';
-import { Logger } from '@libs/logger';
-
+import { Logger, InjectLogger } from '@libs/logger';
 
 @Injectable()
 export class TelegramGateway {
@@ -13,8 +12,8 @@ export class TelegramGateway {
     private speaker2: TelegramBot = null;
 
     constructor(
+        @InjectLogger(TelegramGateway) private readonly logger: Logger,
         private readonly settings: SettingsService,
-        private readonly logger: Logger,
     ) {
 
         const startTime: number = Date.now();

@@ -6,7 +6,7 @@ import {
 } from "@nestjs/websockets";
 import { MessageEventPayload } from "@libs/types";
 import { Server, Socket } from "socket.io";
-import { Logger } from "@libs/logger";
+import { InjectLogger, Logger } from "@libs/logger";
 
 @WebSocketGateway({
     cors: true,
@@ -17,8 +17,8 @@ export class ConversationWebSocket {
     @WebSocketServer() private server: Server
 
     constructor(
+        @InjectLogger(ConversationWebSocket) private readonly logger: Logger,
         private readonly eventEmitter: EventEmitter2,
-        private readonly logger: Logger
     ) { }
 
     @OnEvent(EventsEnum.message)

@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common';
 @Module({
   imports: [
     SettingsModule,
-    LoggerModule,
+    LoggerModule.forFeature(AiService),
   ],
   providers: [
     AiService

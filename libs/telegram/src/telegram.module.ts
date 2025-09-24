@@ -8,7 +8,7 @@ import { Module } from '@nestjs/common';
   imports: [
     DatabaseModule,
     SettingsModule,
-    LoggerModule,
+    LoggerModule.forFeature(TelegramGateway),
   ],
   providers: [
     TelegramGateway,

@@ -1,19 +1,19 @@
 import { InjectContentPayload, Message } from '@libs/types';
 import { Ollama, Message as OllamaMessage } from 'ollama';
+import { Logger,InjectLogger } from '@libs/logger';
 import { prompts } from '@libs/constants/prompts';
 import { SettingsService } from '@libs/settings';
 import { LogMessage } from '@libs/constants';
 import { Injectable } from '@nestjs/common';
 import { BotsEnum } from '@libs/enums';
-import { Logger } from '@libs/logger';
 
 @Injectable()
 export class AiService {
 
     private readonly ollama: Ollama = new Ollama({ host: process.env.OLLAMA_HOST });
     constructor(
+        @InjectLogger(AiService) private readonly logger: Logger,
         private readonly settings: SettingsService,
-        private readonly logger: Logger,
     ) { }
 
     public async merge(message2: InjectContentPayload, message1: Message): Promise<string> {

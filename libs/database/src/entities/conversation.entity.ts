@@ -3,8 +3,8 @@ import { Column, Entity, JoinColumn, OneToMany } from "typeorm";
 import { SettingsEntity } from "./settings.entity";
 import { MessageEntity } from "./message.entity";
 import { SummaryEntity } from "./summary.entity";
-import { StateEntity } from "./state.entity";
 import { CommentEntity } from "./comment.entity";
+import { StateEntity } from "./state.entity";
 import { LogEntity } from "./log.entity";
 
 @Entity(`conversations`)

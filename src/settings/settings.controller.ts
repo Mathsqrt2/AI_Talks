@@ -19,16 +19,16 @@ import { SettingsService } from '@libs/settings';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { EventsEnum } from '@libs/enums';
 import { readFile } from 'fs/promises';
-import { Logger } from '@libs/logger';
+import { InjectLogger, Logger } from '@libs/logger';
 
 @Controller(`v1/settings`)
 @UseGuards(AuthGuard)
 export class SettingsController {
 
   constructor(
+    @InjectLogger(SettingsController) private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
-    private readonly logger: Logger,
   ) { }
 
   @Get()

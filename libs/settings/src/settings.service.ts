@@ -36,7 +36,6 @@ export class SettingsService implements OnApplicationBootstrap {
     ) { }
 
     private modelFiles: string[] = [];
-
     public app: SettingsFile = {
         conversationName: null,
         conversationId: null,

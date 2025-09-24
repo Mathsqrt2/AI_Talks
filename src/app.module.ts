@@ -1,14 +1,15 @@
 import { ConversationModule } from './conversation/conversation.module';
+import { Logger, InjectLogger, LoggerModule } from '@libs/logger';
 import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { SettingsModule } from './settings/settings.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { Logger, LoggerModule } from '@libs/logger';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { LogMessage } from '@libs/constants';
+import { AuthGuard } from './auth/auth.guard';
 import { resolve } from 'path';
 
 @Module({
@@ -31,7 +32,7 @@ import { resolve } from 'path';
     AuthModule,
     ConversationModule,
     SettingsModule,
-    LoggerModule,
+    LoggerModule.forFeature(AiTalks),
     ServeStaticModule.forRoot({
       rootPath: resolve(__dirname, `frontend`, `dist`),
       renderPath: `/ui`,
@@ -49,7 +50,7 @@ export class AiTalks implements OnApplicationBootstrap {
 
   private startTime: number = Date.now();
   constructor(
-    private readonly logger: Logger
+    @InjectLogger(AiTalks) private readonly logger: Logger
   ) { }
 
   public onApplicationBootstrap() {

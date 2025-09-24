@@ -8,7 +8,7 @@ import {
 import { ConversationService } from './conversation.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SettingsService } from '@libs/settings';
-import { Logger } from '@libs/logger';
+import { Logger, InjectLogger } from '@libs/logger';
 import {
   ApiAcceptedResponse, ApiBadRequestResponse, ApiBody,
   ApiForbiddenResponse, ApiInternalServerErrorResponse,
@@ -26,10 +26,10 @@ import { AuthGuard } from '../auth/auth.guard';
 export class ConversationController {
 
   constructor(
+    @InjectLogger(ConversationController) private readonly logger: Logger,
     private readonly conversationService: ConversationService,
     private readonly eventEmitter: EventEmitter2,
     private readonly settings: SettingsService,
-    private readonly logger: Logger,
   ) { }
 
   @Post([`init/:id`, `start/:id`])

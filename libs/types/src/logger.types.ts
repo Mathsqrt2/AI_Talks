@@ -1,1 +1,1 @@
-export type LoggerTarget = { [key: string]: unknown, name: string };
+export type LoggerTarget = { [key: string]: unknown, name: string } | any;

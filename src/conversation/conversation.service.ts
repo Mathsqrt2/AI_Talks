@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TelegramGateway } from '@libs/telegram';
 import { SettingsService } from '@libs/settings';
 import { StateEntity } from '@libs/database';
-import { Logger } from '@libs/logger';
+import { InjectLogger, Logger } from '@libs/logger';
 import { AiService } from '@libs/ai';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,10 +21,10 @@ export class ConversationService {
     @InjectRepository(ConversationEntity) private readonly conversation: Repository<ConversationEntity>,
     @InjectRepository(MessageEntity) private readonly message: Repository<MessageEntity>,
     @InjectRepository(StateEntity) private readonly state: Repository<StateEntity>,
+    @InjectLogger(ConversationService) private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly telegram: TelegramGateway,
     private readonly settings: SettingsService,
-    private readonly logger: Logger,
     private readonly ai: AiService,
   ) { }
 

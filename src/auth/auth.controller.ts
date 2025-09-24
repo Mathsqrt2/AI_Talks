@@ -1,13 +1,9 @@
-import { RefreshTokenDto } from "@libs/dtos/refresh-token.dto";
-import { SignUpDto } from "@libs/dtos/sign-up.dto";
-import { SignInDto } from "@libs/dtos/sign-in.dto";
+import { SignUpDto, SignInDto, RefreshTokenDto, SignOutDto } from "@libs/dtos";
 import {
-    Body, Controller, HttpCode, HttpStatus,
-    Post, UseGuards
+    Body, Controller, HttpCode, HttpStatus, Post, UseGuards
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthGuard } from "./auth.guard";
-import { SignOutDto } from "@libs/dtos/sign-out.dto";
 
 @Controller(`v1/auth`)
 export class AuthController {

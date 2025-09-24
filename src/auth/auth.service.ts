@@ -1,20 +1,21 @@
 import { SignInDto, RefreshTokenDto, SignOutDto, SignUpDto } from "@libs/dtos";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Logger, InjectLogger } from "@libs/logger";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "@libs/database";
 import { JwtService } from "@nestjs/jwt";
-import { Logger } from "@libs/logger";
+import { JWTPayload } from "@libs/types";
 import { Repository } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
-import { JWTPayload } from "@libs/types/auth.types";
+
 
 @Injectable()
 export class AuthService {
 
     constructor(
         @InjectRepository(UserEntity) private readonly user: Repository<UserEntity>,
+        @InjectLogger(AuthService) private readonly logger: Logger,
         private readonly jwtService: JwtService,
-        private readonly logger: Logger,
     ) { }
 
     public async generateToken({ login, password }: SignInDto) {
