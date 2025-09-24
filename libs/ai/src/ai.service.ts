@@ -29,20 +29,23 @@ export class AiService {
         try {
 
             const newContent = await this.ollama.generate({ model, prompt })
-            this.settings.app.state.isGeneratingOnAir = false;
             return newContent.response;
 
         } catch (error) {
 
             this.logger.error(LogMessage.error.onMergeMessagesFail(this.settings.app.conversationName), { error, startTime });
-            this.settings.app.state.isGeneratingOnAir = false;
             return message1?.content;
+
+        } finally {
+
+            this.settings.app.state.isGeneratingOnAir = false;
 
         }
     }
 
     public async chatAs(bot: BotsEnum): Promise<string> {
 
+        const startTime: number = Date.now();
         this.settings.app.state.isGeneratingOnAir = true;
         const lastMessages = structuredClone(this.settings.app.state.lastBotMessages);
         const initialMessage = lastMessages.shift();
@@ -52,15 +55,28 @@ export class AiService {
                 role: message.author === bot ? `assistant` : `user`,
                 content: message.content,
             }));
-
         messages.unshift({ role: initialMessage.author, content: initialMessage.content });
-        const model = bot === BotsEnum.BOT_1
-            ? `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker1`
-            : `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker2`;
 
-        const modelResponse = await this.ollama.chat({ model, messages });
-        this.settings.app.state.isGeneratingOnAir = false;
-        return modelResponse.message?.content;
+        try {
+
+            const model = bot === BotsEnum.BOT_1
+                ? `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker1`
+                : `${process.env.LANGUAGE?.toLowerCase()}_${process.env.MODEL}_speaker2`;
+
+            const modelResponse = await this.ollama.chat({ model, messages });
+            this.settings.app.state.isGeneratingOnAir = false;
+            return modelResponse.message?.content;
+
+        } catch (error) {
+
+            this.logger.error(LogMessage.error.onChatAsFail(bot), { error, startTime });
+            throw error;
+
+        } finally {
+
+            this.settings.app.state.isGeneratingOnAir = false;
+
+        }
     }
 
     public async summarize(): Promise<string> {
@@ -84,7 +100,10 @@ export class AiService {
             throw error;
 
         } finally {
+
             this.settings.app.state.isGeneratingOnAir = false;
+
         }
     }
+
 }
