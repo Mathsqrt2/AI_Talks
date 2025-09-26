@@ -1,8 +1,9 @@
 import { IsBoolean, IsDefined, IsNumber, IsObject, IsString } from "class-validator";
-import { StateDto, PromptsDto } from "./dtos";
 import { SwaggerMessages } from "@libs/constants";
 import { ApiProperty } from "@nestjs/swagger";
+import { PromptsDto } from "./prompts.dto";
 import { Type } from "class-transformer";
+import { StateDto } from "./state.dto";
 
 export class SettingsDto {
 

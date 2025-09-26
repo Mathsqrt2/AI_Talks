@@ -51,7 +51,7 @@ docker compose --profile prod-native up -d -V --build
 
 > **⚠ Disclaimer** 
 > This application includes a container running a reverse proxy, which requires **ports 80 and 443** to be available.  
-> If you already have another service running on these ports, you can still access the containers directly:  
+> If you already have another service running on these ports, you can still access the containers directly in **prod-native** profile:
 > - **API** → port `13000`  
 > - **Adminer** → port `18080`
 

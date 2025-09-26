@@ -71,6 +71,8 @@ export class LogMessage {
         onMessageEmission: (id: number): string => `Message ${id} emitted successfully.`,
         onParamResponse: (param: string): string => `Responded with ${param} value`,
         onApplicationBootstrap: (): string => `Application launched successfully.`,
+        onApplicationBootstrapSeparator: (): string => Array.from({ length: 50 }, () => `-`).join(""),
+        onApplicationBootstrapRef: (env?: string): string => `You can access API documentation on http://localhost:${process.env.API_PORT}/api`,
         onSettingsUpdate: (): string => `Application settings updated successfully.`,
         onPromptUpdate: (prompt: string): string => `Prompt ${prompt} updated successfully.`,
         onPromptsUpdate: (): string => `Prompts updated successfully.`,

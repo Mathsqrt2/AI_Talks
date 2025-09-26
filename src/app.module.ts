@@ -1,6 +1,6 @@
 import { ConversationModule } from './conversation/conversation.module';
 import { Logger, InjectLogger, LoggerModule } from '@libs/logger';
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { Module, OnApplicationBootstrap, Logger as NestLogger } from '@nestjs/common';
 import { SettingsModule } from './settings/settings.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -9,7 +9,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { LogMessage } from '@libs/constants';
-import { AuthGuard } from './auth/auth.guard';
 import { resolve } from 'path';
 
 @Module({
@@ -54,8 +53,10 @@ export class AiTalks implements OnApplicationBootstrap {
   ) { }
 
   public onApplicationBootstrap() {
-    this.logger.log(LogMessage.log.onApplicationBootstrap(),
-      { context: AiTalks.name, startTime: this.startTime })
+    this.logger.log(LogMessage.log.onApplicationBootstrap(), { startTime: this.startTime })
+    this.logger.log(LogMessage.log.onApplicationBootstrapSeparator(), { startTime: this.startTime })
+    this.logger.log(LogMessage.log.onApplicationBootstrapRef(process.env.NODE_ENV), { startTime: this.startTime })
+    this.logger.log(LogMessage.log.onApplicationBootstrapSeparator(), { startTime: this.startTime })
   }
 
 }

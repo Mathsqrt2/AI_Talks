@@ -9,16 +9,16 @@ export class LogEntity extends ConversationSubproperty {
     @JoinColumn({ name: `conversationId` })
     public assignedConversation: ConversationEntity;
 
-    @Column({ type: `text` })
+    @Column({ type: `text`, nullable: true, default: null })
     public content: string;
 
-    @Column({ type: `text`, nullable: true })
+    @Column({ type: `text`, nullable: true, default: null })
     public error?: string;
 
-    @Column({ type: `varchar`, nullable: true, length: 256 })
+    @Column({ type: `varchar`, nullable: true, length: 256, default: null })
     public label?: string;
 
-    @Column({ type: `varchar`, nullable: true, length: 128 })
+    @Column({ type: `varchar`, nullable: true, length: 128, default: null })
     public tag?: string;
 
     @Column({ type: `int`, default: null, nullable: true })

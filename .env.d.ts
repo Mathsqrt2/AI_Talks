@@ -3,6 +3,7 @@ declare namespace NodeJS {
     NODE_ENV: `production` | `development` | undefined;
     API_PORT: number;
     OLLAMA_HOST: string;
+    RUN_PROFILE: `dev` | `prod` | `prod-native`;
 
     TOKEN1: string;
     TOKEN2: string;
