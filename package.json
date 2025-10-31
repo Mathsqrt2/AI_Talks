@@ -47,12 +47,12 @@
     "csrf-csrf": "^4.0.3",
     "helmet": "^8.1.0",
     "mysql2": "^3.12.0",
-    "node-telegram-bot-api": "^0.63.0",
+    "node-telegram-bot-api": "^0.66.0",
     "ollama": "^0.5.12",
     "ollama-node": "^0.1.28",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.2",
